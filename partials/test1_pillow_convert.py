@@ -4,9 +4,6 @@ import numpy as np
 from PIL import Image
 import time
 
-from sbNative.runtimetools import get_path
-
-sys.path.append(str(get_path().parent))
 import bmscam
 
 from sbNative.debugtools import log
