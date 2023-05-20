@@ -78,7 +78,7 @@ if camera:
 
     print(imgWidth, imgHeight)
     preview_resos = [(curr_device.model.res[i].width, curr_device.model.res[i].height) for i in range(0, curr_device.model.preview)]
-    
+
     camera.put_Option(bmscam.BMSCAM_OPTION_BYTEORDER, 0) #Qimage use RGB byte order
     camera.put_AutoExpoEnable(1)
 
