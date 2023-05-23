@@ -1,0 +1,33 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Select Camera</title>
+        <link
+            rel="stylesheet"
+            type="text/css"
+            media="screen"
+            href="static/selector.css"
+        />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+        <script src="static/selector.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Select a camera and it's resolution.</h1>
+        
+            <form action="" name="camera-form" id="cam-form" method="post"> 
+                <label for="cam-form">Choose a camera:</label>
+                <select name="cameras-select" id="cam-select">
+                </select>
+            </form>
+
+            <form action="" name="resolution-form" id="reso-form" method="post"> 
+                <label for="reso-form">Choose a resolution</label>
+                <select name="resolutions-select" id="reso-select">
+                </select>
+            </form>
+        </div>
+    </body>
+</html>

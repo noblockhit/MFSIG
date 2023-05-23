@@ -11,11 +11,7 @@ from sbNative.debugtools import log
 bms_enum = bmscam.Bmscam.EnumV2()
 
 def list_devices():
-    ret = ""
-    for idx, device in enumerate(bms_enum):
-        ret += f"Device no.: {idx}: '{device.displayname}' / '{device.id}'\n"
-    
-    return ret
+    return [(i, device) for i,device in enumerate(bms_enum)]
 
 def get_current_devices_resolution_options(curr_device):
     return [(i, (curr_device.model.res[i].width, curr_device.model.res[i].height)) for i in range(0, curr_device.model.preview)]
