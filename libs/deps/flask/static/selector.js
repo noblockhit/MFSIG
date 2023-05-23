@@ -7,7 +7,6 @@ $(window).on("load", function () {
     });
 
     $("#cam-select").on("change", function () {
-        console.log(this.value)
         $.ajax({
             url: "/camera/"+this.value,
             type: "POST",
@@ -20,6 +19,17 @@ $(window).on("load", function () {
                 );
             },
             
+            error: function (err) {
+                console.log("Ajax error:")
+                console.log(err);
+            }
+        });
+    });
+
+    $("#reso-select").on("change", function () {
+        $.ajax({
+            url: "/resolution/"+this.value,
+            type: "POST",         
             error: function (err) {
                 console.log("Ajax error:")
                 console.log(err);
