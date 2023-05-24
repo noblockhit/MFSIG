@@ -13,7 +13,7 @@ BMSCAM_MAX = 128
 BMSCAM_FLAG_CMOS                = 0x00000001          # cmos sensor
 BMSCAM_FLAG_CCD_PROGRESSIVE     = 0x00000002          # progressive ccd sensor
 BMSCAM_FLAG_CCD_INTERLACED      = 0x00000004          # interlaced ccd sensor
-BMSCAM_FLAG_ROI_HARDWARE        = 0x00000008          # support hardware ROIF
+BMSCAM_FLAG_ROI_HARDWARE        = 0x00000008          # support hardware ROI
 BMSCAM_FLAG_MONO                = 0x00000010          # monochromatic
 BMSCAM_FLAG_BINSKIP_SUPPORTED   = 0x00000020          # support bin/skip mode
 BMSCAM_FLAG_USB30               = 0x00000040          # usb3.0
@@ -393,7 +393,7 @@ BMSCAM_FLASH_ERASE     = 0x06    # erase
 # HRESULT: error code
 S_OK            = 0x00000000 # Success
 S_FALSE         = 0x00000001 # Yet another success
-E_UNEXPECTED    = 0x8000ffff # Catastrophic failurey
+E_UNEXPECTED    = 0x8000ffff # Catastrophic failure
 E_NOTIMPL       = 0x80004001 # Not supported or not implemented
 E_ACCESSDENIED  = 0x80070005 # Permission denied
 E_OUTOFMEMORY   = 0x8007000e # Out of memory
@@ -1661,6 +1661,7 @@ class Bmscam:
                 if sys.platform == 'win32':
                     cls.__lib = ctypes.windll.LoadLibrary(os.path.join(dir, 'bmscam.dll'))
                 elif sys.platform.startswith('linux'):
+                    print(os.path.join(dir, 'libbmscam.so'))
                     cls.__lib = ctypes.cdll.LoadLibrary(os.path.join(dir, 'libbmscam.so'))
                 else:
                     cls.__lib = ctypes.cdll.LoadLibrary(os.path.join(dir, 'libbmscam.dylib'))
