@@ -1,17 +1,17 @@
 html,
-body,
-.container {
+body {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
     overflow: hidden;
+    align-items: center;
 }
 
 * {
-    font-family: 'Arial Narrow Bold', sans-serif;
+    font-family: "Arial Narrow Bold", sans-serif;
     color: white;
-  }
+}
 
 body {
     background-color: #440c4d;
@@ -19,35 +19,51 @@ body {
 
 .container {
     background-color: rgb(11, 11, 85);
-    width: 50%;
+    min-width: calc(35vw - 1em);
+    aspect-ratio: 0.75;
     height: calc(100% - 1em);
-    margin-left: 25%;
-    margin-top: .5em;
+    max-width: calc(100% - 1em);
+    margin-top: 0.5em;
+    margin-left: auto;
+    margin-right: auto;
     border-radius: 1em;
+    padding-top: .1em;
 }
 
-#cam-form, #reso-form {
+#cam-form,
+#reso-form,
+.sub-container {
     background-color: black;
-    border-radius: .5em;
+    border-radius: 0.5em;
     padding: 1em;
     margin: 1em;
 }
 
+.sub-container {
+    text-align: center;
+}
 
-#cam-form select, #cam-form option, #reso-form select, #reso-form option {
+#cam-form select,
+#cam-form option,
+#reso-form select,
+#reso-form option {
     background-color: black;
     padding: 1em;
-    border-radius: .5em;
+    border-radius: 0.5em;
     border-width: 2px;
     margin-left: auto;
     border-color: white;
 }
 
 
-#cam-form label, #reso-form label {
-    margin-right: auto;
+option {
+    max-width: 100%;
 }
 
+#cam-form label,
+#reso-form label {
+    margin-right: auto;
+}
 
 h1 {
     text-align: center;

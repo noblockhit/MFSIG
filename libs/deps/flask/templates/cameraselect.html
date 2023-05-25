@@ -16,18 +16,22 @@
     <body>
         <div class="container">
             <h1>Select a camera and it's resolution.</h1>
-        
-            <form action="" name="camera-form" id="cam-form" method="post"> 
+
+            <form action="" name="camera-form" id="cam-form" method="post">
                 <label for="cam-form">Choose a camera:</label>
-                <select name="cameras-select" id="cam-select">
-                </select>
+                <select name="cameras-select" id="cam-select"></select>
             </form>
 
-            <form action="" name="resolution-form" id="reso-form" method="post"> 
+            <form action="" name="resolution-form" id="reso-form" method="post">
                 <label for="reso-form">Choose a resolution</label>
-                <select name="resolutions-select" id="reso-select">
-                </select>
+                <select name="resolutions-select" id="reso-select"></select>
             </form>
+
+            <div hidden class="sub-container" id="live-view-container">
+                <a href="/liveview">
+                    <span>Open live view</span>
+                </a>
+            </div>
         </div>
     </body>
 </html>

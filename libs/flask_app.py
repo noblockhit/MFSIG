@@ -15,16 +15,17 @@ global resolution_idx
 global imgWidth, imgHeight, pData
 global camera
 
+
 def reset_camera_properties():
     global curr_device
     global resolution_idx
     global imgWidth, imgHeight, pData
     global camera
 
-    
     try:
         camera.Close()
-    except:pass
+    except:
+        pass
 
     imgWidth, imgHeight, pData = None, None, None
 
@@ -49,18 +50,20 @@ def complete_config():
 
         imgWidth = curr_device.model.res[resolution_idx].width
         imgHeight = curr_device.model.res[resolution_idx].height
-        
+
         camera.put_Option(app.camparser.bmscam.BMSCAM_OPTION_BYTEORDER, 0)
         camera.put_AutoExpoEnable(1)
 
-        pData = bytes(app.camparser.bmscam.TDIBWIDTHBYTES(imgWidth * 24) * imgHeight)
-        
+        pData = bytes(app.camparser.bmscam.TDIBWIDTHBYTES(
+            imgWidth * 24) * imgHeight)
+
         try:
-            camera.StartPullModeWithCallback(app.camparser.event_callback, (camera, pData))
+            camera.StartPullModeWithCallback(
+                app.camparser.event_callback, (camera, pData))
         except app.camparser.bmscam.HRESULTException as e:
             print("Failed to start camera.", e)
             camera.Close()
-    
+
     while True:
         time.sleep(999_999)
 
@@ -75,8 +78,9 @@ def get_cameras():
     ret = ""
     for idx, device in app.camparser.list_devices():
         ret += f'<option value="{idx}">{device.displayname}: {device.id}</option>\n'
-        
+
     return ret.strip("\n")
+
 
 @app.route("/camera/<camera_idx>", methods=["POST"])
 def set_camera(camera_idx):
@@ -85,13 +89,12 @@ def set_camera(camera_idx):
     if not curr_device is None:
         reset_camera_properties()
 
-
     curr_device = app.camparser.bms_enum[int(camera_idx)]
-    
+
     ret = ""
     for idx, reso in app.camparser.get_current_devices_resolution_options(curr_device):
         ret += f'<option value="{idx}">{reso[0]} x {reso[1]}</option>\n'
-    
+
     return ret.strip("\n")
 
 
@@ -114,6 +117,29 @@ def set_resolution(reso_idx):
     th.start()
     return "", 200
 
+
+@app.route("/microscope/down")
+def move_down():
+    print("down")
+    return "", 200
+
+
+@app.route("/microscope/up")
+def move_up():
+    print("up")
+    return "", 200
+
+
+@app.route("/microscope/setstart")
+def set_start():
+    return
+
+
+@app.route("/microscope/setend")
+def set_end():
+    return
+
+
 @app.route("/liveview")
 def liveview():
     return render_template("liveview.html")
@@ -126,9 +152,9 @@ def live_stream():
     if not imgWidth or not imgHeight or not pData:
         print("The camera has seemingly not been started yet")
         return Response("The camera has seemingly not been started yet", status=400)
-    
+
     return Response(app.get_live_image(imgWidth, imgHeight, pData),
-        mimetype='multipart/x-mixed-replace; boundary=frame')
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 if __name__ == "__main__":
@@ -136,12 +162,10 @@ if __name__ == "__main__":
         image = np.zeros([680, 896, 3], dtype=np.uint8)
         image.fill(0)
 
-
-        for tr in [[0,0], [0, 890], [674, 0], [674, 890]]:
+        for tr in [[0, 0], [0, 890], [674, 0], [674, 890]]:
             for x in range(5):
                 for y in range(5):
                     image[tr[0]+x, tr[1]+y][0] = 255
-
 
         while True:
             time.sleep(.1)
@@ -152,10 +176,8 @@ if __name__ == "__main__":
             img_byte_arr = io.BytesIO()
             pil_img.save(img_byte_arr, format="jpeg")
 
-
             yield (b'--frame\r\n'
-                b'Content-Type: image/jpeg\r\n\r\n' + img_byte_arr.getvalue() + b'\r\n')
-    
+                   b'Content-Type: image/jpeg\r\n\r\n' + img_byte_arr.getvalue() + b'\r\n')
+
     app.get_live_image = generate_example_live_image
     app.run(host="192.168.2.113", port=5000)
-
