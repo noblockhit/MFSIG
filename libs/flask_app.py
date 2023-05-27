@@ -10,10 +10,18 @@ app = Flask(__name__,
             template_folder=str(get_path() / "deps" / "flask" / "templates"),
             static_folder=str(get_path() / "deps" / "flask" / "static"))
 
+
+global microscope_position
+global microscope_end
+global microscope_start
 global curr_device
 global resolution_idx
 global imgWidth, imgHeight, pData
 global camera
+
+microscope_start = None
+microscope_end = None
+microscope_position = 0
 
 
 def reset_camera_properties():
@@ -120,24 +128,60 @@ def set_resolution(reso_idx):
 
 @app.route("/microscope/down")
 def move_down():
-    print("down")
-    return "", 200
+    global microscope_position
+    microscope_position -= 1
+    return str(microscope_position)
 
 
 @app.route("/microscope/up")
 def move_up():
-    print("up")
-    return "", 200
+    global microscope_position
+    microscope_position += 1
+    return str(microscope_position)
 
 
-@app.route("/microscope/setstart")
+@app.route("/microscope/current")
+def current_pos():
+    global microscope_position
+    return str(microscope_position)
+
+
+@app.route("/microscope/move/start", methods=["GET"])
+def move_start():
+    global microscope_position
+    global microscope_start
+    microscope_position = microscope_start
+    return str(microscope_position)
+
+@app.route("/microscope/move/end", methods=["GET"])
+def move_end():
+    global microscope_position
+    global microscope_end
+    microscope_position = microscope_end
+    return str(microscope_position)
+
+
+@app.route("/microscope/start", methods=["GET", "POST"])
 def set_start():
-    return
+    global microscope_position
+    global microscope_start
+    if request.method == "POST":
+        microscope_start = microscope_position
+
+    elif request.method == "CONNECT":
+        microscope_position = microscope_start
+
+    return str(microscope_start)
 
 
-@app.route("/microscope/setend")
+@app.route("/microscope/end",  methods=["GET", "POST"])
 def set_end():
-    return
+    global microscope_position
+    global microscope_end
+    if request.method == "POST":
+        microscope_end = microscope_position
+
+    return str(microscope_end)
 
 
 @app.route("/liveview")
