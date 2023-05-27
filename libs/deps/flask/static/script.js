@@ -1,7 +1,3 @@
-function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 function check_and_adjust_flex_orientation() {
     html = $("html");
     screen_aspect_ratio = html.width() / html.height();
@@ -24,19 +20,18 @@ function check_and_adjust_flex_orientation() {
     }
 }
 
-
-
-function update_end_pos() {
+function update_curr_pos() {
+    console.log("getting curr position");
     $.ajax({
-        url: "/microscope/end",
+        url: "/microscope/current",
         type: "GET",
         success: function (data) {
-            $("#ending").html(`Ending: ${data}`) 
+            $("#current").html(`Current: ${data}`);
         },
         error: function (err) {
-            console.log(err)
-        }
-    })
+            console.log(err);
+        },
+    });
 }
 
 function update_start_pos() {
@@ -44,29 +39,26 @@ function update_start_pos() {
         url: "/microscope/start",
         type: "GET",
         success: function (data) {
-            $("#start").html(`Start: ${data}`) 
+            $("#start").html(`Start: ${data}`);
         },
         error: function (err) {
-            console.log(err)
-        }
-    })
+            console.log(err);
+        },
+    });
 }
 
-function update_curr_pos() {
-    console.log("getting curr position")
+function update_end_pos() {
     $.ajax({
-        url: "/microscope/current",
+        url: "/microscope/end",
         type: "GET",
         success: function (data) {
-            $("#current").html(`Current: ${data}`) 
+            $("#ending").html(`Ending: ${data}`);
         },
         error: function (err) {
-            console.log(err)
-        }
-    })
+            console.log(err);
+        },
+    });
 }
-
-
 
 html = $("html");
 screen_aspect_ratio = html.width() / html.height();
@@ -78,16 +70,14 @@ $(window).on("load", () => {
 
     // button events
 
-    
-    
     mvActiveUp = false;
     function check_for_move_held_up() {
         if (!mvActiveUp) return;
         $.ajax({
             url: `/microscope/up`,
-            success: function(data) {
-                $("#current").html(`Current: ${data}`) 
-            },            
+            success: function (data) {
+                $("#current").html(`Current: ${data}`);
+            },
             error: function (data) {
                 console.log(data);
             },
@@ -99,9 +89,9 @@ $(window).on("load", () => {
         if (!mvActiveDown) return;
         $.ajax({
             url: `/microscope/down`,
-            success: function(data) {
-                $("#current").html(`Current: ${data}`) 
-            },            
+            success: function (data) {
+                $("#current").html(`Current: ${data}`);
+            },
             error: function (data) {
                 console.log(data);
             },
@@ -117,9 +107,9 @@ $(window).on("load", () => {
         mvActiveUp = true;
         $.ajax({
             url: "/microscope/up",
-            success: function(data) {
-                $("#current").html(`Current: ${data}`) 
-            },            
+            success: function (data) {
+                $("#current").html(`Current: ${data}`);
+            },
             error: function (data) {
                 console.log(data);
             },
@@ -146,14 +136,14 @@ $(window).on("load", () => {
         mvActiveDown = true;
         $.ajax({
             url: "/microscope/down",
-            success: function(data) {
-                $("#current").html(`Current: ${data}`) 
-            },            
+            success: function (data) {
+                $("#current").html(`Current: ${data}`);
+            },
             error: function (data) {
                 console.log(data);
             },
         });
-        clearInterval(mvDownInterval)
+        clearInterval(mvDownInterval);
         setTimeout(() => {
             mvDownInterval = setInterval(check_for_move_held_down, 100);
             mdDownEvt = false;
@@ -169,26 +159,26 @@ $(window).on("load", () => {
     $("#current").on("pointerdown", update_curr_pos);
     $("#start").on("pointerdown", update_start_pos);
     $("#ending").on("pointerdown", update_end_pos);
-    
-    
+
     $("#set-start").on("pointerdown", () => {
-        $.post("/microscope/start", async=false);
-        update_start_pos()
+        $.post("/microscope/start", (async = false));
+        update_start_pos();
     });
+
     $("#set-ending").on("pointerdown", () => {
-        $.post("/microscope/end", async=false);
-        update_end_pos()
+        $.post("/microscope/end", (async = false));
+        update_end_pos();
     });
 
     $("#move-start").on("pointerdown", () => {
-        $.get("/microscope/move/start", async=false);
-        update_curr_pos()
+        $.get("/microscope/move/start", (async = false));
+        update_curr_pos();
     });
+
     $("#move-ending").on("pointerdown", () => {
-        $.get("/microscope/move/end", async=false);
-        update_curr_pos()
+        $.get("/microscope/move/end", (async = false));
+        update_curr_pos();
     });
 });
-
 
 addEventListener("resize", check_and_adjust_flex_orientation);
