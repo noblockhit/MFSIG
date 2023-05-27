@@ -94,18 +94,24 @@ def complete_config():
             print("Failed to start camera.", e)
             camera.Close()
 
-    while True:
-        if real_motor_position < microscope_position:
-            motor.step_forward()
-            real_motor_position += 1
+    if isGPIO:
+        while True:
+            if real_motor_position < microscope_position:
+                motor.step_forward()
+                real_motor_position += 1
+                
+            elif real_motor_position > microscope_position:
+                motor.step_backward()
+                real_motor_position -= 1
             
-        elif real_motor_position > microscope_position:
-            motor.step_backward()
-            real_motor_position -= 1
+            else:
+                time.sleep(.5)
+            time.sleep(0.05)
         
-        else:
-            time.sleep(.5)
-        time.sleep(0.05)
+    else:
+        while True:
+            time.sleep(999_999)
+
 
 @app.route("/")
 def camera_select():
