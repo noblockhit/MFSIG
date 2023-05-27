@@ -50,12 +50,32 @@ class Motor:
         for pin in self.pins:
             GPIO.output(pin, GPIO.LOW)
         GPIO.cleanup()
+        
+        
+    def calibrate(self):
+        for _ in self.pins:
+            self.step_forward()
+            time.sleep(.3)
+            
+        for _ in self.pins:
+            self.step_backward()
+            time.sleep(.3)
+        
 
 
 if __name__ == "__main__":
     try:
         m = Motor([16, 19, 20, 21])
+        while True:
+            m.calibrate()
+        
+        m.cleanup()
+        exit()
+        time.sleep(5)
+        
         i = 0
+        
+        
         while True:
             i += 1
             print(i)

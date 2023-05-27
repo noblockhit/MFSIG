@@ -5,6 +5,7 @@ import numpy as np
 from PIL import Image
 import io
 import threading
+from traceback import print_exc
 
 app = Flask(__name__,
             template_folder=str(get_path() / "deps" / "flask" / "templates"),
@@ -19,9 +20,27 @@ global resolution_idx
 global imgWidth, imgHeight, pData
 global camera
 
+
+global real_motor_position
+global isGPIO
+global motor
+
+isGPIO = False
 microscope_start = None
 microscope_end = None
 microscope_position = 0
+real_motor_position = 0
+
+
+try:
+    from . import gpio_handler
+except ImportError:
+    print_exc()
+    print("An Import Error occured, this might be because of your device not having GPIO pins. In This case ignore this Error, otherwise inspect the traceback above.")
+else:
+    isGPIO = True
+    motor = gpio_handler.Motor([16, 19, 20, 21])
+    motor.calibrate()
 
 
 def reset_camera_properties():
@@ -50,6 +69,9 @@ def complete_config():
     global curr_device
     global resolution_idx
     global camera
+    global real_motor_position
+    global isGPIO
+    global motor
     camera = app.camparser.bmscam.Bmscam.Open(curr_device.id)
 
     if camera:
@@ -73,8 +95,17 @@ def complete_config():
             camera.Close()
 
     while True:
-        time.sleep(999_999)
-
+        if real_motor_position < microscope_position:
+            motor.step_forward()
+            real_motor_position += 1
+            
+        elif real_motor_position > microscope_position:
+            motor.step_backward()
+            real_motor_position -= 1
+        
+        else:
+            time.sleep(.5)
+        time.sleep(0.05)
 
 @app.route("/")
 def camera_select():
