@@ -6,12 +6,18 @@ from PIL import Image
 import io
 import threading
 from traceback import print_exc
+from urllib.parse import unquote
+from pathlib import Path
+import os
+import json
+
 
 app = Flask(__name__,
             template_folder=str(get_path() / "deps" / "flask" / "templates"),
             static_folder=str(get_path() / "deps" / "flask" / "static"))
 
 
+global image_dir
 global microscope_position
 global microscope_end
 global microscope_start
@@ -25,6 +31,8 @@ global real_motor_position
 global isGPIO
 global motor
 
+
+image_dir = str(get_path().parent / "images")
 isGPIO = False
 microscope_start = None
 microscope_end = None
@@ -161,6 +169,28 @@ def set_resolution(reso_idx):
     th = threading.Thread(target=complete_config)
     th.start()
     return "", 200
+
+
+@app.route("/files/directory/list/<enc_directory>")
+def list_directory(enc_directory):
+    directory = unquote(enc_directory)
+    plib_dir = Path(directory)
+    
+    ret = {}
+
+    if not (plib_dir == plib_dir.parent): ## if plib_dir is not most parent folder
+        ret[".."] = str(plib_dir.parent)
+
+    for subfolder in os.listdir(plib_dir):
+        if os.path.isdir(str(plib_dir / subfolder)):
+            ret[subfolder] = str(plib_dir / subfolder)
+
+    return json.dumps(ret)
+    
+    
+@app.route("/files/directory/get")
+def get_current_images_directory():
+    return image_dir    
 
 
 @app.route("/microscope/move/<amount>")

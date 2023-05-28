@@ -43,6 +43,7 @@ $(window).on("load", function () {
         adjust_option_width();
     });
 
+    update_curr_image_dir();
     adjust_option_width();
 });
 
@@ -53,5 +54,33 @@ function adjust_option_width() {
             x.textContent = x.textContent.substring(0, 20) + "...";
     });
 }
+
+function update_curr_image_dir() {
+    $.ajax({
+        url: "/files/directory/get",
+        type: "GET",
+        success: function (data) {
+            $("#save-select").val(data);
+            $.ajax({
+                url: `/files/directory/list/${encodeURIComponent(data)}`,
+                type: "GET",
+                success: function (data) {
+                    console.log(data);
+                },
+                error: function (err) {
+                    console.log("Ajax error:");
+                    console.log(err);
+                },
+            });
+        },
+        error: function (err) {
+            console.log("Ajax error:");
+            console.log(err);
+        },
+    });
+
+    
+}
+
 
 window.onresize = adjust_option_width;
