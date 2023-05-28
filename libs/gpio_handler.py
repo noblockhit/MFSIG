@@ -1,6 +1,7 @@
 import time
 import RPi
 import RPi.GPIO as GPIO
+import atexit
 
 # 400 schritte sind pi mal daumen eine Umdrehung
 
@@ -15,7 +16,9 @@ class Motor:
         self.pins = pins
         self.pins_dict = {pin: False for pin in pins}
         self.pin_on(self.pins[0])
-
+        
+        atexit.register(self.cleanup)
+    
     def pin_on(self, pin):
         self.pins_dict[pin] = True
         GPIO.output(pin, GPIO.HIGH)
@@ -34,6 +37,8 @@ class Motor:
             self.pin_off(self.pins[(self.step//2-1) % len(self.pins)])
         else:
             self.pin_on(self.pins[(self.step//2+1) % len(self.pins)])
+            
+        time.sleep(0.01)
 
     def step_backward(self):
         self.step -= 1
@@ -45,6 +50,9 @@ class Motor:
             self.pin_off(self.pins[(self.step//2+1) % len(self.pins)])
         else:
             self.pin_on(self.pins[(self.step//2) % len(self.pins)])
+            
+        time.sleep(0.01)
+
 
     def cleanup(self):
         for pin in self.pins:

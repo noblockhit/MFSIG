@@ -70,27 +70,7 @@ $(window).on("load", () => {
 
     // button events
 
-    $("#move-up").on("click", function(e) {
-        e.preventDefault();
-        $.ajax({
-            type: "GET",
-            url: "/microscope/move/1",
-            error: function(result) {
-                console.log(result);
-            }
-        });
-    });
-
-    $("#move-down").on("click", function(e) {
-        e.preventDefault();
-        $.ajax({
-            type: "GET",
-            url: "/microscope/move/-1",
-            error: function(result) {
-                console.log(result);
-            }
-        });
-    });
+    
 
     mvActiveUp = false;
     function check_for_move_held_up() {
@@ -163,6 +143,16 @@ $(window).on("load", () => {
     $(document).on("pointerup", "#slider", () => {
         $('#slider').val(0);
     })
+    
+    $("#move-up").on("pointerdown", () => {
+        $.get("/microscope/move/1", (async = false));
+        update_curr_pos();
+    });
+
+    $("#move-down").on("pointerdown", () => {
+        $.get("/microscope/move/-1", (async = false));
+        update_curr_pos();
+    });
 });
 
 addEventListener("resize", check_and_adjust_flex_orientation);
