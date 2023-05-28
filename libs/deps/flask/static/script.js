@@ -70,6 +70,28 @@ $(window).on("load", () => {
 
     // button events
 
+    $("#move-up").on("click", function(e) {
+        e.preventDefault();
+        $.ajax({
+            type: "GET",
+            url: "/microscope/move/1",
+            error: function(result) {
+                console.log(result);
+            }
+        });
+    });
+
+    $("#move-down").on("click", function(e) {
+        e.preventDefault();
+        $.ajax({
+            type: "GET",
+            url: "/microscope/move/-1",
+            error: function(result) {
+                console.log(result);
+            }
+        });
+    });
+
     mvActiveUp = false;
     function check_for_move_held_up() {
         if (!mvActiveUp) return;
