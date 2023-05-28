@@ -20,9 +20,21 @@
                 <img src="/live-stream" id="live-image" />
             </div>
             <div class="button-container">
+                <button>
+                    <label for="slider">Motor</label>
+                    <input
+                        type="range"
+                        id="slider"
+                        name="slider"
+                        min="-5"
+                        max="5"
+                    />
+                </button>
+
+<!--                 
                 <button id="move-up"><d class="arrow up"></d></button>
 
-                <button id="move-down"><d class="arrow down"></d></button>
+                <button id="move-down"><d class="arrow down"></d></button> -->
 
                 <button id="set-start">Set start position</button>
 
@@ -30,7 +42,7 @@
 
                 <button id="move-start">Move to start position</button>
                 <button id="move-ending">Move to end position</button>
-                
+
                 <button id="start">Start: None</button>
                 <button id="ending">Ending: None</button>
                 <button id="current">Current: 0</button>

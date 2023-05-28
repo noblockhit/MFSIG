@@ -163,17 +163,10 @@ def set_resolution(reso_idx):
     return "", 200
 
 
-@app.route("/microscope/down")
-def move_down():
+@app.route("/microscope/move/<amount>")
+def move_down(amount):
     global microscope_position
-    microscope_position -= 1
-    return str(microscope_position)
-
-
-@app.route("/microscope/up")
-def move_up():
-    global microscope_position
-    microscope_position += 1
+    microscope_position += int(amount)
     return str(microscope_position)
 
 

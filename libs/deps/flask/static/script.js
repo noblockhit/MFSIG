@@ -74,21 +74,7 @@ $(window).on("load", () => {
     function check_for_move_held_up() {
         if (!mvActiveUp) return;
         $.ajax({
-            url: `/microscope/up`,
-            success: function (data) {
-                $("#current").html(`Current: ${data}`);
-            },
-            error: function (data) {
-                console.log(data);
-            },
-        });
-    }
-
-    mvActiveDown = false;
-    function check_for_move_held_down() {
-        if (!mvActiveDown) return;
-        $.ajax({
-            url: `/microscope/down`,
+            url: `/microscope/move/${$('#slider').val()}`,
             success: function (data) {
                 $("#current").html(`Current: ${data}`);
             },
@@ -101,12 +87,12 @@ $(window).on("load", () => {
     // up button
     mdUpEvt = false;
     mvUpInterval = null;
-    $("#move-up").on("pointerdown", function () {
+    $(document).on('input', '#slider', function () {
         if (mdUpEvt) return;
         mdUpEvt = true;
         mvActiveUp = true;
         $.ajax({
-            url: "/microscope/up",
+            url: `/microscope/move/${$('#slider').val()}`,
             success: function (data) {
                 $("#current").html(`Current: ${data}`);
             },
@@ -121,38 +107,10 @@ $(window).on("load", () => {
         }, 500);
     });
 
-    $("#move-up").on("mouseup mouseleave pointerup", function () {
+    $(document).on("pointerup", "#slider", () => {
+        $('#slider').val(0);
         mvActiveUp = false;
         clearInterval(mvUpInterval);
-    });
-
-    // down button
-
-    mdDownEvt = false;
-    mvDownInterval = null;
-    $("#move-down").on("pointerdown", function () {
-        if (mdDownEvt) return;
-        mdDownEvt = true;
-        mvActiveDown = true;
-        $.ajax({
-            url: "/microscope/down",
-            success: function (data) {
-                $("#current").html(`Current: ${data}`);
-            },
-            error: function (data) {
-                console.log(data);
-            },
-        });
-        clearInterval(mvDownInterval);
-        setTimeout(() => {
-            mvDownInterval = setInterval(check_for_move_held_down, 100);
-            mdDownEvt = false;
-        }, 500);
-    });
-
-    $("#move-down").on("mouseup mouseleave pointerup", function () {
-        mvActiveDown = false;
-        clearInterval(mvDownInterval);
     });
 
     // manual button updates
@@ -179,6 +137,10 @@ $(window).on("load", () => {
         $.get("/microscope/move/end", (async = false));
         update_curr_pos();
     });
+    
+    $(document).on("pointerup", "#slider", () => {
+        $('#slider').val(0);
+    })
 });
 
 addEventListener("resize", check_and_adjust_flex_orientation);
