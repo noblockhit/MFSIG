@@ -93,7 +93,8 @@ def complete_config():
         except app.camparser.bmscam.HRESULTException as e:
             print("Failed to start camera.", e)
             camera.Close()
-
+    
+    print("IS GPIO:", isGPIO)
     if isGPIO:
         while True:
             if real_motor_position < microscope_position:
@@ -106,7 +107,6 @@ def complete_config():
             
             else:
                 time.sleep(.5)
-            time.sleep(0.05)
         
     else:
         while True:
