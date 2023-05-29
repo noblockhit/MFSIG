@@ -42,6 +42,16 @@ $(window).on("load", function () {
         });
         adjust_option_width();
     });
+    
+    var save_input = document.getElementById("save-input");
+    save_input.addEventListener("keydown", function (e) {
+        if (e.code === "Enter") {  //checks whether the pressed key is "Enter"
+            update_sub_dirs();
+            e.preventDefault();
+            return false;
+        }
+    });
+
 
     update_curr_image_dir();
     adjust_option_width();
@@ -55,23 +65,43 @@ function adjust_option_width() {
     });
 }
 
+function update_sub_dirs() {
+    $.ajax({
+        url: `/files/directory/list/${encodeURIComponent(encodeURIComponent($("#save-input").val()))}`,
+        type: "GET",
+        success: function (data) {
+            var json_data = $.parseJSON(data);
+
+            container = $("#subdir-buttons");
+
+            content = "";
+
+            for (const dir_name in json_data) {
+                content += `<button class="subdir-btn" data-dir-path="${json_data[dir_name]}">${dir_name}</button>` 
+            }
+
+            container.html(content);
+
+            $(".subdir-btn").on("pointerdown", function() {
+                $("#save-input").val($(this).attr("data-dir-path"));
+                update_sub_dirs();
+            })
+
+        },
+        error: function (err) {
+            console.log("Ajax error:");
+            console.log(err);
+        },
+    });
+}
+
 function update_curr_image_dir() {
     $.ajax({
         url: "/files/directory/get",
         type: "GET",
         success: function (data) {
-            $("#save-select").val(data);
-            $.ajax({
-                url: `/files/directory/list/${encodeURIComponent(data)}`,
-                type: "GET",
-                success: function (data) {
-                    console.log(data);
-                },
-                error: function (err) {
-                    console.log("Ajax error:");
-                    console.log(err);
-                },
-            });
+            $("#save-input").val(data);
+            update_sub_dirs();
         },
         error: function (err) {
             console.log("Ajax error:");
