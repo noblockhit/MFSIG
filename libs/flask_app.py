@@ -173,8 +173,11 @@ def set_resolution(reso_idx):
 
 @app.route("/files/directory/list/<enc_directory>")
 def list_directory(enc_directory):
-    directory = unquote(enc_directory)
-    plib_dir = Path(directory)
+    if enc_directory == "null":
+        plib_dir = image_dir
+    else:
+        directory = unquote(unquote(enc_directory))
+        plib_dir = Path(directory)
     
     ret = {}
 
@@ -184,6 +187,8 @@ def list_directory(enc_directory):
     for subfolder in os.listdir(plib_dir):
         if os.path.isdir(str(plib_dir / subfolder)):
             ret[subfolder] = str(plib_dir / subfolder)
+    
+    image_dir = plib_dir
 
     return json.dumps(ret)
     
