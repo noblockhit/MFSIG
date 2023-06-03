@@ -2,12 +2,14 @@ import sys
 import numpy as np
 from PIL import Image
 import time
-
+from pathlib import Path
 from .deps import bmscam
 
 from sbNative.debugtools import log
 
 bms_enum = bmscam.Bmscam.EnumV2()
+global still_image_idx
+still_image_idx = 0
 
 def list_devices():
     return [(i, device) for i,device in enumerate(bms_enum)]
@@ -24,7 +26,10 @@ def handleImageEvent(camera, pData):
         print("Couldn't pull Still image")
 
 
-def handleStillImageEvent():
+def handleStillImageEvent(camera, final_image_dir):
+    global still_image_idx
+    still_image_idx += 1
+
     info = bmscam.BmscamFrameInfoV3()
     try:
         camera.PullImageV3(None, 1, 24, 0, info)
@@ -39,11 +44,11 @@ def handleStillImageEvent():
             except bmscam.HRESULTException:
                 pass
             else:
-                pil_image = Image.frombytes("RGB", (imgWidth, imgHeight), buff)
-                pil_image.save("Image.png")
+                pil_image = Image.frombytes("RGB", (info.width, info.height), buff)
+                pil_image.save(str(Path(final_image_dir) / f"Image"))
         
 
-def event_callback(n_event, ctx):
+def event_callback(n_event, ctx, final_image_dir=None):
     camera, pData = ctx
     if camera:
         if bmscam.BMSCAM_EVENT_IMAGE == n_event:
@@ -56,11 +61,12 @@ def event_callback(n_event, ctx):
             # self.handleTempTintEvent()
             pass
         elif bmscam.BMSCAM_EVENT_STILLIMAGE == n_event:
-            handleStillImageEvent()
-            pass
+            handleStillImageEvent(camera, final_image_dir)
+            
         elif bmscam.BMSCAM_EVENT_ERROR == n_event:
             camera.Close()
             log("Warning", "Generic Error.")
+
         elif bmscam.BMSCAM_EVENT_DISCONNECTED == n_event:
             camera.Close()
             log("Warning", "Camera disconnect.")

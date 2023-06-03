@@ -10,6 +10,7 @@ from urllib.parse import unquote
 from pathlib import Path
 import os
 import json
+import datetime
 
 
 app = Flask(__name__,
@@ -25,8 +26,8 @@ global curr_device
 global resolution_idx
 global imgWidth, imgHeight, pData
 global camera
-
-
+global recording
+global complete_config_running
 global real_motor_position
 global isGPIO
 global motor
@@ -38,7 +39,8 @@ microscope_start = None
 microscope_end = None
 microscope_position = 0
 real_motor_position = 0
-
+recording = False
+complete_config_running = False
 
 try:
     from . import gpio_handler
@@ -72,7 +74,12 @@ def reset_camera_properties():
 reset_camera_properties()
 
 
-def complete_config():
+def complete_config(*, with_bms_cam=True):
+    global complete_config_running
+    if complete_config_running:
+        return
+    complete_config_running = True
+
     global imgWidth, imgHeight, pData
     global curr_device
     global resolution_idx
@@ -80,31 +87,45 @@ def complete_config():
     global real_motor_position
     global isGPIO
     global motor
-    camera = app.camparser.bmscam.Bmscam.Open(curr_device.id)
+    global image_dir
 
-    if camera:
-        camera.put_eSize(resolution_idx)
-        resolution_idx = camera.get_eSize()
+    now = datetime.datetime.now()
+    formated_datetime = now.strftime("%Y_%m_%d_at_%H_%M_%S")
 
-        imgWidth = curr_device.model.res[resolution_idx].width
-        imgHeight = curr_device.model.res[resolution_idx].height
 
-        camera.put_Option(app.camparser.bmscam.BMSCAM_OPTION_BYTEORDER, 0)
-        camera.put_AutoExpoEnable(1)
-
-        pData = bytes(app.camparser.bmscam.TDIBWIDTHBYTES(
-            imgWidth * 24) * imgHeight)
-
-        try:
-            camera.StartPullModeWithCallback(
-                app.camparser.event_callback, (camera, pData))
-        except app.camparser.bmscam.HRESULTException as e:
-            print("Failed to start camera.", e)
-            camera.Close()
     
+    final_image_dir = Path(image_dir) / f"BMSCAM_Images_from_{formated_datetime}"
+
+    if with_bms_cam:
+        os.mkdir(final_image_dir)
+        camera = app.camparser.bmscam.Bmscam.Open(curr_device.id)
+
+        if camera:
+            camera.put_eSize(resolution_idx)
+            resolution_idx = camera.get_eSize()
+
+            imgWidth = curr_device.model.res[resolution_idx].width
+            imgHeight = curr_device.model.res[resolution_idx].height
+
+            camera.put_Option(app.camparser.bmscam.BMSCAM_OPTION_BYTEORDER, 0)
+            camera.put_AutoExpoEnable(1)
+
+            pData = bytes(app.camparser.bmscam.TDIBWIDTHBYTES(
+                imgWidth * 24) * imgHeight)
+
+            try:
+                camera.StartPullModeWithCallback(
+                    app.camparser.event_callback, (camera, pData, final_image_dir))
+            except app.camparser.bmscam.HRESULTException as e:
+                print("Failed to start camera.", e)
+                camera.Close()
+
     print("IS GPIO:", isGPIO)
     if isGPIO:
         while True:
+            if recording:
+                break
+
             if real_motor_position < microscope_position:
                 motor.step_forward()
                 real_motor_position += 1
@@ -118,7 +139,11 @@ def complete_config():
         
     else:
         while True:
-            time.sleep(999_999)
+            if recording:
+                break
+            time.sleep(.5)
+
+    print("Starting to record")
 
 
 @app.route("/")
@@ -174,7 +199,7 @@ def set_resolution(reso_idx):
 @app.route("/files/directory/list/<enc_directory>")
 def list_directory(enc_directory):
     if enc_directory == "null":
-        plib_dir = image_dir
+        plib_dir = Path(image_dir)
     else:
         directory = unquote(unquote(enc_directory))
         plib_dir = Path(directory)
@@ -204,6 +229,16 @@ def move_down(amount):
     microscope_position += int(amount)
     return str(microscope_position)
 
+
+@app.route("/record-images")
+def start_recording():
+    global recording
+    if recording:
+        return "Already started recording", 400
+
+    recording = True
+
+    return "", 200
 
 @app.route("/microscope/current")
 def current_pos():
@@ -251,6 +286,9 @@ def set_end():
 
 @app.route("/liveview")
 def liveview():
+    if bool(request.args.get("with_bms_cam")):
+        th = threading.Thread(target=complete_config, kwargs={"with_bms_cam": 0})
+        th.start()
     return render_template("liveview.html")
 
 
