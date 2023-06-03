@@ -45,6 +45,8 @@ body {
     border-color: black;
     border-width: 5px;
     padding-top: .1em;
+    display: flex;
+    flex-direction: column;
 }
 
 #cam-form,
@@ -62,7 +64,7 @@ body {
     flex-wrap: wrap;
 }
 
-button {
+#subdir-buttons button {
     background-color: black;
     border-style: solid;
     border-color: white;
@@ -120,4 +122,15 @@ option {
 h1 {
     text-align: center;
     width: 100%;
+}
+
+
+.container a {
+    display: block;
+    width: calc(100% - 4em);
+}
+
+.container > a.sub-container {
+    margin-top: auto;
+    align-self: flex-end;
 }

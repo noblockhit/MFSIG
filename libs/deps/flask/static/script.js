@@ -63,6 +63,11 @@ function update_end_pos() {
 html = $("html");
 screen_aspect_ratio = html.width() / html.height();
 
+
+$("#live-image").on("load", () => {
+    console.log(this)
+})
+
 $(window).on("load", () => {
     img = $("#live-image");
     img_aspect_ratio = img.width() / img.height();
@@ -151,6 +156,11 @@ $(window).on("load", () => {
 
     $("#move-down").on("pointerdown", () => {
         $.get("/microscope/move/-1", (async = false));
+        update_curr_pos();
+    });
+
+    $("#record-images").on("pointerdown", () => {
+        $.get("/record-images", (async = false));
         update_curr_pos();
     });
 });
