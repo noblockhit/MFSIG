@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Response, request
+from flask import Flask, render_template, Response, request, send_from_directory
 from sbNative.runtimetools import get_path
 import time
 import numpy as np
@@ -149,6 +149,13 @@ def complete_config(*, with_bms_cam=True):
 @app.route("/")
 def camera_select():
     return render_template("cameraselect.html")
+
+
+@app.route('/favicon.svg')
+def favicon():
+    print("here", os.path.join(app.root_path, 'static'))
+    return send_from_directory(str(get_path() / "deps" / "flask" / "static"),
+                               'favicon.svg', mimetype='image/svg+xml')
 
 
 @app.route("/cameras", methods=["GET"])
