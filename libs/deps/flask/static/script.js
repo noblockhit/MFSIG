@@ -6,13 +6,11 @@ function check_and_adjust_flex_orientation() {
     img_container_aspect_ratio = img_container.width() / img_container.height();
 
     if (img_container_aspect_ratio > img_aspect_ratio) {
-        console.log(1, img_container.height(), img.height());
         new_height = img_container.height();
         new_width = new_height * img_aspect_ratio;
         img.width(new_width);
         img.height(new_height);
     } else {
-        console.log(2, img_container.height(), img.height());
         new_width = img_container.width();
         new_height = new_width / img_aspect_ratio;
         img.width(new_width);
@@ -21,7 +19,6 @@ function check_and_adjust_flex_orientation() {
 }
 
 function update_curr_pos() {
-    console.log("getting curr position");
     $.ajax({
         url: "/microscope/current",
         type: "GET",

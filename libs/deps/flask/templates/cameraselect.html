@@ -1,9 +1,11 @@
+<!DOCTYPE html>
 <html lang="en">
     <head>
-        <meta charset="UTF-8" />
+        <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Select Camera</title>
+        <link rel="icon" type="image/x-icon" href="/favicon.svg">
         <link
             rel="stylesheet"
             type="text/css"
@@ -18,19 +20,19 @@
             <h1>Select a camera and it's resolution.</h1>
 
             <form action="" name="camera-form" id="cam-form" method="post">
-                <label for="cam-form">Choose a camera:</label>
+                <label for="cam-select">Choose a camera:</label>
                 <select name="cameras-select" id="cam-select"></select>
             </form>
 
             <form action="" name="resolution-form" id="reso-form" method="post">
-                <label for="reso-form">Choose a resolution</label>
+                <label for="reso-select">Choose a resolution</label>
                 <select name="resolutions-select" id="reso-select"></select>
             </form>
 
             
             <div class="sub-container">
                 <form autocomplete="off" action="" name="saving-form" id="save-form">
-                    <label for="save-form">Choose a location</label>
+                    <label for="save-input">Choose a location</label>
                     <input name="saving-input" id="save-input" value="null"></input>
                 </form>
                 <div id="subdir-buttons">
