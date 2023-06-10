@@ -82,7 +82,7 @@ function update_sub_dirs() {
 
             container.html(content);
 
-            $(".subdir-btn").on("pointerdown", function() {
+            $(".subdir-btn").on("pointerup", function() {
                 $("#save-input").val($(this).attr("data-dir-path"));
                 update_sub_dirs();
             })

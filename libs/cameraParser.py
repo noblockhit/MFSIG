@@ -48,8 +48,14 @@ def handleStillImageEvent(camera, final_image_dir):
                 pil_image.save(str(Path(final_image_dir) / f"Image"))
         
 
-def event_callback(n_event, ctx, final_image_dir=None):
-    camera, pData = ctx
+def event_callback(n_event, ctx):
+    if len(ctx) == 3:
+        camera, pData, final_image_dir = ctx
+    elif len(ctx) == 2:
+        camera, pData = ctx
+    else:
+        raise ValueError("Incorrect usage of ctx in flask_app.py")
+    
     if camera:
         if bmscam.BMSCAM_EVENT_IMAGE == n_event:
             handleImageEvent(camera, pData)
