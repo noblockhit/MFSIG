@@ -143,7 +143,31 @@ def complete_config(*, with_bms_cam=True):
                 break
             time.sleep(.5)
 
-    print("Starting to record")
+    # making start smaller than end
+    if microscope_start > microscope_end:
+        microscope_end, microscope_start = microscope_start, microscope_end
+
+    # moving to start position
+    distance_to_start = microscope_start - real_motor_position 
+    if distance_to_start > 0:
+        for _ in range(distance_to_start):
+            motor.step_forward()
+    elif distance_to_start < 0:
+        for _ in range(-distance_to_start):
+            motor.step_backward()
+    
+    microscope_position = real_motor_position = microscope_start
+
+    time.sleep(3)
+    
+    # start recording
+    while real_motor_position < microscope_end:
+        motor.step_forward()
+        real_motor_position += 1
+        time.sleep(2)
+        camera.Snap(0)
+        
+        
 
 
 @app.route("/")
