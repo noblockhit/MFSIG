@@ -11,6 +11,7 @@ from pathlib import Path
 import os
 import json
 import datetime
+import sys
 
 
 app = Flask(__name__,
@@ -33,7 +34,10 @@ global isGPIO
 global motor
 
 
-image_dir = str(get_path().parent / "images")
+if str(get_path()) == ".":
+    image_dir = str(Path(__file__).parent.parent / "images")
+else:
+    image_dir = str(get_path().parent / "images")
 isGPIO = False
 microscope_start = None
 microscope_end = None
@@ -75,6 +79,7 @@ reset_camera_properties()
 
 
 def complete_config(*, with_bms_cam=True):
+    print("COMPLETING CONFIG, STATING MOTOR")
     global complete_config_running
     if complete_config_running:
         return
@@ -85,6 +90,9 @@ def complete_config(*, with_bms_cam=True):
     global resolution_idx
     global camera
     global real_motor_position
+    global microscope_end
+    global microscope_start
+    global microscope_position
     global isGPIO
     global motor
     global image_dir
@@ -93,9 +101,10 @@ def complete_config(*, with_bms_cam=True):
     formated_datetime = now.strftime("%Y_%m_%d_at_%H_%M_%S")
 
 
-    
+    print(image_dir)
     final_image_dir = Path(image_dir) / f"BMSCAM_Images_from_{formated_datetime}"
-
+    print(final_image_dir)
+    
     if with_bms_cam:
         os.mkdir(final_image_dir)
         camera = app.camparser.bmscam.Bmscam.Open(curr_device.id)
@@ -166,7 +175,8 @@ def complete_config(*, with_bms_cam=True):
         real_motor_position += 1
         time.sleep(2)
         camera.Snap(0)
-        
+    
+    sys.exit()
         
 
 
@@ -178,7 +188,10 @@ def camera_select():
 @app.route('/favicon.svg')
 def favicon():
     print("here", os.path.join(app.root_path, 'static'))
-    return send_from_directory(str(get_path() / "deps" / "flask" / "static"),
+    _path = get_path()
+    if str(path) == ".":
+        _path = Path(__file__).parent
+    return send_from_directory(str(_path / "deps" / "flask" / "static"),
                                'favicon.svg', mimetype='image/svg+xml')
 
 
@@ -229,6 +242,7 @@ def set_resolution(reso_idx):
 
 @app.route("/files/directory/list/<enc_directory>")
 def list_directory(enc_directory):
+    global image_dir
     if enc_directory == "null":
         plib_dir = Path(image_dir)
     else:
@@ -245,7 +259,7 @@ def list_directory(enc_directory):
             ret[subfolder] = str(plib_dir / subfolder)
     
     image_dir = plib_dir
-
+    print(image_dir)
     return json.dumps(ret)
     
     
