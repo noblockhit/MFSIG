@@ -45,7 +45,7 @@ def handleStillImageEvent(camera, final_image_dir):
                 pass
             else:
                 pil_image = Image.frombytes("RGB", (info.width, info.height), buff)
-                pil_image.save(str(Path(final_image_dir) / f"Image"))
+                pil_image.save(str(Path(final_image_dir) / f"Image_{still_image_idx}.tiff"))
         
 
 def event_callback(n_event, ctx):
