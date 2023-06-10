@@ -189,7 +189,7 @@ def camera_select():
 def favicon():
     print("here", os.path.join(app.root_path, 'static'))
     _path = get_path()
-    if str(path) == ".":
+    if str(_path) == ".":
         _path = Path(__file__).parent
     return send_from_directory(str(_path / "deps" / "flask" / "static"),
                                'favicon.svg', mimetype='image/svg+xml')
