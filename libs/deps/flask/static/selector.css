@@ -55,6 +55,12 @@ body {
     flex-direction: column;
 }
 
+h1 {
+    text-align: center;
+    margin-left: 1em;
+    margin-right: 1em;
+}
+
 #cam-form,
 #reso-form,
 .sub-container {

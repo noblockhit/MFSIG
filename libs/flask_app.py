@@ -1,4 +1,5 @@
 from flask import Flask, render_template, Response, request, send_from_directory
+import werkzeug.serving as serving
 from sbNative.runtimetools import get_path
 import time
 import numpy as np
@@ -13,6 +14,17 @@ import json
 import datetime
 import sys
 
+
+global server
+
+org_mk_server = serving.make_server
+
+def wrapper(*args, **kwargs):
+    global server
+    server = org_mk_server(*args, **kwargs)
+    return server
+
+serving.make_server = wrapper
 
 app = Flask(__name__,
             template_folder=str(get_path() / "deps" / "flask" / "templates"),
@@ -79,7 +91,6 @@ reset_camera_properties()
 
 
 def complete_config(*, with_bms_cam=True):
-    print("COMPLETING CONFIG, STATING MOTOR")
     global complete_config_running
     if complete_config_running:
         return
@@ -96,14 +107,12 @@ def complete_config(*, with_bms_cam=True):
     global isGPIO
     global motor
     global image_dir
+    global server
 
     now = datetime.datetime.now()
     formated_datetime = now.strftime("%Y_%m_%d_at_%H_%M_%S")
 
-
-    print(image_dir)
     final_image_dir = Path(image_dir) / f"BMSCAM_Images_from_{formated_datetime}"
-    print(final_image_dir)
     
     if with_bms_cam:
         os.mkdir(final_image_dir)
@@ -149,7 +158,8 @@ def complete_config(*, with_bms_cam=True):
     else:
         while True:
             if recording:
-                break
+                print("There was no GPIO detected, exiting program.")
+                server.shutdown()
             time.sleep(.5)
 
     # making start smaller than end
@@ -177,7 +187,6 @@ def complete_config(*, with_bms_cam=True):
         camera.Snap(0)
     
     sys.exit()
-        
 
 
 @app.route("/")
@@ -185,9 +194,21 @@ def camera_select():
     return render_template("cameraselect.html")
 
 
+@app.route("/liveview")
+def liveview():
+    if bool(request.args.get("with_bms_cam")):
+        th = threading.Thread(target=complete_config, kwargs={"with_bms_cam": 0})
+        th.start()
+    return render_template("liveview.html")
+
+
+@app.route("/stepsetter")
+def stepsetter():
+    return render_template("stepsetter.html")
+
+
 @app.route('/favicon.svg')
 def favicon():
-    print("here", os.path.join(app.root_path, 'static'))
     _path = get_path()
     if str(_path) == ".":
         _path = Path(__file__).parent
@@ -230,7 +251,6 @@ def set_resolution(reso_idx):
         temp_curr_device = curr_device
         reset_camera_properties()
         if not temp_curr_device is None:
-            print("restoring old camera config")
             curr_device = temp_curr_device
             camera = app.camparser.bmscam.Bmscam.Open(curr_device.id)
 
@@ -259,20 +279,12 @@ def list_directory(enc_directory):
             ret[subfolder] = str(plib_dir / subfolder)
     
     image_dir = plib_dir
-    print(image_dir)
     return json.dumps(ret)
     
     
 @app.route("/files/directory/get")
 def get_current_images_directory():
     return image_dir    
-
-
-@app.route("/microscope/move/<amount>")
-def move_down(amount):
-    global microscope_position
-    microscope_position += int(amount)
-    return str(microscope_position)
 
 
 @app.route("/record-images")
@@ -282,12 +294,19 @@ def start_recording():
         return "Already started recording", 400
 
     recording = True
-
     return "", 200
+
 
 @app.route("/microscope/current")
 def current_pos():
     global microscope_position
+    return str(microscope_position)
+
+
+@app.route("/microscope/move/<amount>")
+def move_down(amount):
+    global microscope_position
+    microscope_position += int(amount)
     return str(microscope_position)
 
 
@@ -297,6 +316,7 @@ def move_start():
     global microscope_start
     microscope_position = microscope_start
     return str(microscope_position)
+
 
 @app.route("/microscope/move/end", methods=["GET"])
 def move_end():
@@ -329,14 +349,6 @@ def set_end():
     return str(microscope_end)
 
 
-@app.route("/liveview")
-def liveview():
-    if bool(request.args.get("with_bms_cam")):
-        th = threading.Thread(target=complete_config, kwargs={"with_bms_cam": 0})
-        th.start()
-    return render_template("liveview.html")
-
-
 @app.route("/live-stream")
 def live_stream():
     global imgWidth, imgHeight, pData
@@ -347,29 +359,3 @@ def live_stream():
 
     return Response(app.get_live_image(imgWidth, imgHeight, pData),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
-
-
-if __name__ == "__main__":
-    def generate_example_live_image():
-        image = np.zeros([680, 896, 3], dtype=np.uint8)
-        image.fill(0)
-
-        for tr in [[0, 0], [0, 890], [674, 0], [674, 890]]:
-            for x in range(5):
-                for y in range(5):
-                    image[tr[0]+x, tr[1]+y][0] = 255
-
-        while True:
-            time.sleep(.1)
-            output = np.copy(np.array(image))
-
-            pil_img = Image.fromarray(output)
-
-            img_byte_arr = io.BytesIO()
-            pil_img.save(img_byte_arr, format="jpeg")
-
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + img_byte_arr.getvalue() + b'\r\n')
-
-    app.get_live_image = generate_example_live_image
-    app.run(host="192.168.2.113", port=5000)

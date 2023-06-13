@@ -20,7 +20,6 @@ def get_current_devices_resolution_options(curr_device):
 def handleImageEvent(camera, pData):
     try:
         camera.PullImageV3(pData, 0, 24, 0, None)
-        print("pulled img")
     except bmscam.HRESULTException as e:
         log(e)
         print("Couldn't pull Still image")
