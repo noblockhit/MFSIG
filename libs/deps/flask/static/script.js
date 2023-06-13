@@ -60,10 +60,9 @@ function update_end_pos() {
 html = $("html");
 screen_aspect_ratio = html.width() / html.height();
 
-
 $("#live-image").on("load", () => {
-    console.log(this)
-})
+    console.log(this);
+});
 
 $(window).on("load", () => {
     img = $("#live-image");
@@ -72,13 +71,11 @@ $(window).on("load", () => {
 
     // button events
 
-    
-
     mvActiveUp = false;
     function check_for_move_held_up() {
         if (!mvActiveUp) return;
         $.ajax({
-            url: `/microscope/move/${$('#slider').val()}`,
+            url: `/microscope/move/${$("#slider").val()}`,
             success: function (data) {
                 $("#current").html(`Current: ${data}`);
             },
@@ -91,12 +88,12 @@ $(window).on("load", () => {
     // up button
     mdUpEvt = false;
     mvUpInterval = null;
-    $(document).on('input', '#slider', function () {
+    $(document).on("input", "#slider", function () {
         if (mdUpEvt) return;
         mdUpEvt = true;
         mvActiveUp = true;
         $.ajax({
-            url: `/microscope/move/${$('#slider').val()}`,
+            url: `/microscope/move/${$("#slider").val()}`,
             success: function (data) {
                 $("#current").html(`Current: ${data}`);
             },
@@ -112,7 +109,7 @@ $(window).on("load", () => {
     });
 
     $(document).on("pointerup", "#slider", () => {
-        $('#slider').val(0);
+        $("#slider").val(0);
         mvActiveUp = false;
         clearInterval(mvUpInterval);
     });
@@ -141,11 +138,11 @@ $(window).on("load", () => {
         $.get("/microscope/move/end", (async = false));
         update_curr_pos();
     });
-    
+
     $(document).on("pointerup", "#slider", () => {
-        $('#slider').val(0);
-    })
-    
+        $("#slider").val(0);
+    });
+
     $("#move-up").on("pointerdown", () => {
         $.get("/microscope/move/1", (async = false));
         update_curr_pos();
@@ -156,9 +153,31 @@ $(window).on("load", () => {
         update_curr_pos();
     });
 
-    $("#record-images").on("pointerdown", () => {
-        $.get("/record-images", (async = false));
-        update_curr_pos();
+    // $("#record-images").on("pointerdown", () => {
+    //     $.get("/record-images", (async = false));
+    //     update_curr_pos();
+    // });
+
+    $("#motor-controls").on("pointerdown", () => {
+        $.ajax({
+            url: "/microscope/end",
+            type: "GET",
+            success: function (ending) {
+                $.ajax({
+                    url: "/microscope/start",
+                    type: "GET",
+                    success: function (start) {
+                        location.href = `stepsetter?total-steps=${Math.abs(ending-start)}`;
+                    },
+                    error: function (err) {
+                        console.log(err);
+                    },
+                });
+            },
+            error: function (err) {
+                console.log(err);
+            },
+        });
     });
 });
 

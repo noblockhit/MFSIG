@@ -21,7 +21,6 @@ def generate_live_image(imgWidth, imgHeight, pData):
 
 
 if __name__ == "__main__":
-    
     flask_app.app.get_live_image = generate_live_image
     flask_app.app.camparser = cameraParser
     flask_app.app.run(host="0.0.0.0", port=80, threaded=True)

@@ -13,14 +13,20 @@ body {
     color: white;
 }
 
+:root {
+    --blue-dark: rgb(1, 6, 91);
+    --blue-mid: rgb(2, 26, 122);
+    --blue-light: rgb(4, 60, 180);
+}
+
 body {
-    background: rgb(0, 26, 122);
+    background: var(--blue-mid);
     background: linear-gradient(
         90deg,
-        rgba(0, 26, 122, 1) 0%,
-        rgba(7, 6, 91, 1) 5%,
-        rgba(7, 6, 91, 1) 95%,
-        rgba(0, 26, 122, 1) 100%
+        var(--blue-mid) 0%,
+        var(--blue-dark) 5%,
+        var(--blue-dark) 95%,
+        var(--blue-mid) 100%
     );
 }
 
@@ -69,7 +75,22 @@ body {
     gap: 1em;
 }
 
-.button-container button {
+.button-container a {
+    border-bottom: 1px solid #777777;
+    border-left: 1px solid #000000;
+    border-right: 1px solid #333333;
+    border-top: 1px solid #000000;
+    color: #000000;
+    display: block;
+    height: 2.5em;
+    padding: 0 1em;
+    width: 5em;       
+    text-decoration: none;    
+    line-height: 325%;   
+}
+
+.button-container button,
+.button-container a {
     background-color: black;
     flex-grow: 1;
     border: none;
@@ -84,6 +105,7 @@ body {
 .button-container button:active {
     background-color: rgb(66, 66, 66);
 }
+
 @media hover {
     .button-container button:hover {
         background-color: rgb(40, 40, 40);

@@ -3,4 +3,4 @@ import child
 
 child.exec_smth()
 
-print(mdl.container.attr1, mdl.container.attr2)
+print(mdl.attr1, mdl.attr2)
