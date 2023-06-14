@@ -15,7 +15,6 @@ class ABSType:
 
 class Meta(type):
     def __setattr__(self, __name: str, __value: Any) -> None:
-        print(__name, __value)
         hints = get_type_hints(self)
         
         class_hint = hints.get(__name)
