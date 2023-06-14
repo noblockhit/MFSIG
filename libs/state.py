@@ -59,6 +59,7 @@ class State(metaclass=Meta):
     motor: ClassVar[abs_motor_type]
     server: ClassVar[serving.BaseWSGIServer]
     image_count: ClassVar[int]
+    final_image_dir: ClassVar[Path]
 
 
 if __name__ == "__main__":
