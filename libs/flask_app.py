@@ -13,16 +13,15 @@ import os
 import json
 import datetime
 import sys
+from libs import cameraParser
+from .state import State
 
-
-global server
 
 org_mk_server = serving.make_server
 
 def wrapper(*args, **kwargs):
-    global server
-    server = org_mk_server(*args, **kwargs)
-    return server
+    State.server = org_mk_server(*args, **kwargs)
+    return State.server
 
 serving.make_server = wrapper
 
@@ -31,32 +30,13 @@ app = Flask(__name__,
             static_folder=str(get_path() / "deps" / "flask" / "static"))
 
 
-global image_dir
-global microscope_position
-global microscope_end
-global microscope_start
-global curr_device
-global resolution_idx
-global imgWidth, imgHeight, pData
-global camera
-global recording
-global complete_config_running
-global real_motor_position
-global isGPIO
-global motor
-
-
 if str(get_path()) == ".":
-    image_dir = str(Path(__file__).parent.parent / "images")
+    State.image_dir = Path(__file__).parent.parent / "images"
 else:
-    image_dir = str(get_path().parent / "images")
-isGPIO = False
-microscope_start = None
-microscope_end = None
-microscope_position = 0
-real_motor_position = 0
-recording = False
-complete_config_running = False
+    State.image_dir = get_path().parent / "images"
+
+
+State.isGPIO = False
 
 try:
     from . import gpio_handler
@@ -64,127 +44,149 @@ except ImportError:
     print_exc()
     print("An Import Error occured, this might be because of your device not having GPIO pins. In This case ignore this Error, otherwise inspect the traceback above.")
 else:
-    isGPIO = True
-    motor = gpio_handler.Motor([16, 19, 20, 21])
-    motor.calibrate()
+    State.isGPIO = True
+    State.motor = gpio_handler.Motor([16, 19, 20, 21])
+    State.motor.calibrate()
+
+
+def generate_live_image():
+    while True:
+        time.sleep(.1)
+
+        pil_img = Image.frombytes("RGB", (State.imgWidth, State.imgHeight), State.pData)
+
+        img_byte_arr = io.BytesIO()
+        pil_img.save(img_byte_arr, format="jpeg")
+
+
+        yield (b'--frame\r\n'
+            b'Content-Type: image/jpeg\r\n\r\n' + img_byte_arr.getvalue() + b'\r\n')
 
 
 def reset_camera_properties():
-    global curr_device
-    global resolution_idx
-    global imgWidth, imgHeight, pData
-    global camera
 
     try:
-        camera.Close()
+        State.camera.Close()
     except:
         pass
 
-    imgWidth, imgHeight, pData = None, None, None
+    State.imgWidth, State.imgHeight, State.pData = None, None, None
 
-    curr_device = None
-    resolution_idx = None
-    camera = None
+    State.curr_device = None
+    State.resolution_idx = None
+    State.camera = None
+    State.microscope_start = 0
+    State.microscope_end = 0
+    State.microscope_position = 0
+    State.real_motor_position = 0
+    State.recording = False
+    State.complete_config_running = False
+    State.image_count = 1
 
 
 reset_camera_properties()
 
 
 def complete_config(*, with_bms_cam=True):
-    global complete_config_running
-    if complete_config_running:
+    if State.complete_config_running:
         return
-    complete_config_running = True
-
-    global imgWidth, imgHeight, pData
-    global curr_device
-    global resolution_idx
-    global camera
-    global real_motor_position
-    global microscope_end
-    global microscope_start
-    global microscope_position
-    global isGPIO
-    global motor
-    global image_dir
-    global server
-
-    now = datetime.datetime.now()
-    formated_datetime = now.strftime("%Y_%m_%d_at_%H_%M_%S")
-
-    final_image_dir = Path(image_dir) / f"BMSCAM_Images_from_{formated_datetime}"
+    State.complete_config_running = True
     
     if with_bms_cam:
-        os.mkdir(final_image_dir)
-        camera = app.camparser.bmscam.Bmscam.Open(curr_device.id)
+        State.camera = cameraParser.bmscam.Bmscam.Open(State.curr_device.id)
 
-        if camera:
-            camera.put_eSize(resolution_idx)
-            resolution_idx = camera.get_eSize()
+        if State.camera:
+            State.camera.put_eSize(State.resolution_idx)
+            State.resolution_idx = State.camera.get_eSize()
 
-            imgWidth = curr_device.model.res[resolution_idx].width
-            imgHeight = curr_device.model.res[resolution_idx].height
+            State.imgWidth = State.curr_device.model.res[State.resolution_idx].width
+            State.imgHeight = State.curr_device.model.res[State.resolution_idx].height
 
-            camera.put_Option(app.camparser.bmscam.BMSCAM_OPTION_BYTEORDER, 0)
-            camera.put_AutoExpoEnable(1)
+            State.camera.put_Option(cameraParser.bmscam.BMSCAM_OPTION_BYTEORDER, 0)
+            State.camera.put_AutoExpoEnable(1)
 
-            pData = bytes(app.camparser.bmscam.TDIBWIDTHBYTES(
-                imgWidth * 24) * imgHeight)
+            State.pData = bytes(cameraParser.bmscam.TDIBWIDTHBYTES(
+                State.imgWidth * 24) * State.imgHeight)
 
             try:
-                camera.StartPullModeWithCallback(
-                    app.camparser.event_callback, (camera, pData, final_image_dir))
-            except app.camparser.bmscam.HRESULTException as e:
+                State.camera.StartPullModeWithCallback(
+                    cameraParser.event_callback, ())
+            except cameraParser.bmscam.HRESULTException as e:
                 print("Failed to start camera.", e)
-                camera.Close()
+                State.camera.Close()
 
-    print("IS GPIO:", isGPIO)
-    if isGPIO:
+    print("IS GPIO:", State.isGPIO)
+    if State.isGPIO:
         while True:
-            if recording:
+            if State.recording:
                 break
 
-            if real_motor_position < microscope_position:
-                motor.step_forward()
-                real_motor_position += 1
+            if State.real_motor_position < State.microscope_position:
+                State.motor.step_forward()
+                State.real_motor_position += 1
                 
-            elif real_motor_position > microscope_position:
-                motor.step_backward()
-                real_motor_position -= 1
+            elif State.real_motor_position > State.microscope_position:
+                State.motor.step_backward()
+                State.real_motor_position -= 1
             
             else:
                 time.sleep(.5)
         
     else:
         while True:
-            if recording:
+            if State.recording:
                 print("There was no GPIO detected, exiting program.")
-                server.shutdown()
+                State.server.shutdown()
+                exit()
             time.sleep(.5)
 
+    
+    if with_bms_cam:
+        now = datetime.datetime.now()
+        formated_datetime = now.strftime("%Y_%m_%d_at_%H_%M_%S")
+
+        final_image_dir = State.image_dir / f"BMSCAM_Images_from_{formated_datetime}"
+        os.mkdir(str(final_image_dir))
+
     # making start smaller than end
-    if microscope_start > microscope_end:
-        microscope_end, microscope_start = microscope_start, microscope_end
+    if State.microscope_start > State.microscope_end:
+        State.microscope_end, State.microscope_start = State.microscope_start, State.microscope_end
 
     # moving to start position
-    distance_to_start = microscope_start - real_motor_position 
+    distance_to_start = State.microscope_start - State.real_motor_position 
     if distance_to_start > 0:
         for _ in range(distance_to_start):
-            motor.step_forward()
+            State.motor.step_forward()
     elif distance_to_start < 0:
         for _ in range(-distance_to_start):
-            motor.step_backward()
+            State.motor.step_backward()
     
-    microscope_position = real_motor_position = microscope_start
+    State.microscope_position = State.real_motor_position = State.microscope_start
 
     time.sleep(3)
+
+    State.camera.Snap()
     
-    # start recording
-    while real_motor_position < microscope_end:
-        motor.step_forward()
-        real_motor_position += 1
+    # start State.recording
+    target_total_steps = State.microscope_end - State.microscope_start
+    avg_steps_per_image = target_total_steps / (State.image_count - 1)
+
+    curr_amt_steps_taken = 0
+    image_index = 0
+
+    while State.real_motor_position < State.microscope_end:
+        State.motor.step_forward()
+        print("stepped forward")
+        State.real_motor_position += 1
+        curr_amt_steps_taken += 1
+        if (abs(image_index * avg_steps_per_image - curr_amt_steps_taken) >## distance between the current image and the actual distance
+            abs((image_index + 1) * avg_steps_per_image - curr_amt_steps_taken)):
+            continue
+            
         time.sleep(2)
-        camera.Snap(0)
+        print("snapped")
+        image_index += 1
+        State.camera.Snap(0)
     
     sys.exit()
 
@@ -216,10 +218,16 @@ def favicon():
                                'favicon.svg', mimetype='image/svg+xml')
 
 
+@app.route("/image-count/<count>", methods=["POST"])
+def set_image_count(count):
+    State.image_count = int(count)
+    return "", 200
+
+
 @app.route("/cameras", methods=["GET"])
 def get_cameras():
     ret = ""
-    for idx, device in app.camparser.list_devices():
+    for idx, device in cameraParser.list_devices():
         ret += f'<option value="{idx}">{device.displayname}: {device.id}</option>\n'
 
     return ret.strip("\n")
@@ -227,15 +235,13 @@ def get_cameras():
 
 @app.route("/camera/<camera_idx>", methods=["POST"])
 def set_camera(camera_idx):
-    global curr_device
-    global camera
-    if not curr_device is None:
+    if not State.curr_device is None:
         reset_camera_properties()
 
-    curr_device = app.camparser.bms_enum[int(camera_idx)]
+    State.curr_device = cameraParser.bms_enum[int(camera_idx)]
 
     ret = ""
-    for idx, reso in app.camparser.get_current_devices_resolution_options(curr_device):
+    for idx, reso in cameraParser.get_current_devices_resolution_options(State.curr_device):
         ret += f'<option value="{idx}">{reso[0]} x {reso[1]}</option>\n'
 
     return ret.strip("\n")
@@ -243,18 +249,14 @@ def set_camera(camera_idx):
 
 @app.route("/resolution/<reso_idx>", methods=["POST"])
 def set_resolution(reso_idx):
-    global imgWidth, imgHeight, pData
-    global curr_device
-    global resolution_idx
-    global camera
-    if not resolution_idx is None:
-        temp_curr_device = curr_device
+    if not State.resolution_idx is None:
+        temp_curr_device = State.curr_device
         reset_camera_properties()
         if not temp_curr_device is None:
-            curr_device = temp_curr_device
-            camera = app.camparser.bmscam.Bmscam.Open(curr_device.id)
+            State.curr_device = temp_curr_device
+            State.camera = cameraParser.bmscam.Bmscam.Open(State.curr_device.id)
 
-    resolution_idx = int(reso_idx)
+    State.resolution_idx = int(reso_idx)
     th = threading.Thread(target=complete_config)
     th.start()
     return "", 200
@@ -262,9 +264,8 @@ def set_resolution(reso_idx):
 
 @app.route("/files/directory/list/<enc_directory>")
 def list_directory(enc_directory):
-    global image_dir
     if enc_directory == "null":
-        plib_dir = Path(image_dir)
+        plib_dir = Path(State.image_dir)
     else:
         directory = unquote(unquote(enc_directory))
         plib_dir = Path(directory)
@@ -278,84 +279,72 @@ def list_directory(enc_directory):
         if os.path.isdir(str(plib_dir / subfolder)):
             ret[subfolder] = str(plib_dir / subfolder)
     
-    image_dir = plib_dir
+    State.image_dir = plib_dir
     return json.dumps(ret)
     
     
 @app.route("/files/directory/get")
 def get_current_images_directory():
-    return image_dir    
+    return str(State.image_dir)    
 
 
 @app.route("/record-images")
 def start_recording():
-    global recording
-    if recording:
+    if State.recording:
         return "Already started recording", 400
+    if not State.complete_config_running:
+        return "The motor (and optionally the camera) have not been started yet.", 400
 
-    recording = True
+    State.recording = True
     return "", 200
 
 
 @app.route("/microscope/current")
 def current_pos():
-    global microscope_position
-    return str(microscope_position)
+    return str(State.microscope_position)
 
 
 @app.route("/microscope/move/<amount>")
 def move_down(amount):
-    global microscope_position
-    microscope_position += int(amount)
-    return str(microscope_position)
+    State.microscope_position += int(amount)
+    return str(State.microscope_position)
 
 
 @app.route("/microscope/move/start", methods=["GET"])
 def move_start():
-    global microscope_position
-    global microscope_start
-    microscope_position = microscope_start
-    return str(microscope_position)
+    State.microscope_position = State.microscope_start
+    return str(State.microscope_position)
 
 
 @app.route("/microscope/move/end", methods=["GET"])
 def move_end():
-    global microscope_position
-    global microscope_end
-    microscope_position = microscope_end
-    return str(microscope_position)
+    State.microscope_position = State.microscope_end
+    return str(State.microscope_position)
 
 
 @app.route("/microscope/start", methods=["GET", "POST"])
 def set_start():
-    global microscope_position
-    global microscope_start
     if request.method == "POST":
-        microscope_start = microscope_position
+        State.microscope_start = State.microscope_position
 
     elif request.method == "CONNECT":
-        microscope_position = microscope_start
+        State.microscope_position = State.microscope_start
 
-    return str(microscope_start)
+    return str(State.microscope_start)
 
 
 @app.route("/microscope/end",  methods=["GET", "POST"])
 def set_end():
-    global microscope_position
-    global microscope_end
     if request.method == "POST":
-        microscope_end = microscope_position
+        State.microscope_end = State.microscope_position
 
-    return str(microscope_end)
+    return str(State.microscope_end)
 
 
 @app.route("/live-stream")
 def live_stream():
-    global imgWidth, imgHeight, pData
-
-    if not imgWidth or not imgHeight or not pData:
+    if not State.imgWidth or not State.imgHeight or not State.pData:
         print("The camera has seemingly not been started yet")
         return Response("The camera has seemingly not been started yet", status=400)
 
-    return Response(app.get_live_image(imgWidth, imgHeight, pData),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(generate_live_image(), mimetype='multipart/x-mixed-replace; boundary=frame')

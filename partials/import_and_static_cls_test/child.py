@@ -1,4 +1,5 @@
-from mdl import attr1, attr2
+from mdl import container
+
 
 def exec_smth():
-    attr2 = "two"
+    container.attr2 = "two"

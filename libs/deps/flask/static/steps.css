@@ -89,3 +89,27 @@ h1 {
 .sub-container p {
     display: inline;
 }
+
+.container button {
+    width: calc(100% - 2em);
+    padding: 1em;
+    margin: 1em;
+    background-color: black;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: block;
+    text-align: center;
+    color: wheat;
+}
+
+.container button:active {
+    background-color: rgb(66, 66, 66);
+}
+
+@media hover {
+    .container button:hover {
+        background-color: rgb(40, 40, 40);
+    }
+}
+
