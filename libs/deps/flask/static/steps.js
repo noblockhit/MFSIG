@@ -7,12 +7,9 @@ function isNumeric(str) {
     ); // except completly empty to ease the retyping of the first digit
 }
 
-function prev_def_on_enter(e) {
-    if (e.code === "Enter") {
-        //checks whether the pressed key is "Enter"
-        e.preventDefault();
-        return false;
-    }
+function prevent_submit_and_unfocus(e) {
+    document.activeElement.blur()
+    e.preventDefault();
 }
 
 var getUrIParameter = function getUrlParameter(sParam) {
@@ -39,10 +36,10 @@ $(window).on("load", () => {
     var dpr_input = document.getElementById("distance-per-rotation-input");
     var mspr_input = document.getElementById("motor-steps-per-rotation-input");
 
-    idd_input.addEventListener("keydown", prev_def_on_enter);
-    tia_input.addEventListener("keydown", prev_def_on_enter);
-    dpr_input.addEventListener("keydown", prev_def_on_enter);
-    mspr_input.addEventListener("keydown", prev_def_on_enter);
+    $("#image-delta-distance-form").submit(prevent_submit_and_unfocus);
+    $("#total-image-amount-form").submit(prevent_submit_and_unfocus);
+    $("#distance-per-rotation-form").submit(prevent_submit_and_unfocus);
+    $("#motor-steps-per-rotation-form").submit(prevent_submit_and_unfocus);
 
     var idd_value = idd_input.value;
     var tia_value = tia_input.value;
@@ -56,9 +53,6 @@ $(window).on("load", () => {
     function update_all() {
         distance_per_step = dpr_value / mspr_value;
         total_distance = total_steps * distance_per_step;
-
-        console.log(distance_per_step);
-        console.log(total_distance);
 
         if (latest_typed === idd_input) {
             tia_value = total_distance / idd_value;

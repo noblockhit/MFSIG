@@ -44,12 +44,11 @@ $(window).on("load", function () {
     });
     
     var save_input = document.getElementById("save-input");
-    save_input.addEventListener("keydown", function (e) {
-        if (e.code === "Enter") {  //checks whether the pressed key is "Enter"
-            update_sub_dirs();
-            e.preventDefault();
-            return false;
-        }
+    
+    $("#save-form").submit(function (e) {
+        document.activeElement.blur()
+        update_sub_dirs();
+        e.preventDefault();
     });
 
 
