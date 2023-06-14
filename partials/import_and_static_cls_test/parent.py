@@ -1,6 +1,6 @@
-import mdl
+from mdl import container
 import child
 
 child.exec_smth()
 
-print(mdl.attr1, mdl.attr2)
+print(container.attr1, container.attr2)

@@ -153,11 +153,6 @@ $(window).on("load", () => {
         update_curr_pos();
     });
 
-    // $("#record-images").on("pointerdown", () => {
-    //     $.get("/record-images", (async = false));
-    //     update_curr_pos();
-    // });
-
     $("#motor-controls").on("pointerdown", () => {
         $.ajax({
             url: "/microscope/end",

@@ -1,6 +1,4 @@
 import time
-import RPi
-import RPi.GPIO as GPIO
 import atexit
 
 # 400 schritte sind pi mal daumen eine Umdrehung
@@ -70,6 +68,8 @@ class Motor:
             time.sleep(.3)
         
 
+import RPi
+import RPi.GPIO as GPIO
 
 if __name__ == "__main__":
     try:

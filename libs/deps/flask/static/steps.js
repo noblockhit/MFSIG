@@ -69,6 +69,10 @@ $(window).on("load", () => {
             idd_value = total_distance / tia_value;
             idd_input.value = idd_value;
         }
+
+        if (tia_value != Infinity) {
+            $.post(`/image-count/${tia_value}`)
+        }
     }
 
     $(idd_input).on("keyup", function (e) {
@@ -123,6 +127,15 @@ $(window).on("load", () => {
         }
 
         update_all()
+    });
+
+    $("#record-images").on("pointerdown", () => {
+        $.get("/record-images", (async = false), () => {
+            $("#record-images").html("Started recording!")
+        }).fail((xhr, status, error) => {
+            var err = xhr.responseText
+            alert(err);
+        });
     });
 
     update_all();
