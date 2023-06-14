@@ -11,6 +11,7 @@ from sbNative.debugtools import log
 bms_enum = bmscam.Bmscam.EnumV2()
 global still_image_idx
 still_image_idx = 0
+print(bms_enum)
 
 def list_devices():
     return [(i, device) for i,device in enumerate(bms_enum)]

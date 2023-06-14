@@ -145,8 +145,8 @@ def complete_config(*, with_bms_cam=True):
         now = datetime.datetime.now()
         formated_datetime = now.strftime("%Y_%m_%d_at_%H_%M_%S")
 
-        final_image_dir = State.image_dir / f"BMSCAM_Images_from_{formated_datetime}"
-        os.mkdir(str(final_image_dir))
+        State.final_image_dir = State.image_dir / f"BMSCAM_Images_from_{formated_datetime}"
+        os.mkdir(str(State.final_image_dir))
 
     # making start smaller than end
     if State.microscope_start > State.microscope_end:
@@ -165,22 +165,19 @@ def complete_config(*, with_bms_cam=True):
 
     time.sleep(3)
 
-    State.camera.Snap()
+    State.camera.Snap(0)
     
     # start State.recording
     target_total_steps = State.microscope_end - State.microscope_start
     avg_steps_per_image = target_total_steps / (State.image_count - 1)
 
-    curr_amt_steps_taken = 0
     image_index = 0
 
-    while State.real_motor_position < State.microscope_end:
+    for step in range(target_total_steps):
         State.motor.step_forward()
-        print("stepped forward")
         State.real_motor_position += 1
-        curr_amt_steps_taken += 1
-        if (abs(image_index * avg_steps_per_image - curr_amt_steps_taken) >## distance between the current image and the actual distance
-            abs((image_index + 1) * avg_steps_per_image - curr_amt_steps_taken)):
+        print("stepped forward", image_index, avg_steps_per_image, step)
+        if image_index * avg_steps_per_image > step:
             continue
             
         time.sleep(2)
