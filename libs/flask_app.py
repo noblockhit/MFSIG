@@ -45,7 +45,7 @@ except ImportError:
     print("An Import Error occured, this might be because of your device not having GPIO pins. In This case ignore this Error, otherwise inspect the traceback above.")
 else:
     State.isGPIO = True
-    State.motor = gpio_handler.Motor([16, 19, 20, 21])
+    State.motor = gpio_handler.Motor([21, 20, 19, 16])
     State.motor.calibrate()
 
 
