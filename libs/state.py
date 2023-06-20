@@ -59,27 +59,4 @@ class State(metaclass=Meta):
     motor: ClassVar[abs_motor_type]
     server: ClassVar[serving.BaseWSGIServer]
     image_count: ClassVar[int]
-<<<<<<< HEAD
-=======
     final_image_dir: ClassVar[Path]
-
-
-if __name__ == "__main__":
-    import traceback
-    
-    try:
-        State.microscope_position = "not a proper value"
-    except:
-        traceback.print_exc()
-
-    State.microscope_position = 69
-
-    assert State.microscope_position == State.microscope_position
-    
-    print(f"microscope_position is {State.microscope_position}")
-
-    class Motor:
-        pass
-
-    State.motor = Motor()
->>>>>>> e2099f98ae5d58eb15acaf1a459e7ca146b1d4a8
