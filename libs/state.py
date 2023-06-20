@@ -53,29 +53,9 @@ class State(metaclass=Meta):
     pData: ClassVar[Union[bytes, None]]
     camera: ClassVar[Union[bmscam.Bmscam, None]]
     recording: ClassVar[bool]
-    complete_config_running: ClassVar[bool]
+    start_camera_and_motor: ClassVar[bool]
     real_motor_position: ClassVar[int]
     isGPIO: ClassVar[bool]
     motor: ClassVar[abs_motor_type]
     server: ClassVar[serving.BaseWSGIServer]
     image_count: ClassVar[int]
-
-
-if __name__ == "__main__":
-    import traceback
-    
-    try:
-        State.microscope_position = "not a proper value"
-    except:
-        traceback.print_exc()
-
-    State.microscope_position = 69
-
-    assert State.microscope_position == State.microscope_position
-    
-    print(f"microscope_position is {State.microscope_position}")
-
-    class Motor:
-        pass
-
-    State.motor = Motor()
