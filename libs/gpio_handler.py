@@ -6,7 +6,6 @@ import atexit
 
 class Motor:
     def __init__(self, pins):
-        GPIO.setmode(GPIO.BCM)
         for pin in pins:
             GPIO.setup(pin, GPIO.OUT)
 
@@ -68,8 +67,26 @@ class Motor:
             time.sleep(.3)
         
 
+class Camera:
+    def __init__(self, bcm_pin_number):
+        self.pin = bcm_pin_number
+        GPIO.setup(self.pin, GPIO.OUT)
+
+    
+    def Close(self):
+        pass
+
+
+    def Snap(self, _):
+        GPIO.output(self.pin, GPIO.HIGH)
+        time.sleep(2)
+        GPIO.output(self.pin, GPIO.LOW)
+        time.sleep(.5)
+
+
 import RPi
 import RPi.GPIO as GPIO
+GPIO.setmode(GPIO.BCM)
 
 if __name__ == "__main__":
     try:
