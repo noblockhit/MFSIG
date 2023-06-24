@@ -117,6 +117,8 @@ def start_camera_and_motor(*, with_bms_cam=True):
             except cameraParser.bmscam.HRESULTException as e:
                 print("Failed to start camera.", e)
                 State.camera.Close()
+    else:
+        State.camera = gpio_handler.Camera(26)
 
     print("IS GPIO:", State.isGPIO)
     if State.isGPIO:
@@ -169,7 +171,7 @@ def start_camera_and_motor(*, with_bms_cam=True):
 
     State.camera.Snap(0)
     
-    # start State.recording
+    # start recording
     target_total_steps = State.microscope_end - State.microscope_start
     avg_steps_per_image = target_total_steps / (State.image_count - 1)
 
@@ -187,6 +189,7 @@ def start_camera_and_motor(*, with_bms_cam=True):
         image_index += 1
         State.camera.Snap(0)
 
+    State.camera.Close()
     sys.exit()
 
 
@@ -250,12 +253,8 @@ def set_camera(camera_idx):
 @app.route("/resolution/<reso_idx>", methods=["POST"])
 def set_resolution(reso_idx):
     if State.resolution_idx is not None:
-        temp_curr_device = State.curr_device
         reset_camera_properties()
-        if temp_curr_device is not None:
-            State.curr_device = temp_curr_device
-            State.camera = cameraParser.bmscam.Bmscam.Open(
-                State.curr_device.id)
+        return "Please reselect the camera before choosing another resolution", 400
 
     State.resolution_idx = int(reso_idx)
     th = threading.Thread(target=start_camera_and_motor)
