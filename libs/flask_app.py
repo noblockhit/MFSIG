@@ -34,7 +34,7 @@ if str(get_path()) == ".":
     State.image_dir = Path(__file__).parent.parent / "images"
 else:
     State.image_dir = get_path().parent / "images"
-
+print(State.image_dir)
 
 State.isGPIO = False
 
