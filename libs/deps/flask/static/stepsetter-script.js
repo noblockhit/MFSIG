@@ -126,9 +126,6 @@ $(window).on("load", () => {
     $("#record-images").on("pointerdown", () => {
         $.get("/record-images", (async = false), () => {
             $("#record-images").html("Started recording!")
-        }).fail((xhr, status, error) => {
-            var err = xhr.responseText
-            alert(err);
         });
     });
 

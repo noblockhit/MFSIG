@@ -4,14 +4,11 @@ from sbNative.runtimetools import get_path
 import time
 from PIL import Image
 import io
-import threading
 from traceback import print_exc
 from urllib.parse import unquote
 from pathlib import Path
 import os
 import json
-import datetime
-import sys
 from libs import cameraParser
 from libs.deps import bmscam
 from .state import State
@@ -55,9 +52,13 @@ def generate_live_image():
     while True:
         time.sleep(.1)
 
-        pil_img = Image.frombytes(
-            "RGB", (State.imgWidth, State.imgHeight), State.pData)
-
+        try:
+            pil_img = Image.frombytes(
+                "RGB", (State.imgWidth, State.imgHeight), State.pData)
+        except TypeError:
+            print("A type error is occuring", State.imgWidth, State.imgHeight)
+            yield (b'--frame\r\n'
+               b'Content-Type: text\r\n\r\n' + b"It seems a temporary issue has occured..." + b'\r\n')
         img_byte_arr = io.BytesIO()
         pil_img.save(img_byte_arr, format="jpeg")
 
@@ -66,7 +67,6 @@ def generate_live_image():
 
 
 def reset_camera_properties():
-
     try:
         State.camera.Close()
     except AttributeError:
@@ -82,19 +82,36 @@ def reset_camera_properties():
     State.microscope_position = 0
     State.real_motor_position = 0
     State.recording = False
-    State.start_camera_and_motor_running = False
+    State.start_motor_and_prepare_recording_running = False
     State.image_count = 1
 
 
 reset_camera_properties()
 
 
-def start_camera_and_motor(*, with_bms_cam=True):
-    if State.start_camera_and_motor_running:
-        return
-    State.start_camera_and_motor_running = True
+@app.route("/")
+def camera_select():
+    return render_template("cameraselect.html")
 
-    if with_bms_cam:
+
+@app.route("/liveview")
+def liveview():
+
+    if bool(request.args.get("with_bms_cam")) is False:
+        State.with_bms_cam = True
+        print("no wout bms cam")
+    else:
+        State.with_bms_cam = False
+        print("wout bms cam")
+    ## set the camera
+    
+    if State.with_bms_cam:
+        if (State.curr_device is None or 
+            State.resolution_idx is None):
+            return "One or more of the parameters necessary for the BMS camera have not been set, please return to the main page and choose to use another way of capturing an image or set all the necessary parameters!"
+    
+        if State.camera is not None:
+            State.camera.Close()
         State.camera = cameraParser.bmscam.Bmscam.Open(State.curr_device.id)
 
         if State.camera:
@@ -118,92 +135,9 @@ def start_camera_and_motor(*, with_bms_cam=True):
                 print("Failed to start camera.", e)
                 State.camera.Close()
     else:
-        State.camera = gpio_handler.Camera(26)
+        if State.isGPIO:
+            State.camera = gpio_handler.Camera(26)
 
-    print("IS GPIO:", State.isGPIO)
-    if State.isGPIO:
-        while True:
-            if State.recording:
-                break
-
-            if State.real_motor_position < State.microscope_position:
-                State.motor.step_forward()
-                State.real_motor_position += 1
-
-            elif State.real_motor_position > State.microscope_position:
-                State.motor.step_backward()
-                State.real_motor_position -= 1
-
-            else:
-                time.sleep(.5)
-
-    else:
-        while True:
-            if State.recording:
-                print("There was no GPIO detected, exiting program.")
-                State.server.shutdown()
-                exit()
-            time.sleep(.5)
-
-    if with_bms_cam:
-        now = datetime.datetime.now()
-        formated_datetime = now.strftime("%Y_%m_%d_at_%H_%M_%S")
-
-        State.final_image_dir = State.image_dir / f"BMSCAM_Images_from_{formated_datetime}"
-        os.mkdir(str(State.final_image_dir))
-
-    # making start smaller than end
-    if State.microscope_start > State.microscope_end:
-        State.microscope_end, State.microscope_start = State.microscope_start, State.microscope_end
-
-    # moving to start position
-    distance_to_start = State.microscope_start - State.real_motor_position
-    if distance_to_start > 0:
-        for _ in range(distance_to_start):
-            State.motor.step_forward()
-    elif distance_to_start < 0:
-        for _ in range(-distance_to_start):
-            State.motor.step_backward()
-
-    State.microscope_position = State.real_motor_position = State.microscope_start
-
-    time.sleep(3)
-
-    State.camera.Snap(0)
-    
-    # start recording
-    target_total_steps = State.microscope_end - State.microscope_start
-    avg_steps_per_image = target_total_steps / (State.image_count - 1)
-
-    image_index = 0
-
-    for step in range(target_total_steps):
-        State.motor.step_forward()
-        State.real_motor_position += 1
-        print("stepped forward", image_index, avg_steps_per_image, step)
-        if image_index * avg_steps_per_image > step:
-            continue
-
-        time.sleep(2)
-        print("snapped")
-        image_index += 1
-        State.camera.Snap(0)
-
-    State.camera.Close()
-    sys.exit()
-
-
-@app.route("/")
-def camera_select():
-    return render_template("cameraselect.html")
-
-
-@app.route("/liveview")
-def liveview():
-    if bool(request.args.get("with_bms_cam")):
-        th = threading.Thread(target=start_camera_and_motor,
-                              kwargs={"with_bms_cam": 0})
-        th.start()
     return render_template("liveview.html")
 
 
@@ -252,13 +186,7 @@ def set_camera(camera_idx):
 
 @app.route("/resolution/<reso_idx>", methods=["POST"])
 def set_resolution(reso_idx):
-    if State.resolution_idx is not None:
-        reset_camera_properties()
-        return "Please reselect the camera before choosing another resolution", 400
-
     State.resolution_idx = int(reso_idx)
-    th = threading.Thread(target=start_camera_and_motor)
-    th.start()
     return "", 200
 
 
@@ -292,9 +220,13 @@ def get_current_images_directory():
 def start_recording():
     if State.recording:
         return "Already started recording", 400
-    if not State.start_camera_and_motor_running:
-        return "The motor (and optionally the camera) have not been started yet.", 400
 
+    if State.camera is None:
+        return "You have not selected a camera yet!", 400
+
+    if State.image_count > State.microscope_end - State.microscope_start:
+        return "You may not take more images than Steps taken by the motor, this is redundant due to having multiple images in the same position.", 400
+    
     State.recording = True
     return "", 200
 

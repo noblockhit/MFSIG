@@ -73,7 +73,7 @@
     display: inline;
 }
 
-.container button {
+.container button:not(.close-button) {
     width: calc(100% - 2em);
     padding: 1em;
     margin: 1em;

@@ -22,23 +22,27 @@ class Meta(type):
             return super().__setattr__(__name, __value)
         
         hint = class_hint.__dict__.get("__args__")[0]
-        
         can_be_none = isinstance(hint, _UnionGenericAlias)
 
         if can_be_none:
-            hint = hint.__dict__.get("__args__")[0]
-            
-        val_type = type(__value)
-
-        if isinstance(hint, types.FunctionType) or isinstance(hint, types.LambdaType) or hasattr(hint, "__self__"):
-            print(hint, val_type, __value)
+            possible_hints = hint.__dict__.get("__args__")
         else:
-            if not (isinstance(__value, hint) or (__value is None and can_be_none)):
-                if not (ABSType in hint.__bases__ and val_type.__name__ == hint.__name__):
-                    raise ValueError(f"The property {__name} only takes {hint}, got {val_type} <{__value}> instead.")
-        return super().__setattr__(__name, __value)
+            possible_hints = [hint]
+
+        print(class_hint, possible_hints)
+
+        val_type = type(__value)
+        
+        for _hint in possible_hints:
+            if isinstance(_hint, types.FunctionType) or isinstance(_hint, types.LambdaType) or hasattr(_hint, "__self__"):
+                print(_hint, val_type, __value)
+            else:
+                if (isinstance(__value, _hint) or (__value is None and can_be_none)) or (ABSType in _hint.__bases__ and val_type.__name__ == _hint.__name__):
+                        return super().__setattr__(__name, __value)
+        raise ValueError(f"The property {__name} only takes {possible_hints}, got {val_type} <{__value}> instead.")
 
 abs_motor_type = type("Motor", (ABSType,), dict())
+abs_camera_type = type("Camera", (ABSType,), dict())
 
 @dataclass
 class State(metaclass=Meta):
@@ -51,12 +55,13 @@ class State(metaclass=Meta):
     imgWidth: ClassVar[Union[int, None]]
     imgHeight: ClassVar[Union[int, None]]
     pData: ClassVar[Union[bytes, None]]
-    camera: ClassVar[Union[bmscam.Bmscam, None]]
+    camera: ClassVar[Union[bmscam.Bmscam, abs_camera_type, None]]
     recording: ClassVar[bool]
-    start_camera_and_motor: ClassVar[bool]
+    start_motor_and_prepare_recording: ClassVar[bool]
     real_motor_position: ClassVar[int]
     isGPIO: ClassVar[bool]
     motor: ClassVar[abs_motor_type]
     server: ClassVar[serving.BaseWSGIServer]
     image_count: ClassVar[int]
     final_image_dir: ClassVar[Path]
+    with_bms_cam: ClassVar[bool]
