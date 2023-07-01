@@ -72,12 +72,10 @@ def start_motor_and_prepare_recording():
     for step in range(target_total_steps):
         State.motor.step_forward()
         State.real_motor_position += 1
-        print("stepped forward", image_index, avg_steps_per_image, step)
         if image_index * avg_steps_per_image > step:
             continue
 
         time.sleep(2)
-        print("snapped")
         image_index += 1
         State.camera.Snap(0)
 

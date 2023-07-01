@@ -5,16 +5,15 @@ import time
 from pathlib import Path
 from .deps import bmscam
 from .state import State
-
+import importlib
 from sbNative.debugtools import log
 
-bms_enum = bmscam.Bmscam.EnumV2()
 global still_image_idx
 still_image_idx = 0
-print(bms_enum)
 
 def list_devices():
-    return [(i, device) for i,device in enumerate(bms_enum)]
+    State.bms_enum = bmscam.Bmscam.EnumV2()
+    return [(i, device) for i,device in enumerate(State.bms_enum)]
 
 def get_current_devices_resolution_options(curr_device):
     return [(i, (curr_device.model.res[i].width, curr_device.model.res[i].height)) for i in range(0, curr_device.model.preview)]

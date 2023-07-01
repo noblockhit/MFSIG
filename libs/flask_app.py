@@ -33,7 +33,6 @@ if str(get_path()) == ".":
     State.image_dir = Path(__file__).parent.parent / "images"
 else:
     State.image_dir = get_path().parent / "images"
-print(State.image_dir)
 
 State.isGPIO = False
 
@@ -56,7 +55,6 @@ def generate_live_image():
             pil_img = Image.frombytes(
                 "RGB", (State.imgWidth, State.imgHeight), State.pData)
         except TypeError:
-            print("A type error is occuring", State.imgWidth, State.imgHeight)
             yield (b'--frame\r\n'
                b'Content-Type: text\r\n\r\n' + b"It seems a temporary issue has occured..." + b'\r\n')
         img_byte_arr = io.BytesIO()
@@ -175,7 +173,7 @@ def set_camera(camera_idx):
     if State.curr_device is not None:
         reset_camera_properties()
 
-    State.curr_device = cameraParser.bms_enum[int(camera_idx)]
+    State.curr_device = State.bms_enum[int(camera_idx)]
 
     ret = ""
     for idx, reso in cameraParser.get_current_devices_resolution_options(State.curr_device):
