@@ -97,10 +97,8 @@ def liveview():
 
     if bool(request.args.get("with_bms_cam")) is False:
         State.with_bms_cam = True
-        print("no wout bms cam")
     else:
         State.with_bms_cam = False
-        print("wout bms cam")
     ## set the camera
     
     if State.with_bms_cam:
@@ -274,7 +272,6 @@ def set_end():
 @app.route("/live-stream")
 def live_stream():
     if not State.imgWidth or not State.imgHeight or not State.pData:
-        print("The camera has seemingly not been started yet")
         return Response("The camera has seemingly not been started yet", status=400)
 
     return Response(generate_live_image(), mimetype='multipart/x-mixed-replace; boundary=frame')

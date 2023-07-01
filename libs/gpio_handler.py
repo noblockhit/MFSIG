@@ -103,10 +103,8 @@ if __name__ == "__main__":
         
         while True:
             i += 1
-            print(i)
             m.step_backward()
             time.sleep(.01)
-            print([int(i) for i in m.pins_dict.values()])
 
     except:
         import traceback

@@ -29,13 +29,12 @@ class Meta(type):
         else:
             possible_hints = [hint]
 
-        print(class_hint, possible_hints)
 
         val_type = type(__value)
         
         for _hint in possible_hints:
             if isinstance(_hint, types.FunctionType) or isinstance(_hint, types.LambdaType) or hasattr(_hint, "__self__"):
-                print(_hint, val_type, __value)
+                pass
             else:
                 if (isinstance(__value, _hint) or (__value is None and can_be_none)) or (ABSType in _hint.__bases__ and val_type.__name__ == _hint.__name__):
                         return super().__setattr__(__name, __value)

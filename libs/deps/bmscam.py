@@ -1657,14 +1657,13 @@ class Bmscam:
     def __initlib(cls):
         if cls.__lib is None:
             try: # Firstly try to load the library in the directory where this file is located
-                dir = os.path.dirname(os.path.realpath(__file__))
+                _dir = os.path.dirname(os.path.realpath(__file__))
                 if sys.platform == 'win32':
-                    cls.__lib = ctypes.windll.LoadLibrary(os.path.join(dir, 'bmscam.dll'))
+                    cls.__lib = ctypes.windll.LoadLibrary(os.path.join(_dir, 'bmscam.dll'))
                 elif sys.platform.startswith('linux'):
-                    print(os.path.join(dir, 'libbmscam.so'))
-                    cls.__lib = ctypes.cdll.LoadLibrary(os.path.join(dir, 'libbmscam.so'))
+                    cls.__lib = ctypes.cdll.LoadLibrary(os.path.join(_dir, 'libbmscam.so'))
                 else:
-                    cls.__lib = ctypes.cdll.LoadLibrary(os.path.join(dir, 'libbmscam.dylib'))
+                    cls.__lib = ctypes.cdll.LoadLibrary(os.path.join(_dir, 'libbmscam.dylib'))
             except OSError:
                 pass
 
