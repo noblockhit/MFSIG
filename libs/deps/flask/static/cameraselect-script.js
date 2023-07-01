@@ -35,10 +35,6 @@ $(window).on("load", function () {
             success: function (data) {
                 $("#live-view-container").removeAttr('hidden');
             },
-            error: function (err) {
-                console.log("Ajax error:");
-                console.log(err);
-            },
         });
         adjust_option_width();
     });
