@@ -23,7 +23,6 @@ def handleImageEvent():
         State.camera.PullImageV3(State.pData, 0, 24, 0, None)
     except bmscam.HRESULTException as e:
         log(e)
-        print("Couldn't pull Still image")
 
 
 def handleStillImageEvent():
@@ -35,7 +34,6 @@ def handleStillImageEvent():
         State.camera.PullImageV3(None, 1, 24, 0, info)
     except bmscam.HRESULTException as e:
         log(e)
-        print("Couldn't pull Still image")
     else:
         if info.width > 0 and info.height > 0:
             buff = bytes(bmscam.TDIBWIDTHBYTES(info.width * 24) * info.height)
