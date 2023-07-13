@@ -13,7 +13,6 @@ from libs import cameraParser
 from libs.deps import bmscam
 from .state import State
 
-
 org_mk_server = serving.make_server
 
 
@@ -82,6 +81,9 @@ def reset_camera_properties():
     State.recording = False
     State.start_motor_and_prepare_recording_running = False
     State.image_count = 1
+    State.recording_progress = None
+    State.current_image_index = 0
+    State.busy_capturing = False
 
 
 reset_camera_properties()
@@ -94,7 +96,6 @@ def camera_select():
 
 @app.route("/liveview")
 def liveview():
-
     if bool(request.args.get("with_bms_cam")) is False:
         State.with_bms_cam = True
     else:
@@ -153,7 +154,7 @@ def favicon():
 
 @app.route("/image-count/<count>", methods=["POST"])
 def set_image_count(count):
-    State.image_count = int(count)
+    State.image_count = int(float(count))
     return "", 200
 
 
@@ -217,8 +218,8 @@ def start_recording():
     if State.recording:
         return "Already started recording", 400
 
-    if State.camera is None:
-        return "You have not selected a camera yet!", 400
+    # if State.camera is None:
+    #     return "You have not selected a camera yet!", 400
 
     if State.image_count > State.microscope_end - State.microscope_start:
         return "You may not take more images than Steps taken by the motor, this is redundant due to having multiple images in the same position.", 400

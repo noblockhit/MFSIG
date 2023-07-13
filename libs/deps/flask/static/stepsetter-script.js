@@ -31,6 +31,26 @@ var getUrIParameter = function getUrlParameter(sParam) {
 $(window).on("load", () => {
     $("#total-steps").text(getUrIParameter("total-steps"))
 
+    let progressBar = document.getElementById("recording-progress-beam");
+    let progressNum = document.getElementById("progress-value-num")
+    progressBar.style.width = "0%";
+
+    var socket = new WebSocket(`ws://${window.location.hostname}:65432`);
+
+    socket.addEventListener("open", () => {
+        // send a message to the server
+        socket.send(null)
+        console.log("connected")
+    });
+
+    // receive a message from the server
+    socket.addEventListener("message", ({ data }) => {
+        console.log("recv", data)
+        progressBar.style.width = `${data}%`;
+        progressNum.innerHTML = `${data}%`
+        socket.send(data);
+    });
+
     var idd_input = document.getElementById("image-delta-distance-input");
     var tia_input = document.getElementById("total-image-amount-input");
     var dpr_input = document.getElementById("distance-per-rotation-input");
