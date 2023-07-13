@@ -33,9 +33,7 @@ class Meta(type):
         val_type = type(__value)
         
         for _hint in possible_hints:
-            if isinstance(_hint, types.FunctionType) or isinstance(_hint, types.LambdaType) or hasattr(_hint, "__self__"):
-                pass
-            else:
+            if not (isinstance(_hint, types.FunctionType) or isinstance(_hint, types.LambdaType) or hasattr(_hint, "__self__")):
                 if (isinstance(__value, _hint) or (__value is None and can_be_none)) or (ABSType in _hint.__bases__ and val_type.__name__ == _hint.__name__):
                         return super().__setattr__(__name, __value)
         raise ValueError(f"The property {__name} only takes {possible_hints}, got {val_type} <{__value}> instead.")
@@ -65,3 +63,12 @@ class State(metaclass=Meta):
     final_image_dir: ClassVar[Path]
     with_bms_cam: ClassVar[bool]
     bms_enum: ClassVar[list]
+    recording_progress: ClassVar[Union[int, None]]
+    current_image_index: ClassVar[Union[int, None]]
+    busy_capturing: ClassVar[bool]
+
+    @classmethod
+    def progress(cls):
+        State.recording_progress = int((State.current_image_index+1) / (State.image_count) * 100)
+        State.busy_capturing = False
+        print("progressed to", State.recording_progress)

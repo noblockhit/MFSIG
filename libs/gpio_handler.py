@@ -1,8 +1,7 @@
 import time
 import atexit
-
 # 400 schritte sind pi mal daumen eine Umdrehung
-
+from state import State
 
 class Motor:
     def __init__(self, pins):
@@ -72,16 +71,16 @@ class Camera:
         self.pin = bcm_pin_number
         GPIO.setup(self.pin, GPIO.OUT)
 
-    
     def Close(self):
         pass
-
 
     def Snap(self, _):
         GPIO.output(self.pin, GPIO.HIGH)
         time.sleep(2)
         GPIO.output(self.pin, GPIO.LOW)
         time.sleep(.5)
+        State.progress()
+        
 
 
 import RPi

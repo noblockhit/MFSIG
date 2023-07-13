@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Response, request, send_from_directory
+from flask import Flask, render_template
 import socket
 from threading import Thread
 import websockets
@@ -9,7 +9,7 @@ import random
 
 global progress
 progress = 0
-async def echo(websocket):
+async def respond(websocket):
     try:
         async for msg in websocket:
             if msg != "null" and int(msg) == progress:
@@ -21,7 +21,7 @@ async def echo(websocket):
 
 async def main():
     print("running")
-    async with serve(echo, "localhost", 65432):
+    async with serve(respond, "localhost", 65432):
         await asyncio.Future()  # run forever
 
 
