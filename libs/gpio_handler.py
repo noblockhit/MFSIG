@@ -1,7 +1,7 @@
 import time
 import atexit
 # 400 schritte sind pi mal daumen eine Umdrehung
-from state import State
+from .state import State
 
 class Motor:
     def __init__(self, pins):
