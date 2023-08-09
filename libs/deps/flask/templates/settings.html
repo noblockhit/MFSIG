@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Set Settings</title>
+        <link rel="icon" type="image/x-icon" href="/favicon.svg">
+        <link
+            rel="stylesheet"
+            type="text/css"
+            media="screen"
+            href="static/settings-style.css"
+        />
+        <link
+            rel="stylesheet"
+            type="text/css"
+            media="screen"
+            href="static/style.css"
+        />
+        <script src="static/jquery.min.js"></script>
+        <script src="static/script.js"></script>
+        <script src="static/settings-script.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Change the default Settings in case you don't use my exact layout!</h1>
+            <div class="sub-container" id="gpio-default-on">
+                <form autocomplete="off" action="" name="gpio-default-on-form" id="gpio-default-on-form">
+                    <label for="gpio-default-on-input">Whether the pins should be on or off by default:</label>
+                    <select name="gpio-default-on-input" id="gpio-default-on-input">
+                        <option selected="selected" value="False">OFF</option>
+                        <option value="True">ON</option>
+                    </select>
+                    <button class="submit-button" type="button" for="gpio-default-on-input">
+                        Confirm
+                    </button>
+                </form>
+                <br><p>This is important when using N-channel or P-channel transistors / NPN or PNP but it's recommended to use the "IRLB8721PBF MOSFET".</p>
+            </div>
+
+            <div class="sub-container" id="gpio-motor-pins">
+                <form autocomplete="off" action="" name="gpio-motor-pins-form" id="gpio-motor-pins-form">
+                    <label for="gpio-motor-pins-input">Motor GPIO pins, splitted by comma ",":</label>
+                    <input name="gpio-motor-pins-input" id="gpio-motor-pins-input" placeholder="ex.: 12,15,11,18"></input>
+                </form>
+                <button class="submit-button" type="button" for="gpio-motor-pins-input">
+                    Confirm and test (the motor should first move to calibrate and then wait before doing n steps in one and n steps into the other direction, n being equal to the number of pins (The movements can be tiny!))
+                </button>
+
+                <br><p>Hint: watch out for the pins being in order that the motor needs to rotate. In case that the direction is flipped, just enter the numbers in inverse order! There also need to be at least 3 pins (phases), but that should be given by the steppermotor you are using!</p>
+            </div>
+
+            <div class="sub-container" id="gpio-camera-pin">
+                <form autocomplete="off" action="" name="gpio-camera-pin-form" id="gpio-camera-pin-form">
+                    <label for="gpio-camera-pin-input">Camera GPIO pin:</label>
+                    <input name="gpio-camera-pin-input" id="gpio-camera-pin-input" placeholder="ex.: 10"></input>
+                </form>
+                <button class="submit-button" type="button" for="gpio-camera-pin-input">
+                    Confirm and test (The Camera should trigger once. (The resistance should drop heavily over the output in case you are using my circuit, but the voltage should remain, with the camera disconnected, very close to 0!))
+                </button>
+                <br><p>Hint: You are responsible for your own equipment and I will not cover any damage caused neither to the raspberry nor your camera. I strongly advise to measure resistance and voltage on your output cable!</p>
+            </div>
+        </div>
+    </body>
+</html>

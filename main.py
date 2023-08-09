@@ -35,7 +35,7 @@ def start_motor_and_prepare_recording():
                 State.real_motor_position -= 1
 
             else:
-                time.sleep(.5)
+                time.sleep(.1)
 
     else:
         while True:

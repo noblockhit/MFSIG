@@ -27,7 +27,7 @@
             <h1>Enter the necessary parameters for the motor</h1>
             <div class="sub-container" id="units">
                 <form autocomplete="off" action="" name="units-form" id="units-form">
-                    <label for="units-input">Units</label>
+                    <label for="units-input">Units:</label>
                     <select name="units-input" id="units-input">
                         <option value="1">m</option>
                         <option selected="selected" value="1000">mm</option>
@@ -40,15 +40,16 @@
 
             <div class="sub-container" id="motor-steps-per-rotation">
                 <form autocomplete="off" action="" name="motor-steps-per-rotation-form" id="motor-steps-per-rotation-form">
-                    <label for="motor-steps-per-rotation-input">Motor steps per rotation</label>
+                    <label for="motor-steps-per-rotation-input">Motor steps per rotation:</label>
                     <input name="motor-steps-per-rotation-input" id="motor-steps-per-rotation-input" value="400"></input>
                 </form>
             </div>
 
             <div class="sub-container" id="distance-per-rotation">
                 <form autocomplete="off" action="" name="distance-per-rotation-form" id="distance-per-rotation-form">
-                    <label for="distance-per-rotation-input">Distance per rotation</label>
+                    <label for="distance-per-rotation-input">Distance per rotation:</label>
                     <input name="distance-per-rotation-input" id="distance-per-rotation-input" value="1000"></input>
+                    <p class="unit">mm</p>
                 </form>
             </div>
 
@@ -58,12 +59,13 @@
 
             <div class="sub-container" id="image-delta-distance">
                 <form autocomplete="off" action="" name="image-delta-distance-form" id="image-delta-distance-form">
-                    <label for="image-delta-distance-input">Distance between Images</label>
+                    <label for="image-delta-distance-input">Distance between Images:</label>
                     <input name="image-delta-distance-input" id="image-delta-distance-input"></input>
+                    <p class="unit">mm</p>
                 </form>
                 <br>
                 <form autocomplete="off" action="" name="total-image-amount-form" id="total-image-amount-form">
-                    <label for="total-image-amount-input">Total amount of images &nbsp;</label>
+                    <label for="total-image-amount-input">Total amount of images: &nbsp;</label>
                     <input name="total-image-amount-input" id="total-image-amount-input" value="1000"></input>
                 </form>
             </div>
