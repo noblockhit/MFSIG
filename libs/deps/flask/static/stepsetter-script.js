@@ -12,7 +12,7 @@ function prevent_submit_and_unfocus(e) {
     e.preventDefault();
 }
 
-var getUrIParameter = function getUrlParameter(sParam) {
+const getUrIParameter = function getUrlParameter(sParam) {
     var sPageURL = window.location.search.substring(1),
         sURLVariables = sPageURL.split('&'),
         sParameterName,
@@ -29,7 +29,11 @@ var getUrIParameter = function getUrlParameter(sParam) {
 };
 
 $(window).on("load", () => {
-    $("#total-steps").text(getUrIParameter("total-steps"))
+    temp_total_steps = getUrIParameter("total-steps")
+    if (temp_total_steps === false) {
+        temp_total_steps = 800;
+    }
+    $("#total-steps").text(temp_total_steps)
 
     let progressBar = document.getElementById("recording-progress-beam");
     let progressNum = document.getElementById("progress-value-num")
@@ -71,6 +75,8 @@ $(window).on("load", () => {
     var latest_typed = tia_input;
 
     function update_all() {
+        console.log("update triggered")
+
         distance_per_step = dpr_value / mspr_value;
         total_distance = total_steps * distance_per_step;
 
@@ -85,8 +91,11 @@ $(window).on("load", () => {
         }
 
         if (tia_value != Infinity) {
-            $.post(`/image-count/${tia_value}`)
+            $.post(`/image-count/${tia_value}`);
         }
+
+        $.post(`/settings/steps-per-motor-rotation/${mspr_value}`);
+        $.post(`/settings/distance-per-motor-rotation/${dpr_value}`);
     }
 
     $(idd_input).on("keyup", function (e) {
@@ -149,5 +158,28 @@ $(window).on("load", () => {
         });
     });
 
-    update_all();
+    $("#units-input").on("change", function () {
+        $.post(`/settings/motor-rotation-units/${Math.log10(this.value)}`);
+        $(".unit").html($("#units-input option:selected").text());
+    });
+
+
+    // load saved values
+
+    $.get("/settings/motor-rotation-units", (async = false), (value) => {
+        $("#units-input").val(Math.pow(10, parseInt(value)), value)
+        $(".unit").html($("#units-input option:selected").text());
+    });
+
+    $.get("/settings/steps-per-motor-rotation", (async = false), (value) => {
+        mspr_value = parseFloat(value);
+        update_all();
+        $("#motor-steps-per-rotation-input").val(parseFloat(value))
+    });
+
+    $.get("/settings/distance-per-motor-rotation", (async = false), (value) => {
+        dpr_value = parseFloat(value);
+        update_all();
+        $("#distance-per-rotation-input").val(parseFloat(value))
+    });
 });

@@ -90,7 +90,9 @@ h1, h2, h3 {
     margin: .5em;
 }
 
-
+input { 
+    text-align: right; 
+}
 
 .progress-bar {
     background-color: azure;
