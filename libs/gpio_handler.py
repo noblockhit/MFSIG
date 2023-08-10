@@ -92,7 +92,7 @@ class Camera:
     def Close(self):
         p_off(self.pin)
 
-    def Snap(self, _):
+    def Snap(self, *_):
         p_on(self.pin)
         time.sleep(2)
         p_off(self.pin)
