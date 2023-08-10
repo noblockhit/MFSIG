@@ -1,32 +1,7 @@
-function isNumeric(str) {
-    if (typeof str != "string") return false; // we only process strings!
-    return (
-        (!isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
-            !isNaN(parseFloat(str))) || // ...and ensure strings of whitespace fail
-        str === ""
-    ); // except completly empty to ease the retyping of the first digit
-}
-
 function prevent_submit_and_unfocus(e) {
     document.activeElement.blur()
     e.preventDefault();
 }
-
-const getUrIParameter = function getUrlParameter(sParam) {
-    var sPageURL = window.location.search.substring(1),
-        sURLVariables = sPageURL.split('&'),
-        sParameterName,
-        i;
-
-    for (i = 0; i < sURLVariables.length; i++) {
-        sParameterName = sURLVariables[i].split('=');
-
-        if (sParameterName[0] === sParam) {
-            return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
-        }
-    }
-    return false;
-};
 
 $(window).on("load", () => {
     $("form").submit(prevent_submit_and_unfocus);
