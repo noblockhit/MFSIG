@@ -10,8 +10,8 @@ from pathlib import Path
 import os
 import json
 from libs import cameraParser
-from libs.deps import bmscam
 from .state import State, SETTING_KEYS
+
 
 org_mk_server = serving.make_server
 
@@ -106,6 +106,8 @@ def get_setting(_key):
 
 @app.route("/settings/<_key>/<value>", methods=["POST"])
 def set_setting(_key, value):
+    _perm_and_reload_requiering = ["GPIO_camera_pin", "GPIO_motor_pins"]
+
     key = _key.replace("-","_")
 
     if key not in SETTING_KEYS:
@@ -113,7 +115,11 @@ def set_setting(_key, value):
     
     setattr(State, key, SETTING_KEYS[key]((value)))
     State.save_configuration_data()
-    reset_camera_properties()
+    
+    if key in _perm_and_reload_requiering:
+        reset_camera_properties()
+    else:
+        State.load_configuration()
 
     if key == "GPIO_camera_pin":
         print("Snapping test camera")
@@ -144,6 +150,8 @@ def set_setting(_key, value):
             print("There is no GPIO connection so this couldn't be tested, the value was set regardless!")
             return "There is no GPIO connection so this couldn't be tested, the value was set regardless!", 400
     
+    if key in _perm_and_reload_requiering:
+        return "Warning, the changes made to the motor to prepare a recording have been reset by a reload", 400
     return "", 200
 
 @app.route("/")
@@ -193,6 +201,7 @@ def liveview():
             except cameraParser.bmscam.HRESULTException as e:
                 print("Failed to start camera.", e)
                 State.camera.Close()
+                return "Failed to start camera. " + e, 500
     else:
         if State.isGPIO:
             State.camera = gpio_handler.Camera(State.GPIO_camera_pin)
@@ -279,8 +288,11 @@ def get_current_images_directory():
 def start_recording():
     if State.recording:
         return "Already started recording", 400
+    
+    if State.image_count <= 1:
+        return "You may not take less than 2 images!"
 
-    if State.image_count > State.microscope_end - State.microscope_start:
+    if State.image_count > abs(State.microscope_end - State.microscope_start):
         return "You may not take more images than Steps taken by the motor, this is redundant due to having multiple images in the same position.", 400
     
     State.recording = True

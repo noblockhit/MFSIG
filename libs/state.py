@@ -6,8 +6,8 @@ from platformdirs import user_config_dir
 from pathlib import Path
 import os
 import json
-import traceback
-import atexit
+import time
+import colorama
 
 
 if __name__ == '__main__':
@@ -40,12 +40,10 @@ if not os.path.exists(str(CONFIGURATION_FILE_PATH)):
 
 with open(str(CONFIGURATION_FILE_PATH), "r") as rf:
     try:
-        _content = rf.read()
-        json.loads(_content)
+        json.loads(rf.read())
     except ValueError:
         print(f"WARNING, YOUR JSON CONFIGURATION FILE IS NOT JSON LOADABLE, THIS WAS THE PREVIOUS CONTENT WHICH WAS REPLACED WITH A CLEAN FILE AT THE LOCATION {CONFIGURATION_FILE_PATH}:\n")
 
-        print(_content + "\n")
         rf.close()
 
         with open(str(CONFIGURATION_FILE_PATH), "w") as wf:
@@ -129,18 +127,32 @@ class State(metaclass=Meta):
     def save_configuration_data(cls):
         global SETTING_KEYS
         with open(str(CONFIGURATION_FILE_PATH), "w") as wf:
-            wf.write(json.dumps(
+            content = json.dumps(
                 {key: getattr(State, key) for key in SETTING_KEYS.keys()},
                 indent=4
-            ))
-        
+            )
+            wf.write(content)
+            wf.truncate()
+
 
     @classmethod
     def load_configuration(cls, j=None):
         global CONFIGURATION_FILE_PATH
         if not j:
-            with open(str(CONFIGURATION_FILE_PATH), "r") as rf:
-                j = json.loads(rf.read())
+            for tries in range(1,11):
+                with open(str(CONFIGURATION_FILE_PATH), "r") as rf:
+                    content = rf.read()
+                    try:
+                        j = json.loads(content)
+                    except json.JSONDecodeError:
+                        pass
+                    else:
+                        break
+                    print(f"{colorama.Fore.YELLOW}FAILED TO LOAD CONFIGURATION, RETRYING IN {tries*100} MS (ATTEMPT {tries}){colorama.Fore.RESET}")
+                    time.sleep(tries/10)
+            else:
+                print(f"{colorama.Fore.RED}FAILED TO LOAD CONFIGURATION AFTER {tries} TRIES AND {(tries/2*(2 + (tries-1)))*100} MS{colorama.Fore.RESET}")
+
 
         if "steps_per_motor_rotation" in j.keys():
             State.steps_per_motor_rotation = j["steps_per_motor_rotation"]
