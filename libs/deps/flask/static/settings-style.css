@@ -55,12 +55,14 @@
     margin: 1em;
 }
 
-#units-form select,
-#units-form option,
-#distance-per-rotation input,
-#motor-steps-per-rotation-form input,
-#image-delta-distance input,
-#total-image-amount-form input {
+a.sub-container {
+    text-align: center;
+}
+
+#gpio-default-on-form select,
+#gpio-default-on-form option,
+#gpio-camera-pin-form input,
+#gpio-motor-pins-form input {
     border: none;
     border-bottom: 2px solid white;
     background-color: black;
@@ -74,14 +76,14 @@
 }
 
 .container button:not(.close-button) {
-    width: calc(100% - 2em);
     padding: 1em;
-    margin: 1em;
+    margin: auto;
+    margin-top: 0;
     background-color: black;
-    border: none;
+    border-color: white;
     border-radius: 5px;
     cursor: pointer;
-    display: block;
+    display: inline-block;
     text-align: center;
     color: wheat;
 }

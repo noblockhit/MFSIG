@@ -10,8 +10,7 @@ from pathlib import Path
 import os
 import json
 from libs import cameraParser
-from libs.deps import bmscam
-from .state import State
+from .state import State, SETTING_KEYS
 
 
 org_mk_server = serving.make_server
@@ -43,8 +42,6 @@ except ImportError:
     print("An Import Error occured, this might be because of your device not having GPIO pins. In This case ignore this Error, otherwise inspect the traceback above.")
 else:
     State.isGPIO = True
-    State.motor = gpio_handler.Motor([21, 20, 19, 16])
-    State.motor.calibrate()
 
 
 def generate_live_image():
@@ -82,14 +79,89 @@ def reset_camera_properties():
     State.recording = False
     State.start_motor_and_prepare_recording_running = False
     State.image_count = 1
+    State.recording_progress = None
+    State.current_image_index = 0
+    State.busy_capturing = False
+
+    ## possible user configs
+    State.distance_per_motor_rotation = 100.0
+    State.motor_rotation_units = 3
+    State.steps_per_motor_rotation = 400
+    State.GPIO_motor_pins = [21, 20, 19, 16]
+    State.GPIO_default_on = False
+    State.GPIO_camera_pin = 26
+
+    State.load_configuration()
+
+    if State.isGPIO:
+        State.motor = gpio_handler.Motor(State.GPIO_motor_pins)
+        State.motor.calibrate()
 
 
 reset_camera_properties()
 
+@app.route("/settings/<_key>", methods=["GET"])
+def get_setting(_key):
+    return str(getattr(State, _key.replace("-","_"))), 200
+
+@app.route("/settings/<_key>/<value>", methods=["POST"])
+def set_setting(_key, value):
+    _perm_and_reload_requiering = ["GPIO_camera_pin", "GPIO_motor_pins"]
+
+    key = _key.replace("-","_")
+
+    if key not in SETTING_KEYS:
+        return f"There is no such setting like {_key}!", 400
+    
+    setattr(State, key, SETTING_KEYS[key]((value)))
+    State.save_configuration_data()
+    
+    if key in _perm_and_reload_requiering:
+        reset_camera_properties()
+    else:
+        State.load_configuration()
+
+    if key == "GPIO_camera_pin":
+        print("Snapping test camera")
+        if State.isGPIO:
+            temp_camera = gpio_handler.Camera(State.GPIO_camera_pin)
+            temp_camera.Snap()
+            temp_camera.Close()
+            del temp_camera
+        else:
+            print("There is no GPIO connection so this couldn't be tested, the value was set regardless!")
+            return "There is no GPIO connection so this couldn't be tested, the value was set regardless!", 400
+        
+    
+    if key == "GPIO_motor_pins":
+        print("Moving motor")
+        if State.isGPIO:
+            time.sleep(3)
+            for _ in State.motor.pins:
+                State.microscope_position += 1
+                time.sleep(.5)
+            
+            time.sleep(2)
+            for _ in State.motor.pins:
+                State.microscope_position -= 1
+                time.sleep(.5)
+
+        else:
+            print("There is no GPIO connection so this couldn't be tested, the value was set regardless!")
+            return "There is no GPIO connection so this couldn't be tested, the value was set regardless!", 400
+    
+    if key in _perm_and_reload_requiering:
+        return "Warning, the changes made to the motor to prepare a recording have been reset by a reload", 400
+    return "", 200
 
 @app.route("/cam-select")
 def camera_select():
     return render_template("cameraselect.html")
+
+
+@app.route("/settings")
+def settings():
+    return render_template("settings.html")
 
 
 @app.route("/liveview")
@@ -129,9 +201,10 @@ def liveview():
             except cameraParser.bmscam.HRESULTException as e:
                 print("Failed to start camera.", e)
                 State.camera.Close()
+                return "Failed to start camera. " + e, 500
     else:
         if State.isGPIO:
-            State.camera = gpio_handler.Camera(26)
+            State.camera = gpio_handler.Camera(State.GPIO_camera_pin)
 
     return render_template("liveview.html")
 
@@ -152,7 +225,7 @@ def favicon():
 
 @app.route("/image-count/<count>", methods=["POST"])
 def set_image_count(count):
-    State.image_count = int(count)
+    State.image_count = int(float(count))
     return "", 200
 
 
@@ -215,11 +288,11 @@ def get_current_images_directory():
 def start_recording():
     if State.recording:
         return "Already started recording", 400
+    
+    if State.image_count <= 1:
+        return "You may not take less than 2 images!"
 
-    if State.camera is None:
-        return "You have not selected a camera yet!", 400
-
-    if State.image_count > State.microscope_end - State.microscope_start:
+    if State.image_count > abs(State.microscope_end - State.microscope_start):
         return "You may not take more images than Steps taken by the motor, this is redundant due to having multiple images in the same position.", 400
     
     State.recording = True
