@@ -1,13 +1,29 @@
 import time
 import atexit
-
 # 400 schritte sind pi mal daumen eine Umdrehung
+from .state import State
+
+
+def p_on(pin):
+    if State.GPIO_default_on:
+        GPIO.output(pin, GPIO.LOW)
+    else:
+        GPIO.output(pin, GPIO.HIGH)
+
+
+def p_off(pin):
+    if State.GPIO_default_on:
+        GPIO.output(pin, GPIO.HIGH)
+    else:
+        GPIO.output(pin, GPIO.LOW)
+
 
 
 class Motor:
     def __init__(self, pins):
         for pin in pins:
             GPIO.setup(pin, GPIO.OUT)
+            p_off(pin)
 
         self.step = 0
         self.pins = pins
@@ -18,7 +34,7 @@ class Motor:
     
     def pin_on(self, pin):
         self.pins_dict[pin] = True
-        GPIO.output(pin, GPIO.HIGH)
+        p_on(pin)
 
     def pin_off(self, pin):
         self.pins_dict[pin] = False
@@ -53,7 +69,7 @@ class Motor:
 
     def cleanup(self):
         for pin in self.pins:
-            GPIO.output(pin, GPIO.LOW)
+            p_off(pin)
         GPIO.cleanup()
         
         
@@ -71,17 +87,18 @@ class Camera:
     def __init__(self, bcm_pin_number):
         self.pin = bcm_pin_number
         GPIO.setup(self.pin, GPIO.OUT)
+        p_off(self.pin)
 
-    
     def Close(self):
-        pass
+        p_off(self.pin)
 
-
-    def Snap(self, _):
-        GPIO.output(self.pin, GPIO.HIGH)
+    def Snap(self, *_):
+        p_on(self.pin)
         time.sleep(2)
-        GPIO.output(self.pin, GPIO.LOW)
+        p_off(self.pin)
         time.sleep(.5)
+        State.progress()
+        
 
 
 import RPi
