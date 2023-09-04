@@ -65,3 +65,4 @@ class State(metaclass=Meta):
     final_image_dir: ClassVar[Path]
     with_bms_cam: ClassVar[bool]
     bms_enum: ClassVar[list]
+    still_image_idx: ClassVar[int]

@@ -8,8 +8,7 @@ from .state import State
 import importlib
 from sbNative.debugtools import log
 
-global still_image_idx
-still_image_idx = 0
+State.still_image_idx = 0
 
 def list_devices():
     State.bms_enum = bmscam.Bmscam.EnumV2()
@@ -26,8 +25,7 @@ def handleImageEvent():
 
 
 def handleStillImageEvent():
-    global still_image_idx
-    still_image_idx += 1
+    State.still_image_idx += 1
 
     info = bmscam.BmscamFrameInfoV3()
     try:
@@ -43,7 +41,7 @@ def handleStillImageEvent():
                 pass
             else:
                 pil_image = Image.frombytes("RGB", (info.width, info.height), buff)
-                pil_image.save(str(Path(State.final_image_dir) / f"Image_{still_image_idx}.tiff"))
+                pil_image.save(str(Path(State.final_image_dir) / f"Image_{State.still_image_idx}.tiff"))
         
 
 def event_callback(n_event, _):
