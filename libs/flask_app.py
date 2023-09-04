@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Response, request, send_from_directory
+from flask import Flask, render_template, Response, request, send_from_directory, redirect
 import werkzeug.serving as serving
 from sbNative.runtimetools import get_path
 import time
@@ -87,14 +87,13 @@ def reset_camera_properties():
 reset_camera_properties()
 
 
-@app.route("/")
+@app.route("/cam-select")
 def camera_select():
     return render_template("cameraselect.html")
 
 
 @app.route("/liveview")
 def liveview():
-
     if bool(request.args.get("with_bms_cam")) is False:
         State.with_bms_cam = True
     else:
@@ -275,3 +274,9 @@ def live_stream():
         return Response("The camera has seemingly not been started yet", status=400)
 
     return Response(generate_live_image(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def catch_all():
+    return redirect("http://10.3.141.1/cam-select")
