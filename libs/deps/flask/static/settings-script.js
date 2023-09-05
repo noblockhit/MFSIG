@@ -4,6 +4,11 @@ function prevent_submit_and_unfocus(e) {
 }
 
 $(window).on("load", () => {
+    const mspr_input = document.getElementById("motor-steps-per-rotation-input");
+    const dpr_input = document.getElementById("distance-per-rotation-input");
+
+    // event handlers
+
     $("form").submit(prevent_submit_and_unfocus);
     
     $(".submit-button").on("click", function () {
@@ -24,8 +29,22 @@ $(window).on("load", () => {
 
         $.post(`/settings/${attr_name}/${value}`);
     })
+
+    $("#units-input").on("change", function () {
+        
+        $.post(`/settings/motor-rotation-units/${Math.log10(this.value)}`);
+        $(".unit").html($("#units-input option:selected").text());
+    });
+
     
-    
+    $(mspr_input).on("keyup", function (e) {
+        $.post(`/settings/steps-per-motor-rotation/${mspr_input.value}`);
+    });
+
+    $(dpr_input).on("keyup", function (e) {
+        $.post(`/settings/distance-per-rotation-input/${dpr_input.value}`);
+    });
+
     // load saved values
 
     $.get("/settings/GPIO-default-on", (async=false), (value) => {
@@ -40,6 +59,17 @@ $(window).on("load", () => {
     $.get("/settings/GPIO-camera-pin", (async=false), (value) => {
         $("#gpio-camera-pin-input").val(parseInt(value))
     });
-});
 
-console.log("here")
+    $.get("/settings/motor-rotation-units", (async = false), (value) => {
+        $("#units-input").val(Math.pow(10, parseInt(value)), value)
+        $(".unit").html($("#units-input option:selected").text());
+    });
+
+    $.get("/settings/steps-per-motor-rotation", (async = false), (value) => {
+        $("#motor-steps-per-rotation-input").val(parseFloat(value))
+    });
+
+    $.get("/settings/distance-per-motor-rotation", (async = false), (value) => {
+        $("#distance-per-rotation-input").val(parseFloat(value))
+    });
+});

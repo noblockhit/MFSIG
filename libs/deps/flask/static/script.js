@@ -21,15 +21,12 @@ $(document).ajaxError(function myErrorHandler(
     ajaxOptions,
     thrownError
 ) {
-    console.log(event);
-    console.log(ajaxOptions);
-    console.log(thrownError);
+    // console.log(event);
+    // console.log(ajaxOptions);
+    // console.log(thrownError);
     const err = xhr.responseText;
-    console.log(err);
+    // console.log(err);
 
     const container = $(".container")[0]
-    console.log($(container).width())
     popup("An error has occured", err, container)
-
-    // alert(err);
 });
