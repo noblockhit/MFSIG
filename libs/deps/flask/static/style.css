@@ -40,6 +40,11 @@ h3 {
     width: calc(100% - 2em);
 }
 
+.break {
+    flex-basis: 100%;
+    height: 0;
+  }
+
 .popup-container {
     display: inline;
     position: absolute;

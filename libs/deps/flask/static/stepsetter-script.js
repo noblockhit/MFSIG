@@ -13,7 +13,7 @@ function prevent_submit_and_unfocus(e) {
 }
 
 const getUrIParameter = function getUrlParameter(sParam) {
-    var sPageURL = window.location.search.substring(1),
+    let sPageURL = window.location.search.substring(1),
         sURLVariables = sPageURL.split('&'),
         sParameterName,
         i;
@@ -29,7 +29,27 @@ const getUrIParameter = function getUrlParameter(sParam) {
 };
 
 $(window).on("load", () => {
-    temp_total_steps = getUrIParameter("total-steps")
+    // load saved values
+
+    let dpr_value;
+    let mspr_value;
+    $.get("/settings/motor-rotation-units", (async = false), (value) => {
+        console.log(value)
+        const distances = {1:"m", 3:"mm", 6:"µm", 9: "nm", 12: "pm"}
+        $(".unit").html(distances[value]);
+    });
+
+    $.get("/settings/steps-per-motor-rotation", (async = false), (value) => {
+        mspr_value = parseFloat(value);
+        update_all();
+    });
+
+    $.get("/settings/distance-per-motor-rotation", (async = false), (value) => {
+        dpr_value = parseFloat(value);
+        update_all();
+    });
+
+    let temp_total_steps = getUrIParameter("total-steps")
     if (temp_total_steps === false) {
         temp_total_steps = 800;
     }
@@ -39,7 +59,7 @@ $(window).on("load", () => {
     let progressNum = document.getElementById("progress-value-num")
     progressBar.style.width = "0%";
 
-    var socket = new WebSocket(`ws://${window.location.hostname}:65432`);
+    const socket = new WebSocket(`ws://${window.location.hostname}:65432`);
 
     socket.addEventListener("open", () => {
         // send a message to the server
@@ -55,30 +75,29 @@ $(window).on("load", () => {
         socket.send(data);
     });
 
-    var idd_input = document.getElementById("image-delta-distance-input");
-    var tia_input = document.getElementById("total-image-amount-input");
-    var dpr_input = document.getElementById("distance-per-rotation-input");
-    var mspr_input = document.getElementById("motor-steps-per-rotation-input");
+    const idd_input = document.getElementById("image-delta-distance-input");
+    const tia_input = document.getElementById("total-image-amount-input");
 
     $("#image-delta-distance-form").submit(prevent_submit_and_unfocus);
     $("#total-image-amount-form").submit(prevent_submit_and_unfocus);
-    $("#distance-per-rotation-form").submit(prevent_submit_and_unfocus);
-    $("#motor-steps-per-rotation-form").submit(prevent_submit_and_unfocus);
 
-    var idd_value = idd_input.value;
-    var tia_value = tia_input.value;
-    var dpr_value = dpr_input.value;
-    var mspr_value = mspr_input.value;
+    let idd_value = idd_input.value;
+    let tia_value = tia_input.value;
 
-    var total_steps = parseFloat($("#total-steps").text())
+    const total_steps = parseFloat($("#total-steps").text())
 
-    var latest_typed = tia_input;
+    let latest_typed = tia_input;
 
     function update_all() {
         console.log("update triggered")
+        console.log("idd_value:", idd_value)
+        console.log("tia_value:", tia_value)
+        console.log("mspr_value:", mspr_value)
+        console.log("dpr_value:", dpr_value)
+        console.log("latest_typed:", latest_typed)
 
-        distance_per_step = dpr_value / mspr_value;
-        total_distance = total_steps * distance_per_step;
+        let distance_per_step = dpr_value / mspr_value;
+        let total_distance = total_steps * distance_per_step;
 
         if (latest_typed === idd_input) {
             tia_value = total_distance / idd_value;
@@ -86,6 +105,7 @@ $(window).on("load", () => {
         }
 
         if (latest_typed === tia_input) {
+
             idd_value = total_distance / tia_value;
             idd_input.value = idd_value;
         }
@@ -94,8 +114,6 @@ $(window).on("load", () => {
             $.post(`/image-count/${tia_value}`);
         }
 
-        $.post(`/settings/steps-per-motor-rotation/${mspr_value}`);
-        $.post(`/settings/distance-per-motor-rotation/${dpr_value}`);
     }
 
     $(idd_input).on("keyup", function (e) {
@@ -126,60 +144,9 @@ $(window).on("load", () => {
         update_all()
     });
 
-    $(dpr_input).on("keyup", function (e) {
-        if (isNumeric(dpr_input.value) === false) {
-            dpr_input.value = dpr_value;
-        } else {
-            if (dpr_input.value === "") {
-            } else {
-                dpr_value = parseFloat(dpr_input.value);
-            }
-        }
-    
-        update_all()
-    });
-
-    $(mspr_input).on("keyup", function (e) {
-        if (isNumeric(mspr_input.value) === false) {
-            mspr_input.value = mspr_value;
-        } else {
-            if (mspr_input.value === "") {
-            } else {
-                mspr_value = parseFloat(mspr_input.value);
-            }
-        }
-
-        update_all()
-    });
-
     $("#record-images").on("pointerdown", () => {
         $.get("/record-images", (async = false), () => {
             $("#record-images").html("Started recording!")
         });
-    });
-
-    $("#units-input").on("change", function () {
-        $.post(`/settings/motor-rotation-units/${Math.log10(this.value)}`);
-        $(".unit").html($("#units-input option:selected").text());
-    });
-
-
-    // load saved values
-
-    $.get("/settings/motor-rotation-units", (async = false), (value) => {
-        $("#units-input").val(Math.pow(10, parseInt(value)), value)
-        $(".unit").html($("#units-input option:selected").text());
-    });
-
-    $.get("/settings/steps-per-motor-rotation", (async = false), (value) => {
-        mspr_value = parseFloat(value);
-        update_all();
-        $("#motor-steps-per-rotation-input").val(parseFloat(value))
-    });
-
-    $.get("/settings/distance-per-motor-rotation", (async = false), (value) => {
-        dpr_value = parseFloat(value);
-        update_all();
-        $("#distance-per-rotation-input").val(parseFloat(value))
     });
 });

@@ -62,7 +62,11 @@ a.sub-container {
 #gpio-default-on-form select,
 #gpio-default-on-form option,
 #gpio-camera-pin-form input,
-#gpio-motor-pins-form input {
+#gpio-motor-pins-form input,
+#units select,
+#units option,
+#motor-steps-per-rotation input,
+#distance-per-rotation input {
     border: none;
     border-bottom: 2px solid white;
     background-color: black;

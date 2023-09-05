@@ -28,30 +28,30 @@
                 <img src="/live-stream" id="live-image" alt="It seems like you have not started the camera or it takes a long time to respond. In case this is intentional, please ignore this warning."/>
             </div>
             <div class="button-container">
-                <button>
-                    Motor
-                    <input
-                        type="range"
-                        id="slider"
-                        name="slider"
-                        min="-5"
-                        max="5"
-                    />
-                </button>
+                <div class="sub-button-container">
+                    
+                    <button class="tl" id="move-up">up</button>
+                    <button class="tr" id="move-up-2">UP</button>
 
-                <button id="move-down">Down</button>
-                <button id="move-up">Up</button>
+                    <button class="mr" id="current">Current: 0</button>
+                    <button class="ml" id="current-in-unit">UCurrent: 0</button>
 
-                <button id="set-ending">Set end</button>
-                <button id="set-start">Set start</button>
+                    <button class="bl" id="move-down">down</button>
+                    <button class="br" id="move-down-2">DOWN</button>
 
-                <button id="move-ending">Go to end</button>
-                <button id="move-start">Go to start</button>
+                </div>
+                
+                <div class="sub-button-container">
+                    <button class="tl" id="set-start">Set start</button>
+                    <button class="tr" id="set-ending">Set end</button>
 
-                <button id="ending">End: 0</button>
-                <button id="start">Start: 0</button>
+                    <button class="ml" id="move-ending">Go to end</button>
+                    <button class="mr" id="move-start">Go to start</button> 
 
-                <button id="current">Current: 0</button>
+                    <button class="bl" id="start">Start: 0</button>
+                    <button class="br" id="ending">End: 0</button>
+                </div>
+
                 <button id="motor-controls">Next</button>
             </div>
         </div>

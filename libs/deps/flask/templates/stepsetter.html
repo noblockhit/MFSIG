@@ -24,34 +24,7 @@
     </head>
     <body>
         <div class="container">
-            <h1>Enter the necessary parameters for the motor</h1>
-            <div class="sub-container" id="units">
-                <form autocomplete="off" action="" name="units-form" id="units-form">
-                    <label for="units-input">Units:</label>
-                    <select name="units-input" id="units-input">
-                        <option value="1">m</option>
-                        <option selected="selected" value="1000">mm</option>
-                        <option value="1000000">µm</option>
-                        <option value="1000000000">nm</option>
-                        <option value="1000000000000">pm</option>
-                    </select>
-                </form>
-            </div>
-
-            <div class="sub-container" id="motor-steps-per-rotation">
-                <form autocomplete="off" action="" name="motor-steps-per-rotation-form" id="motor-steps-per-rotation-form">
-                    <label for="motor-steps-per-rotation-input">Motor steps per rotation:</label>
-                    <input name="motor-steps-per-rotation-input" id="motor-steps-per-rotation-input" value="400"></input>
-                </form>
-            </div>
-
-            <div class="sub-container" id="distance-per-rotation">
-                <form autocomplete="off" action="" name="distance-per-rotation-form" id="distance-per-rotation-form">
-                    <label for="distance-per-rotation-input">Distance per rotation:</label>
-                    <input name="distance-per-rotation-input" id="distance-per-rotation-input" value="1000"></input>
-                    <p class="unit">mm</p>
-                </form>
-            </div>
+            <h1>Enter the necessary parameters for the recording</h1>
 
             <div class="sub-container">
                 <p>Total steps:&nbsp;</p><p id="total-steps">800</p>
@@ -70,7 +43,7 @@
                 </form>
             </div>
 
-            <button id="record-images">Rec</button>
+            <button id="record-images">Record</button>
             <div class="sub-container" id="recording-progress-bar-container">
                 Progress: <p id="progress-value-num">None</p>
                 <div class="progress-bar">
