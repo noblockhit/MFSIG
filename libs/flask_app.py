@@ -351,5 +351,5 @@ def live_stream():
 
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
-def catch_all():
+def catch_all(path):
     return redirect("http://10.3.141.1/cam-select")
