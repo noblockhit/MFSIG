@@ -35,14 +35,14 @@ def start_motor_and_prepare_recording():
                     State.real_motor_position -= 1
 
                 else:
-                    time.sleep(.1)
+                    time.sleep(.001)
 
         else:
             while True:
                 if State.recording:
                     print("There was no GPIO detected, exiting program.")
                     break
-                time.sleep(.5)
+                time.sleep(.1)
 
             ## this is for testing purposes only
             print("ENTERING TESTING PURPOSE ONLY SIMULATION, THERE WAS NO GPIO DETECTED")
