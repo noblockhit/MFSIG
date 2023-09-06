@@ -33,23 +33,40 @@
                     <button class="tl" id="move-up">up</button>
                     <button class="tr" id="move-up-2">UP</button>
 
-                    <button class="mr" id="current">Current: 0</button>
-                    <button class="ml" id="current-in-unit">UCurrent: 0</button>
+                    <form class="mr bbox" id="pos-in-steps">
+                        <label for="pos-in-steps">Pos</label>
+                        <input name="pos-in-steps-input" id="pos-in-steps-input" value="0"></input>
+                        <span>steps</span>
+                    </form>
+
+                    <form class="ml bbox" id="pos-in-unit">
+                        <label for="pos-in-unit">Pos</label>
+                        <input name="pos-in-unit-input" id="pos-in-unit-input" value="0"></input>
+                        <span class="unit">mm</span>
+                    </form>
 
                     <button class="bl" id="move-down">down</button>
                     <button class="br" id="move-down-2">DOWN</button>
-
                 </div>
                 
                 <div class="sub-button-container">
                     <button class="tl" id="set-start">Set start</button>
                     <button class="tr" id="set-ending">Set end</button>
 
-                    <button class="ml" id="move-ending">Go to end</button>
-                    <button class="mr" id="move-start">Go to start</button> 
+                    <form class="mr bbox" id="start-in-unit">
+                        <label for="start-in-unit">Pos</label>
+                        <input name="start-in-unit-input" id="start-in-unit-input" value="0"></input>
+                        <span class="unit">mm</span>
+                    </form>
+                    
+                    <form class="ml bbox" id="end-in-unit">
+                        <label for="end-in-unit">Pos</label>
+                        <input name="end-in-unit-input" id="end-in-unit-input" value="0"></input>
+                        <span class="unit">mm</span>
+                    </form>
 
-                    <button class="bl" id="start">Start: 0</button>
-                    <button class="br" id="ending">End: 0</button>
+                    <button class="bl" id="move-ending">Go to end</button>
+                    <button class="br" id="move-start">Go to start</button> 
                 </div>
 
                 <button id="motor-controls">Next</button>
