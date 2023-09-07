@@ -11,6 +11,7 @@ import os
 import json
 from libs import cameraParser
 from .state import State, SETTING_KEYS
+import socket
 
 
 org_mk_server = serving.make_server
@@ -175,7 +176,7 @@ def liveview():
     if State.with_bms_cam:
         if (State.curr_device is None or 
             State.resolution_idx is None):
-            return "One or more of the parameters necessary for the BMS camera have not been set, please return to the main page and choose to use another way of capturing an image or set all the necessary parameters!"
+            return "One or more of the parameters necessary for the BMS camera have not been set, please return to the main page and choose to use another way of capturing an image or set all the necessary parameters!", 400
     
         if State.camera is not None:
             State.camera.Close()
@@ -304,9 +305,14 @@ def current_pos():
     return str(State.microscope_position)
 
 
-@app.route("/microscope/move/<amount>")
-def move_down(amount):
+@app.route("/microscope/move-by/<amount>")
+def move_by(amount):
     State.microscope_position += int(amount)
+    return str(State.microscope_position)
+
+@app.route("/microscope/move-to/<position>")
+def move_to(position):
+    State.microscope_position = int(position)
     return str(State.microscope_position)
 
 
@@ -322,21 +328,26 @@ def move_end():
     return str(State.microscope_position)
 
 
-@app.route("/microscope/start", methods=["GET", "POST"])
-def set_start():
+@app.route("/microscope/start", methods=["GET", "POST"], defaults={"pos": None})
+@app.route("/microscope/start/<pos>", methods=["POST"])
+def set_start(pos):
     if request.method == "POST":
-        State.microscope_start = State.microscope_position
-
-    elif request.method == "CONNECT":
-        State.microscope_position = State.microscope_start
+        if pos:
+            State.microscope_start = int(pos)
+        else:
+            State.microscope_start = State.microscope_position
 
     return str(State.microscope_start)
 
 
-@app.route("/microscope/end",  methods=["GET", "POST"])
-def set_end():
+@app.route("/microscope/end",  methods=["GET", "POST"], defaults={"pos": None})
+@app.route("/microscope/end/<pos>", methods=["POST"])
+def set_end(pos):
     if request.method == "POST":
-        State.microscope_end = State.microscope_position
+        if pos:
+            State.microscope_end = int(pos)
+        else:
+            State.microscope_end = State.microscope_position
 
     return str(State.microscope_end)
 
@@ -352,4 +363,4 @@ def live_stream():
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
 def catch_all(path):
-    return redirect("http://10.3.141.1/cam-select")
+    return redirect(f"http://{socket.gethostbyname(socket.gethostname())}/cam-select")

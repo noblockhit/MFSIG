@@ -38,7 +38,7 @@ class Motor(State.abs_motor_type):
 
     def pin_off(self, pin):
         self.pins_dict[pin] = False
-        GPIO.output(pin, GPIO.LOW)
+        p_off(pin)
 
     def step_forward(self):
         self.step += 1
@@ -51,7 +51,7 @@ class Motor(State.abs_motor_type):
         else:
             self.pin_on(self.pins[(self.step//2+1) % len(self.pins)])
             
-        time.sleep(0.01)
+        time.sleep(0.0005)
 
     def step_backward(self):
         self.step -= 1
@@ -64,7 +64,7 @@ class Motor(State.abs_motor_type):
         else:
             self.pin_on(self.pins[(self.step//2) % len(self.pins)])
             
-        time.sleep(0.01)
+        time.sleep(0.0005)
 
 
     def cleanup(self):

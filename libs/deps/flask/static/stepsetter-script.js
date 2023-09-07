@@ -89,13 +89,6 @@ $(window).on("load", () => {
     let latest_typed = tia_input;
 
     function update_all() {
-        console.log("update triggered")
-        console.log("idd_value:", idd_value)
-        console.log("tia_value:", tia_value)
-        console.log("mspr_value:", mspr_value)
-        console.log("dpr_value:", dpr_value)
-        console.log("latest_typed:", latest_typed)
-
         let distance_per_step = dpr_value / mspr_value;
         let total_distance = total_steps * distance_per_step;
 
