@@ -1,3 +1,12 @@
+function removeFadeOut( el ) {
+    const domRect = el.getBoundingClientRect();
+    el.style.top = `-${domRect.y + domRect.height}px`;
+    el.style.opacity = 0;
+    setTimeout(function() {
+        el.parentNode.removeChild(el);
+    }, speed);
+}
+
 function popup(title, message, container_elem) {
     const el = $(`<div style="width: ${$(container_elem).width() - 2* parseFloat($("body").css("font-size"))}px", class="popup-container">
     <button class="close-button" aria-label="Close alert" type="button" data-close>
@@ -10,7 +19,8 @@ function popup(title, message, container_elem) {
     $(container_elem).append(el)
     
     el.on("pointerup", function(event) {
-        $(event.target).closest(".popup-container").remove()
+        // $(event.target).closest(".popup-container").remove()
+        removeFadeOut($(event.target).closest(".popup-container")[0])
     })
     
 }
