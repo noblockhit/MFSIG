@@ -16,6 +16,7 @@ let img_aspect_ratio;
 let img;
 let dpr_value;
 let mspr_value;
+let loaded_image = false;
 
 function delay(time) {
     return new Promise(resolve => setTimeout(resolve, time));
@@ -24,8 +25,14 @@ function delay(time) {
 
 function adjust_image_size() {
     const img_container = $("#image-container");
+    const btn_container = $(".button-container")[0];
+    console.log(btn_container)
     const img_container_aspect_ratio = img_container.width() / img_container.height();
-
+    console.log(loaded_image)
+    if (!loaded_image) {
+        img_container.css("height", "4em");
+        $(btn_container).css("height", "80%");
+    }
     let new_width;
     let new_height;
 
@@ -69,8 +76,9 @@ class HoldableButton {
             if (obj.pressed_since + 500 < Date.now() && obj.pressed) {
                 obj.callback("hold");
                 await delay(50);
+            } else {
+                await delay(20);
             }
-            await delay(50);
         }
     }
 }
@@ -197,6 +205,16 @@ $(window).on("load", () => {
         update_curr_pos();
     });
 
+    $("#pos-in-steps-input").on("focusout", () => {
+        $.get(`/microscope/move-to/${pos_in_steps_input.value}`, (async = false));
+        update_curr_pos();
+    })
+
+    $("#pos-in-unit-input").on("focusout", () => {
+        $.get(`/microscope/move-to/${pos_in_steps_input.value}`, (async = false));
+        update_curr_pos();
+    })
+
     $(pos_in_steps_input).on("keyup", function (e) {
         if (isNumeric(pos_in_steps_input.value) === false) {
             pos_in_steps_input.value = pos_in_steps_value;
@@ -204,8 +222,10 @@ $(window).on("load", () => {
             if (pos_in_steps_input.value === "") {
             } else {
                 pos_in_steps_value = parseFloat(pos_in_steps_input.value);
-                $.get(`/microscope/move-to/${pos_in_steps_input.value}`, (async = false));
-                update_curr_pos();
+                let distance_per_step = dpr_value / mspr_value;
+                let total_distance = pos_in_steps_value * distance_per_step;
+    
+                $("#pos-in-unit-input").val(total_distance);
             }
         }
     });
@@ -218,9 +238,8 @@ $(window).on("load", () => {
             } else {
                 pos_in_unit_value = parseFloat(pos_in_unit_input.value);
                 let distance_per_step = dpr_value / mspr_value;
-                let total_distance = pos_in_unit_value / distance_per_step;
-                $.get(`/microscope/move-to/${total_distance}`, (async = false));
-                update_curr_pos();
+                pos_in_steps_value = pos_in_unit_value / distance_per_step;
+                pos_in_steps_input.value = pos_in_steps_value;
             }
         }
     });
@@ -277,3 +296,7 @@ $(window).on("load", () => {
 });
 
 addEventListener("resize", adjust_image_size);
+
+img.load(function() {
+    loaded_image = true;
+})
