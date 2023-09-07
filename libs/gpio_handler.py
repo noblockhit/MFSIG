@@ -19,7 +19,7 @@ def p_off(pin):
 
 
 
-class Motor:
+class Motor(State.abs_motor_type):
     def __init__(self, pins):
         for pin in pins:
             GPIO.setup(pin, GPIO.OUT)
@@ -83,7 +83,7 @@ class Motor:
             time.sleep(.3)
         
 
-class Camera:
+class Camera(State.abs_camera_type):
     def __init__(self, bcm_pin_number):
         self.pin = bcm_pin_number
         GPIO.setup(self.pin, GPIO.OUT)
