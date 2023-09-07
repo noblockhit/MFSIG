@@ -1,7 +1,7 @@
 import time
 import atexit
 # 400 schritte sind pi mal daumen eine Umdrehung
-from .state import State
+from .state import State, abs_camera_type, abs_motor_type
 
 
 def p_on(pin):
@@ -19,7 +19,7 @@ def p_off(pin):
 
 
 
-class Motor(State.abs_motor_type):
+class Motor(abs_motor_type):
     def __init__(self, pins):
         for pin in pins:
             GPIO.setup(pin, GPIO.OUT)
@@ -83,7 +83,7 @@ class Motor(State.abs_motor_type):
             time.sleep(.3)
         
 
-class Camera(State.abs_camera_type):
+class Camera(abs_camera_type):
     def __init__(self, bcm_pin_number):
         self.pin = bcm_pin_number
         GPIO.setup(self.pin, GPIO.OUT)
