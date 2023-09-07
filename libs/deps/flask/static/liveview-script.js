@@ -26,15 +26,15 @@ function delay(time) {
 function adjust_image_size() {
     const img_container = $("#image-container");
     const btn_container = $(".button-container")[0];
-    console.log(btn_container)
     const img_container_aspect_ratio = img_container.width() / img_container.height();
-    console.log(loaded_image)
+
+    let new_width;
+    let new_height;
+
     if (!loaded_image) {
         img_container.css("height", "4em");
         $(btn_container).css("height", "80%");
     }
-    let new_width;
-    let new_height;
 
     if (img_container_aspect_ratio > img_aspect_ratio) {
         new_height = img_container.height();
@@ -43,6 +43,7 @@ function adjust_image_size() {
         new_width = img_container.width();
         new_height = new_width / img_aspect_ratio;
     }
+    
     img.width(new_width);
     img.height(new_height);
 }
@@ -93,10 +94,7 @@ function update_curr_pos() {
             let total_distance = data * distance_per_step;
 
             $("#pos-in-unit-input").val(total_distance);
-        },
-        error: function (err) {
-            console.log(err);
-        },
+        }
     });
 }
 
@@ -108,10 +106,7 @@ function update_start_pos() {
             let distance_per_step = dpr_value / mspr_value;
             let total_distance = data * distance_per_step;
             $("#start-in-unit-input").val(total_distance);
-        },
-        error: function (err) {
-            console.log(err);
-        },
+        }
     });
 }
 
@@ -123,16 +118,9 @@ function update_end_pos() {
             let distance_per_step = dpr_value / mspr_value;
             let total_distance = data * distance_per_step;
             $("#end-in-unit-input").val(total_distance);
-        },
-        error: function (err) {
-            console.log(err);
-        },
+        }
     });
 }
-
-$("#live-image").on("load", () => {
-    console.log(this);
-});
 
 $(window).on("load", () => {
     $.get("/settings/steps-per-motor-rotation", (async = false), (value) => {
@@ -141,6 +129,12 @@ $(window).on("load", () => {
 
     $.get("/settings/distance-per-motor-rotation", (async = false), (value) => {
         dpr_value = parseFloat(value);
+    });
+
+    $.get("/live-stream", (async = false), (data, textStatus, xhr) => {
+        if (xhr.status == 299) {
+            loaded_image = false;
+        }
     });
 
     img = $("#live-image");
@@ -282,21 +276,12 @@ $(window).on("load", () => {
                     type: "GET",
                     success: function (start) {
                         location.href = `stepsetter?total-steps=${Math.abs(ending-start)}`;
-                    },
-                    error: function (err) {
-                        console.log(err);
-                    },
+                    }
                 });
-            },
-            error: function (err) {
-                console.log(err);
-            },
+            }
         });
     });
 });
 
 addEventListener("resize", adjust_image_size);
 
-img.load(function() {
-    loaded_image = true;
-})

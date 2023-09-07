@@ -53,6 +53,8 @@ h3 {
     margin: 1em;
     border-radius: 1em;
     overflow: auto;
+    top: 0;
+    transition: opacity 1s ease, top 1s ease;
 }
 
 .popup-container::-webkit-scrollbar {
