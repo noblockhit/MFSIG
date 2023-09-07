@@ -8,6 +8,7 @@ import os
 import json
 import time
 import colorama
+from typeguard import check_type, TypeCheckError
 
 
 if __name__ == '__main__':
@@ -54,6 +55,32 @@ class ABSType:
     pass
 
 
+# class Meta(type):
+#     def __setattr__(self, __name: str, __value: Any) -> None:
+#         hints = get_type_hints(self)
+        
+#         class_hint = hints.get(__name)
+#         if not class_hint:
+#             return super().__setattr__(__name, __value)
+        
+#         hint = class_hint.__dict__.get("__args__")[0]
+#         can_be_none = isinstance(hint, _UnionGenericAlias)
+
+#         if can_be_none:
+#             possible_hints = hint.__dict__.get("__args__")
+#         else:
+#             possible_hints = [hint]
+
+
+#         val_type = type(__value)
+        
+#         for _hint in possible_hints:
+#             if not (isinstance(_hint, types.FunctionType) or isinstance(_hint, types.LambdaType) or hasattr(_hint, "__self__")):
+#                 if (isinstance(__value, _hint) or (__value is None and can_be_none)) or (ABSType in _hint.__bases__ and val_type.__name__ == _hint.__name__):
+#                         return super().__setattr__(__name, __value)
+#         raise ValueError(f"The property {__name} only takes {possible_hints}, got {val_type} <{__value}> instead.")
+
+
 class Meta(type):
     def __setattr__(self, __name: str, __value: Any) -> None:
         hints = get_type_hints(self)
@@ -61,23 +88,13 @@ class Meta(type):
         class_hint = hints.get(__name)
         if not class_hint:
             return super().__setattr__(__name, __value)
-        
         hint = class_hint.__dict__.get("__args__")[0]
-        can_be_none = isinstance(hint, _UnionGenericAlias)
-
-        if can_be_none:
-            possible_hints = hint.__dict__.get("__args__")
-        else:
-            possible_hints = [hint]
-
-
-        val_type = type(__value)
-        
-        for _hint in possible_hints:
-            if not (isinstance(_hint, types.FunctionType) or isinstance(_hint, types.LambdaType) or hasattr(_hint, "__self__")):
-                if (isinstance(__value, _hint) or (__value is None and can_be_none)) or (ABSType in _hint.__bases__ and val_type.__name__ == _hint.__name__):
-                        return super().__setattr__(__name, __value)
-        raise ValueError(f"The property {__name} only takes {possible_hints}, got {val_type} <{__value}> instead.")
+        try:
+            
+            v = check_type(__value, hint)
+            return super().__setattr__(__name, v)
+        except TypeCheckError:
+            raise ValueError(f"The property {__name} only takes {hint}, got {type(__value)} <{__value}> instead.")
 
 abs_motor_type = type("Motor", (ABSType,), dict())
 abs_camera_type = type("Camera", (ABSType,), dict())
