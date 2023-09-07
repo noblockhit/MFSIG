@@ -57,6 +57,10 @@ class HoldableButton {
             this.pressed = false;
         })
 
+        $(this.button).on("pointerleave", () => {
+            this.pressed = false;
+        })
+
         setTimeout(this.worker, 0, this);
     }
 
