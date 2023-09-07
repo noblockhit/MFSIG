@@ -363,4 +363,8 @@ def live_stream():
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
 def catch_all(path):
-    return redirect(f"http://{socket.gethostbyname(socket.gethostname())}/cam-select")
+    if State.isGPIO:
+        ip = "10.3.141.1"
+    else:
+        ip = socket.gethostbyname(socket.gethostname())
+    return redirect(f"http://{ip}/cam-select")
