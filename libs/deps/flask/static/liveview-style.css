@@ -71,15 +71,19 @@
 
 .sub-button-container {
     max-height: calc(90% - 4em);
-    margin: 1em;
+    max-width: 95%;
+    margin: .5em;
     display: grid;
     grid-gap: 1em;
+    min-height: 5em;
+    min-width: 5em;
 }
 
 .sub-button-container button, .sub-button-container .bbox {
     height: 3em;
-    padding-left: 1em;
-    padding-right: 1em;
+    padding-left: .3em;
+    padding-right: .3em;
+    min-width: 10em;
     user-select: none;
 }
 
@@ -116,13 +120,6 @@
     text-align: center;
     color: wheat;
     white-space: nowrap;
-}
-
-.button-container > button,
-.button-container > a {
-    flex-grow: 1;
-    display: block;
-    min-width: 7em;
 }
 
 .button-container button:active {

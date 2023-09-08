@@ -34,7 +34,6 @@ $(window).on("load", () => {
     let dpr_value;
     let mspr_value;
     $.get("/settings/motor-rotation-units", (async = false), (value) => {
-        console.log(value)
         const distances = {1:"m", 3:"mm", 6:"µm", 9: "nm", 12: "pm"}
         $(".unit").html(distances[value]);
     });
@@ -69,7 +68,6 @@ $(window).on("load", () => {
 
     // receive a message from the server
     socket.addEventListener("message", ({ data }) => {
-        console.log("recv", data)
         progressBar.style.width = `${data}%`;
         progressNum.innerHTML = `${data}%`
         socket.send(data);
