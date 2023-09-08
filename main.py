@@ -21,7 +21,6 @@ def start_motor_and_prepare_recording():
             return
         State.start_motor_and_prepare_recording_running = True
 
-        # if State.isGPIO:
         while True:
             if State.recording:
                 break
@@ -53,9 +52,11 @@ def start_motor_and_prepare_recording():
         if distance_to_start > 0:
             for _ in range(distance_to_start):
                 State.motor.step_forward()
+                time.sleep(0.001)
         elif distance_to_start < 0:
             for _ in range(-distance_to_start):
                 State.motor.step_backward()
+                time.sleep(0.001)
 
         State.microscope_position = State.real_motor_position = State.microscope_start
 
