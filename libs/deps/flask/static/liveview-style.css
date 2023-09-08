@@ -80,6 +80,7 @@
     height: 3em;
     padding-left: 1em;
     padding-right: 1em;
+    user-select: none;
 }
 
 .tl {grid-row: 1; grid-column: 1;}
