@@ -96,8 +96,17 @@ class Meta(type):
         except TypeCheckError:
             raise ValueError(f"The property {__name} only takes {hint}, got {type(__value)} <{__value}> instead.")
 
-abs_motor_type = type("Motor", (ABSType,), dict())
-abs_camera_type = type("Camera", (ABSType,), dict())
+abs_motor_type = type("Motor", (ABSType,), dict({
+    "step_forward": lambda *_:print("real motor position:", State.real_motor_position),
+    "step_backward": lambda *_:print("real motor position:", State.real_motor_position),
+    "cleanup": lambda *_:_,
+    "calibrate": lambda *_:_,
+}))
+
+abs_camera_type = type("Camera", (ABSType,), dict({
+    "Close": lambda *_:_,
+    "Snap": lambda *_:(print("snapped"), State.progress())
+}))
 
 @dataclass
 class State(metaclass=Meta):
@@ -110,7 +119,7 @@ class State(metaclass=Meta):
     imgWidth: ClassVar[Union[int, None]]
     imgHeight: ClassVar[Union[int, None]]
     pData: ClassVar[Union[bytes, None]]
-    camera: ClassVar[Union[bmscam.Bmscam, abs_camera_type, None]]
+    camera: ClassVar[Union[bmscam.Bmscam, abs_camera_type]]
     recording: ClassVar[bool]
     start_motor_and_prepare_recording: ClassVar[bool]
     real_motor_position: ClassVar[int]

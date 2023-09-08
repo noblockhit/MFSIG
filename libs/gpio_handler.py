@@ -20,6 +20,7 @@ def p_off(pin):
 
 
 class Motor(abs_motor_type):
+    step_delay = 25 * 10**-5
     def __init__(self, pins):
         for pin in pins:
             GPIO.setup(pin, GPIO.OUT)
@@ -51,7 +52,7 @@ class Motor(abs_motor_type):
         else:
             self.pin_on(self.pins[(self.step//2+1) % len(self.pins)])
             
-        time.sleep(0.0005)
+        time.sleep(Motor.step_delay)
 
     def step_backward(self):
         self.step -= 1
@@ -64,7 +65,7 @@ class Motor(abs_motor_type):
         else:
             self.pin_on(self.pins[(self.step//2) % len(self.pins)])
             
-        time.sleep(0.0005)
+        time.sleep(Motor.step_delay)
 
 
     def cleanup(self):

@@ -81,7 +81,6 @@ $(window).on("load", () => {
     });
 
     $.get("/settings/GPIO-motor-pins", (async=false), (value) => {
-        console.log(value)
         $("#gpio-motor-pins-input").val(value.substring(1, value.length-1));
     });
 
