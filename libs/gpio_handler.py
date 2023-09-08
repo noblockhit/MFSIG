@@ -97,7 +97,7 @@ class Camera(abs_camera_type):
         p_on(self.pin)
         time.sleep(2)
         p_off(self.pin)
-        time.sleep(.5)
+        time.sleep(4)
         State.progress()
         
 
