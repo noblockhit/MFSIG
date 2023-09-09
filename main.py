@@ -13,7 +13,7 @@ from websockets.server import serve
 import asyncio
 import time
 import random
-
+from libs.notifier import send_text_to_whatsapp
 
 def start_motor_and_prepare_recording():
     while True:
@@ -52,11 +52,12 @@ def start_motor_and_prepare_recording():
         if distance_to_start > 0:
             for _ in range(distance_to_start):
                 State.motor.step_forward()
-                time.sleep(0.001)
+                time.sleep(0.001) ## not entirely sure why this is necessary, the motor stalls when not, but a delay should technically already be implemented into the step function, might need to change it to a clocking system in the future to streamline the delay regardless of code expense (time spent calculating) inbetween two steps
+
         elif distance_to_start < 0:
             for _ in range(-distance_to_start):
                 State.motor.step_backward()
-                time.sleep(0.001)
+                time.sleep(0.001) ## not entirely sure why this is necessary, the motor stalls when not, but a delay should technically already be implemented into the step function, might need to change it to a clocking system in the future to streamline the delay regardless of code expense (time spent calculating) inbetween two steps
 
         State.microscope_position = State.real_motor_position = State.microscope_start
 
@@ -76,13 +77,13 @@ def start_motor_and_prepare_recording():
             if State.current_image_index * avg_steps_per_image > step:
                 continue
 
-            time.sleep(2)
+            time.sleep(State.shake_rest_delay)
             State.current_image_index += 1
             State.busy_capturing = True
             State.camera.Snap(0)
             while State.busy_capturing:
                 time.sleep(.1)
-
+        send_text_to_whatsapp("Your recording is done!")
         State.start_motor_and_prepare_recording_running = False
         State.recording = False
         try:

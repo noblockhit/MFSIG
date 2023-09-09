@@ -92,6 +92,12 @@ def reset_camera_properties():
     State.GPIO_motor_pins = [21, 20, 19, 16]
     State.GPIO_default_on = False
     State.GPIO_camera_pin = 26
+    State.digi_cam_delay = 1
+    State.shake_rest_delay = 2
+    State.lowercase_motor_steps = 1
+    State.uppercase_motor_steps = 25
+    State.sleep_time_after_step = 2.5
+
 
     State.load_configuration()
 
@@ -133,8 +139,7 @@ def set_setting(_key, value):
             temp_camera.Close()
             del temp_camera
         else:
-            print("There is no GPIO connection so this couldn't be tested, the value was set regardless!")
-            return "There is no GPIO connection so this couldn't be tested, the value was set regardless!", 400
+            return "There is no GPIO connection so this couldn't be tested, the value was set regardless!", 299
         
     
     if key == "GPIO_motor_pins":
@@ -151,11 +156,10 @@ def set_setting(_key, value):
                 time.sleep(.5)
 
         else:
-            print("There is no GPIO connection so this couldn't be tested, the value was set regardless!")
-            return "There is no GPIO connection so this couldn't be tested, the value was set regardless!", 400
+            return "There is no GPIO connection so this couldn't be tested, the value was set regardless!", 299
     
     if key in _perm_and_reload_requiering:
-        return "Warning, the changes made to the motor to prepare a recording have been reset by a reload", 400
+        return "Warning, the changes made to the motor to prepare a recording have been reset by a reload", 299
     return "", 200
 
 @app.route("/cam-select")
@@ -320,14 +324,14 @@ def current_pos():
 def move_by(amount):
     if State.recording:
         return "Currently recording, change the value when done or abort the program!", 400
-    State.microscope_position += int(amount)
+    State.microscope_position += int(float(amount))
     return str(State.microscope_position)
 
 @app.route("/microscope/move-to/<position>")
 def move_to(position):
     if State.recording:
         return "Currently recording, change the value when done or abort the program!", 400
-    State.microscope_position = int(position)
+    State.microscope_position = int(float(position))
     return str(State.microscope_position)
 
 
@@ -354,7 +358,7 @@ def set_start(pos):
         if State.recording:
             return "Currently recording, change the value when done or abort the program!", 400
         if pos:
-            State.microscope_start = int(pos)
+            State.microscope_start = int(float(pos))
         else:
             State.microscope_start = State.microscope_position
 
@@ -368,7 +372,7 @@ def set_end(pos):
         if State.recording:
             return "Currently recording, change the value when done or abort the program!", 400
         if pos:
-            State.microscope_end = int(pos)
+            State.microscope_end = int(float(pos))
         else:
             State.microscope_end = State.microscope_position
 
@@ -378,7 +382,7 @@ def set_end(pos):
 @app.route("/live-stream")
 def live_stream():
     if not State.with_bms_cam:
-        return Response("You chose not to use a bms camera, therefore this response results in 300.", 299)
+        return Response("You chose not to use a bms camera, rather one controlled by the GPIO!", 299)
     if not State.imgWidth or not State.imgHeight or not State.pData:
         return Response("The camera has seemingly not been started yet", status=400)
 

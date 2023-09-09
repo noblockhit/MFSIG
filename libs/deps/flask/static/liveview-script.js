@@ -17,6 +17,9 @@ let img;
 let dpr_value;
 let mspr_value;
 let loaded_image = false;
+let lowercase_steps = 1;
+let uppercase_steps = 1;
+
 
 function delay(time) {
     return new Promise(resolve => setTimeout(resolve, time));
@@ -123,6 +126,14 @@ function update_end_pos() {
 }
 
 $(window).on("load", () => {
+    $.get("/settings/lowercase-motor-steps", (async = false), (value) => {
+        lowercase_steps = parseInt(value);
+    });
+
+    $.get("/settings/uppercase-motor-steps", (async = false), (value) => {
+        uppercase_steps = parseInt(value);
+    });
+    
     $.get("/settings/steps-per-motor-rotation", (async = false), (value) => {
         mspr_value = parseFloat(value);
     });
@@ -158,22 +169,22 @@ $(window).on("load", () => {
     // button events
 
     new HoldableButton($("#move-up"), function (prs_hld) {
-        $.get("/microscope/move-by/1", (async = false));
+        $.get(`/microscope/move-by/${lowercase_steps}`, (async = false));
         update_curr_pos();
     });
 
     new HoldableButton($("#move-down"), function (prs_hld) {
-        $.get("/microscope/move-by/-1", (async = false));
+        $.get(`/microscope/move-by/-${lowercase_steps}`, (async = false));
         update_curr_pos();
     })
 
     new HoldableButton($("#move-up-2"), function (prs_hld) {
-        $.get("/microscope/move-by/25", (async = false));
+        $.get(`/microscope/move-by/${uppercase_steps}`, (async = false));
         update_curr_pos();
     });
 
     new HoldableButton($("#move-down-2"), function (prs_hld) {
-        $.get("/microscope/move-by/-25", (async = false));
+        $.get(`/microscope/move-by/-${uppercase_steps}`, (async = false));
         update_curr_pos();
     })
  
@@ -246,7 +257,7 @@ $(window).on("load", () => {
             } else {
                 start_value = parseFloat(start_input.value);
                 let distance_per_step = dpr_value / mspr_value;
-                let total_distance = start_value * distance_per_step;
+                let total_distance = start_value / distance_per_step;
                 $.post(`/microscope/start/${total_distance}`, (async = false));
             }
         }
@@ -260,7 +271,7 @@ $(window).on("load", () => {
             } else {
                 end_value = parseFloat(end_input.value);
                 let distance_per_step = dpr_value / mspr_value;
-                let total_distance = end_value * distance_per_step;
+                let total_distance = end_value / distance_per_step;
                 $.post(`/microscope/end/${total_distance}`, (async = false));
             }
         }
@@ -281,6 +292,12 @@ $(window).on("load", () => {
             }
         });
     });
+
+    setTimeout(() => {
+        update_curr_pos();
+        update_start_pos();
+        update_end_pos();
+    }, 50)
 });
 
 addEventListener("resize", adjust_image_size);
