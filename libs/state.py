@@ -28,6 +28,13 @@ SETTING_KEYS = {
     "GPIO_camera_pin": int,
     "distance_per_motor_rotation": float,
     "motor_rotation_units": int,
+    "digi_cam_delay": float,
+    "shake_rest_delay": float,
+    "lowercase_motor_steps": int,
+    "uppercase_motor_steps": int,
+    "sleep_time_after_step": float,
+    "whatsapp_number": int,
+    "whatsapp_api_key": int
 }
 
 
@@ -53,33 +60,6 @@ with open(str(CONFIGURATION_FILE_PATH), "r") as rf:
 
 class ABSType:
     pass
-
-
-# class Meta(type):
-#     def __setattr__(self, __name: str, __value: Any) -> None:
-#         hints = get_type_hints(self)
-        
-#         class_hint = hints.get(__name)
-#         if not class_hint:
-#             return super().__setattr__(__name, __value)
-        
-#         hint = class_hint.__dict__.get("__args__")[0]
-#         can_be_none = isinstance(hint, _UnionGenericAlias)
-
-#         if can_be_none:
-#             possible_hints = hint.__dict__.get("__args__")
-#         else:
-#             possible_hints = [hint]
-
-
-#         val_type = type(__value)
-        
-#         for _hint in possible_hints:
-#             if not (isinstance(_hint, types.FunctionType) or isinstance(_hint, types.LambdaType) or hasattr(_hint, "__self__")):
-#                 if (isinstance(__value, _hint) or (__value is None and can_be_none)) or (ABSType in _hint.__bases__ and val_type.__name__ == _hint.__name__):
-#                         return super().__setattr__(__name, __value)
-#         raise ValueError(f"The property {__name} only takes {possible_hints}, got {val_type} <{__value}> instead.")
-
 
 class Meta(type):
     def __setattr__(self, __name: str, __value: Any) -> None:
@@ -141,6 +121,13 @@ class State(metaclass=Meta):
     GPIO_motor_pins: ClassVar[list]
     GPIO_camera_pin: ClassVar[Union[int, None]]
     GPIO_default_on: ClassVar[bool]
+    digi_cam_delay: ClassVar[float]
+    shake_rest_delay: ClassVar[float]
+    lowercase_motor_steps: ClassVar[int]
+    uppercase_motor_steps: ClassVar[int]
+    sleep_time_after_step: ClassVar[float]
+    whatsapp_number: ClassVar[int]
+    whatsapp_api_key: ClassVar[int]
 
 
     @classmethod
@@ -192,3 +179,25 @@ class State(metaclass=Meta):
             State.distance_per_motor_rotation = j["distance_per_motor_rotation"]
         if "motor_rotation_units" in j.keys():
             State.motor_rotation_units = j["motor_rotation_units"]
+        
+
+        if "digi_cam_delay" in j.keys():
+            State.digi_cam_delay = j["digi_cam_delay"]
+
+        if "shake_rest_delay" in j.keys():
+            State.shake_rest_delay = j["shake_rest_delay"]
+        
+        if "lowercase_motor_steps" in j.keys():
+            State.lowercase_motor_steps = j["lowercase_motor_steps"]
+
+        if "uppercase_motor_steps" in j.keys():
+            State.uppercase_motor_steps = j["uppercase_motor_steps"]
+        
+        if "sleep_time_after_step" in j.keys():
+            State.sleep_time_after_step = j["sleep_time_after_step"]
+        
+        if "whatsapp_number" in j.keys():
+            State.whatsapp_number = j["whatsapp_number"]
+
+        if "whatsapp_api_key" in j.keys():
+            State.whatsapp_api_key = j["whatsapp_api_key"]

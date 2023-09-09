@@ -4,11 +4,11 @@ function removeFadeOut( el ) {
     el.style.opacity = 0;
     setTimeout(function() {
         el.parentNode.removeChild(el);
-    }, speed);
+    }, 1000);
 }
 
-function popup(title, message, container_elem) {
-    const el = $(`<div style="width: ${$(container_elem).width() - 2* parseFloat($("body").css("font-size"))}px", class="popup-container">
+function popup(title, message, container_elem, color) {
+    const el = $(`<div style="width: ${$(container_elem).width() - 2* parseFloat($("body").css("font-size"))}px; background-color:${color}", class="popup-container">
     <button class="close-button" aria-label="Close alert" type="button" data-close>
         <span aria-hidden="true">&times;</span>
     </button>
@@ -31,12 +31,23 @@ $(document).ajaxError(function myErrorHandler(
     ajaxOptions,
     thrownError
 ) {
-    // console.log(event);
-    // console.log(ajaxOptions);
-    // console.log(thrownError);
     const err = xhr.responseText;
-    // console.log(err);
-
     const container = $(".container")[0]
-    popup("An error has occured", err, container)
+    popup("An error has occured", err, container, "rgb(255, 0, 0)")
+});
+
+
+$(document).on("ajaxSuccess", function myMiscHandler(
+    event,
+    xhr,
+    ajaxOptions,
+    thrownError
+) {
+
+    if (xhr.status == 299) {
+        const warning = xhr.responseText;
+        const container = $(".container")[0]
+        popup("Warning!", warning, container, "rgb(255, 255, 0)")
+
+    }
 });

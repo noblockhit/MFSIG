@@ -20,7 +20,6 @@ def p_off(pin):
 
 
 class Motor(abs_motor_type):
-    step_delay = 25 * 10**-5
     def __init__(self, pins):
         for pin in pins:
             GPIO.setup(pin, GPIO.OUT)
@@ -52,7 +51,7 @@ class Motor(abs_motor_type):
         else:
             self.pin_on(self.pins[(self.step//2+1) % len(self.pins)])
             
-        time.sleep(Motor.step_delay)
+        time.sleep(State.sleep_time_after_step)
 
     def step_backward(self):
         self.step -= 1
@@ -65,7 +64,7 @@ class Motor(abs_motor_type):
         else:
             self.pin_on(self.pins[(self.step//2) % len(self.pins)])
             
-        time.sleep(Motor.step_delay)
+        time.sleep(State.sleep_time_after_step)
 
 
     def cleanup(self):
@@ -97,35 +96,10 @@ class Camera(abs_camera_type):
         p_on(self.pin)
         time.sleep(2)
         p_off(self.pin)
-        time.sleep(4)
+        time.sleep(State.digi_cam_delay)
         State.progress()
-        
 
 
 import RPi
 import RPi.GPIO as GPIO
 GPIO.setmode(GPIO.BCM)
-
-if __name__ == "__main__":
-    try:
-        m = Motor([16, 19, 20, 21])
-        while True:
-            m.calibrate()
-        
-        m.cleanup()
-        exit()
-        time.sleep(5)
-        
-        i = 0
-        
-        
-        while True:
-            i += 1
-            m.step_backward()
-            time.sleep(.01)
-
-    except:
-        import traceback
-        traceback.print_exc()
-    finally:
-        m.cleanup()

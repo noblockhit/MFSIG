@@ -48,13 +48,17 @@ h3 {
 .popup-container {
     display: inline;
     position: absolute;
-    background-color: var(--error-red);
+    /* background-color: var(--error-red); */
     max-height: 10em;
     margin: 1em;
     border-radius: 1em;
     overflow: auto;
     top: 0;
     transition: opacity 1s ease, top 1s ease;
+}
+
+.popup-container > * {
+    color: black;
 }
 
 .popup-container::-webkit-scrollbar {
