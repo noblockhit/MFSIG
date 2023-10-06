@@ -196,8 +196,12 @@ class State(metaclass=Meta):
         if "sleep_time_after_step" in j.keys():
             State.sleep_time_after_step = j["sleep_time_after_step"]
         
-        if "whatsapp_number" in j.keys():
-            State.whatsapp_number = j["whatsapp_number"]
+        try:
+            if "whatsapp_number" in j.keys():
+                State.whatsapp_number = j["whatsapp_number"]
+        except ValueError:pass
 
-        if "whatsapp_api_key" in j.keys():
-            State.whatsapp_api_key = j["whatsapp_api_key"]
+        try:
+            if "whatsapp_api_key" in j.keys():
+                State.whatsapp_api_key = j["whatsapp_api_key"]
+        except ValueError:pass
