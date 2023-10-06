@@ -141,7 +141,7 @@ class State(metaclass=Meta):
         global SETTING_KEYS
         with open(str(CONFIGURATION_FILE_PATH), "w") as wf:
             content = json.dumps(
-                {key: getattr(State, key, default=None) for key in SETTING_KEYS.keys()},
+                {key: getattr(State, key, __default=None) for key in SETTING_KEYS.keys()},
                 indent=4
             )
             wf.write(content)
