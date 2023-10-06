@@ -100,9 +100,11 @@ def reset_camera_properties():
 
 reset_camera_properties()
 
+
 @app.route("/settings/<_key>", methods=["GET"])
 def get_setting(_key):
     return str(getattr(State, _key.replace("-","_"), default="")), 200
+
 
 @app.route("/settings/<_key>/<value>", methods=["POST"])
 def set_setting(_key, value):
