@@ -37,6 +37,7 @@ __global__ void compareAndPushSharpnesses(char *destination, double *sharpnesses
     long delta = 0;
 
     int calculated_pixels = 0;
+ 
     
     for (int x = center_x-radius; x < center_x+radius+1; x++) {
         for (int y = center_y-radius; y < center_y+radius+1; y++) {
@@ -128,11 +129,11 @@ def main():
     PY = False
     GPU = True
     DEBUG_ALL = False
-    EVAL_UNTIL = 50
+    EVAL_UNTIL = -1
     RESIZE = 100
     MAX_THREADS = 1024
 
-    radius = 3
+    radius = 2
 
 
     print(os.listdir(path))
