@@ -5,14 +5,11 @@ import os
 import threading
 from libs import flask_app
 from libs.state import State
-from flask import Flask, render_template
 import socket
-from threading import Thread
 import websockets
 from websockets.server import serve
 import asyncio
 import time
-import random
 from libs.notifier import send_text_to_whatsapp
 
 def start_motor_and_prepare_recording():
