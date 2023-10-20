@@ -143,6 +143,8 @@ def main():
         "RAW": [
             ".nef",
             ".arw",
+            ".tiff",
+            ".raw",
         ],
         "CV2": [
             ".jpeg",
