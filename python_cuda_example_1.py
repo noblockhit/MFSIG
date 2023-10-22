@@ -132,7 +132,7 @@ def main():
     GPU = True
     DEBUG_ALL = False
     EVAL_UNTIL = -1
-    RESIZE = 100
+    RESIZE = 20
     MAX_THREADS = 1024
 
     radius = 2
@@ -212,7 +212,8 @@ def main():
                 drv.InOut(composite_image_gpu), drv.InOut(sharpnesses_gpu), drv.In(bgr.flatten(order="K")),
                 drv.In(np.array([width])), drv.In(np.array([height])), drv.In(np.array([radius])),
                 block=(MAX_THREADS, 1, 1), grid=(grid_width, 1))
-
+            
+            
         print("Time to eval:", time.time() - start)
 
 
