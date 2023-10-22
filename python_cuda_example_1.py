@@ -7,6 +7,8 @@ import time
 import pycuda.autoinit ## DONT REMOVE THIS
 import pycuda.driver as drv
 from pycuda.compiler import SourceModule
+from pathlib import Path
+from sbNative.runtimetools import get_path
 
 
 mod = SourceModule("""
@@ -118,7 +120,8 @@ def find_nearest_pow_2(val):
 
 
 def main():
-    path = r"D:\images\MFSIG\Insekt1\\"
+    with open(str(get_path() / "input_paths.txt")) as rf:
+        path = Path(rf.read())
 
     sharpnesses = None
     composite_image = None
@@ -135,20 +138,34 @@ def main():
     radius = 2
 
 
-    print(os.listdir(path))
-    for i, f in enumerate([f for f in os.listdir(path) if f.lower().endswith(".nef") or f.lower().endswith(".png")][1:30]):
-        
+    FILE_EXTENTIONS = {
+        "RAW": [
+            ".nef",
+            ".arw",
+            ".tiff",
+            ".raw",
+        ],
+        "CV2": [
+            ".jpeg",
+            ".jpg",
+            ".png",
+        ],
+    }
+
+    files = [f for f in os.listdir(str(path)) if any(f.lower().endswith(ending) for ending in FILE_EXTENTIONS["RAW"] + FILE_EXTENTIONS["CV2"])]
+    print(files)
+    for i, f in enumerate(files):
         print("Loading", f, i)
         if i == EVAL_UNTIL:
             break
 
-        if f.lower().endswith(".nef"):
-            with rawpy.imread(path+f) as raw:
+        if any(f.lower().endswith(ending) for ending in FILE_EXTENTIONS["CV2"]):
+            bgr = cv2.imread(str(path.joinpath(f)))
+
+        elif any(f.lower().endswith(ending) for ending in FILE_EXTENTIONS["RAW"]):
+            with rawpy.imread(str(path.joinpath(f))) as raw:
                 rgb = raw.postprocess(use_camera_wb=True)
                 bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
-
-        if f.lower().endswith(".png"):
-            bgr = cv2.imread(path+f)
 
         if RESIZE != 100:
             scale_percent = RESIZE  # percent of original size
