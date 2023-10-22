@@ -49,10 +49,9 @@ __global__ void compareAndPushSharpnesses(char *destination, double *sharpnesses
                 continue;
             }
             
-            delta += abs(abs(center_b) - abs(source[get_pos(x, y, width, 0)]));
-            delta += abs(abs(center_g) - abs(source[get_pos(x, y, width, 1)]));
-            delta += abs(abs(center_r) - abs(source[get_pos(x, y, width, 2)]));
-
+            float d = (float)(abs(abs(center_b) - abs(source[get_pos(x, y, width, 0)])) + abs(abs(center_g) - abs(source[get_pos(x, y, width, 1)])) + abs(abs(center_r) - abs(source[get_pos(x, y, width, 2)])));
+            
+            delta += (int)d;
             calculated_pixels++;
         }
     }
@@ -137,8 +136,8 @@ def main():
 
 
     print(os.listdir(path))
-    for i, f in enumerate([f for f in os.listdir(path) if f.lower().endswith(".nef") or f.lower().endswith(".png")]):
-
+    for i, f in enumerate([f for f in os.listdir(path) if f.lower().endswith(".nef") or f.lower().endswith(".png")][1:30]):
+        
         print("Loading", f, i)
         if i == EVAL_UNTIL:
             break
@@ -212,7 +211,7 @@ def main():
     #     sharpnesses = cv2.rotate(cv2.flip(sharpnesses, 0), cv2.ROTATE_90_CLOCKWISE)
 
 
-    cv2.imwrite("out.png", composite_image_gpu)
+    cv2.imwrite("out.png", cv2.blur(composite_image_gpu, (5,5)))
 
 
     if DEBUG_ALL:
