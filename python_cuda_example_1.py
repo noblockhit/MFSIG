@@ -133,10 +133,10 @@ def main():
     GPU = True
     DEBUG_ALL = False
     EVAL_UNTIL = -1
-    RESIZE = 100
+    RESIZE = 50
     MAX_THREADS = 1024
 
-    radius = 2
+    radius = 1
 
 
     FILE_EXTENTIONS = {
