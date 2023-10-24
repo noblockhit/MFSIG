@@ -11,6 +11,8 @@ from websockets.server import serve
 import asyncio
 import time
 from libs.notifier import send_text_to_whatsapp
+from sbNative.runtimetools import get_path
+import subprocess
 
 def start_motor_and_prepare_recording():
     while True:
@@ -110,8 +112,10 @@ async def websocket_coro():
 
 def start_ws():
     asyncio.run(websocket_coro())
+    
 
 if __name__ == "__main__":
+    os.chdir(get_path())
     th = threading.Thread(target=start_motor_and_prepare_recording)
     th.start()
     threading.Thread(target=start_ws).start()
