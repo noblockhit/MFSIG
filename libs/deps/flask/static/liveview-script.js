@@ -126,6 +126,10 @@ function update_end_pos() {
 }
 
 $(window).on("load", () => {
+    $.get("/settings/motor-rotation-units", (async = false), (value) => {
+        const distances = {1:"m", 3:"mm", 6:"µm", 9: "nm", 12: "pm"}
+        $(".unit").html(distances[value]);
+    });
     $.get("/settings/lowercase-motor-steps", (async = false), (value) => {
         lowercase_steps = parseInt(value);
     });
