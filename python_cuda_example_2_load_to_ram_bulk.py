@@ -135,7 +135,7 @@ def main():
     RESIZE = 20
     MAX_THREADS = 1024
 
-    radius = 2
+    radius = 1
 
 
     FILE_EXTENTIONS = {
@@ -182,7 +182,6 @@ def main():
         images_lst.append(bgr)
         print("Loaded:", bgr.shape, bgr.dtype)
     
-    input()
     for i,bgr in enumerate(images_lst):
         print(f"Evaluating {i}")
         start = time.time()
@@ -221,7 +220,10 @@ def main():
             
             
             cv2.imshow('image gpu', cv2.rotate(composite_image_gpu.reshape(height, width, 3), cv2.ROTATE_90_CLOCKWISE))
-            cv2.waitKey(50)
+            if i == 0:
+                cv2.waitKey(0)
+            else:
+                cv2.waitKey(50)
             
         print("Time to eval:", time.time() - start)
 
