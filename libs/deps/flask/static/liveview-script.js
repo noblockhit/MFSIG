@@ -67,8 +67,12 @@ class HoldableButton {
         $(this.button).on("pointerup", () => {
             this.pressed = false;
         })
+        
+        $(this.button).on("mouseleave", () => {
+            this.pressed = false;
+        })
 
-        $(this.button).on("pointerleave", () => {
+        $(this.button).on("touchend", () => {
             this.pressed = false;
         })
 
