@@ -15,6 +15,9 @@ import pycuda.autoinit ## DONT REMOVE THIS
 import pycuda.driver as drv
 from pycuda.compiler import SourceModule
 import copy
+from image_array_converter import convert_color_arr_to_image, convert_gray_arr_to_image
+import colorama
+colorama.init()
 
 customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("dark-blue")
@@ -164,7 +167,7 @@ def render():
     img1 = list(image_arr_dict.values())[0]
     RESIZE = 100
     MAX_THREADS = 1024
-    radius = 1
+    radius = 10
     if RESIZE != 100:
         scale_percent = RESIZE  # percent of original size
         width = int(img1.shape[1] * scale_percent / 100)
@@ -177,7 +180,7 @@ def render():
 
     composite_image_gpu = np.zeros((width * height * 3), dtype=np.uint8)
     sharpnesses_gpu = np.zeros((width * height), dtype=float)
-    previous_sharpnesses = [sharpnesses_gpu]
+    previous_sharpnesses = [np.zeros((width * height), dtype=float)]
     changes_arr = np.zeros((width * height), dtype=np.uint8)
 
     for i, (name, rgb) in enumerate(image_arr_dict.items()):
@@ -196,18 +199,27 @@ def render():
             block=(MAX_THREADS, 1, 1), grid=(grid_width, 1))
         
         previous_sharpnesses[i+1] = copy.deepcopy(sharpnesses_gpu)
-        np.put(changes_arr, np.equal(previous_sharpnesses[i],
-                                     previous_sharpnesses[i+1]).nonzero()[0], [i])
+        changed_indecies = np.argwhere(previous_sharpnesses[i+1] - previous_sharpnesses[i] > 0)
         
-    changes_arr = changes_arr * int(256 / len(image_arr_dict))
-    changes_array_2d = cv2.flip(cv2.rotate(changes_arr.reshape(width, height), cv2.ROTATE_90_CLOCKWISE), 1)
+        np.put(changes_arr, changed_indecies, [i+1])
 
+    ## statistics
+    statistics_calc_time_start = time.time()
+    for number, count in dict(zip(*np.unique(changes_arr, return_counts=True))).items():
+        if number == 0:
+            continue
+        print(f"Pixels used from image {list(image_arr_dict.keys())[number-1]} {count} ({(count / len(changes_arr) * 100):.2f}%)")
     
-    processed_img = cv2.cvtColor(composite_image_gpu.reshape(height, width, 3), cv2.COLOR_BGR2RGB)   
+    print(f"Statistics took {time.time() - statistics_calc_time_start} seconds to compute")
+        
+
+    changes_arr = changes_arr * int(255 / len(image_arr_dict))
+    
+    processed_img = convert_color_arr_to_image(composite_image_gpu, width, height)
     img_panel = PreviewImage(processing_frame, image = processed_img)
     img_panel.pack(padx=5, pady=5, expand=True, fill = "both")
 
-    changes_img = cv2.cvtColor(changes_array_2d, cv2.COLOR_GRAY2RGB)
+    changes_img = convert_gray_arr_to_image(changes_arr, width, height)
     changes_panel = PreviewImage(processing_frame, image = changes_img)
     changes_panel.pack(padx=5, pady=5, expand=True, fill = "both")
 
