@@ -16,6 +16,7 @@ import pycuda.driver as drv
 from pycuda.compiler import SourceModule
 import copy
 from image_array_converter import convert_color_arr_to_image, convert_gray_arr_to_image
+from math import sqrt
 import colorama
 colorama.init()
 
@@ -23,8 +24,8 @@ customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("dark-blue")
 
 root = customtkinter.CTk()
-root.geometry("600x600")
-root.resizable(height=500, width=500)
+root.geometry("800x800")
+root.resizable(height=800, width=800)
 
 image_arr_dict = {}
 
@@ -34,7 +35,13 @@ def add_image_to_scrollbar(img, name):
     container = customtkinter.CTkFrame(image_preview_frame.interior)
     container.pack(padx=0, pady=5)
 
-    tk_img = customtkinter.CTkImage(img, size=(img.size[0]//20, img.size[1]//20))
+    target_diag_size = sqrt(2)*150
+
+    curr_diag_size = sqrt(img.size[0]**2+img.size[1]**2)
+
+    scaling_factor = curr_diag_size / target_diag_size
+    print(sqrt((img.size[0]//scaling_factor)**2 + (img.size[1]//scaling_factor)**2))
+    tk_img = customtkinter.CTkImage(img, size=(img.size[0]//scaling_factor, img.size[1]//scaling_factor))
     img_panel = customtkinter.CTkLabel(container, image = tk_img, text="")
     img_panel.pack(padx=5, pady=5)
     
@@ -163,7 +170,55 @@ __global__ void compareAndPushSharpnesses(char *destination, double *sharpnesses
 compareAndPushSharpnesses = mod.get_function("compareAndPushSharpnesses")
 
 
+global img_panel
+global changes_panel
+global img_panel_packed
+global changes_panel_packed
+img_panel = None
+changes_panel = None
+img_panel_packed = False
+changes_panel_packed = False
+
+
+def pack_img_panel():
+    global img_panel
+    global img_panel_packed
+    if img_panel:
+        img_panel.pack(padx=5, pady=5, expand=True, fill = "both")
+        img_panel_packed = True
+
+
+def pack_changes_panel():
+    global changes_panel
+    global changes_panel_packed
+    if changes_panel:
+        changes_panel.pack(padx=5, pady=5, expand=True, fill = "both")
+        changes_panel_packed = True
+
+
+def unpack_img_panel():
+    global img_panel
+    global img_panel_packed
+    img_panel_packed = False
+    if img_panel:
+        img_panel.pack_forget()
+        return 1
+    return 0
+
+
+def unpack_changes_panel():
+    global changes_panel
+    global changes_panel_packed
+    changes_panel_packed = False
+    if changes_panel:
+        changes_panel.pack_forget()
+        return 1
+    return 0
+
+
 def render():
+    global img_panel
+    global changes_panel
     img1 = list(image_arr_dict.values())[0]
     RESIZE = 100
     MAX_THREADS = 1024
@@ -214,24 +269,55 @@ def render():
         
 
     changes_arr = changes_arr * int(255 / len(image_arr_dict))
-    
-    processed_img = convert_color_arr_to_image(composite_image_gpu, width, height)
-    img_panel = PreviewImage(processing_frame, image = processed_img)
-    img_panel.pack(padx=5, pady=5, expand=True, fill = "both")
+
+    unpack_img_panel()
+    unpack_changes_panel()
 
     changes_img = convert_gray_arr_to_image(changes_arr, width, height)
     changes_panel = PreviewImage(processing_frame, image = changes_img)
-    changes_panel.pack(padx=5, pady=5, expand=True, fill = "both")
+    on_show_changes_checkbox()
+
+    processed_img = convert_color_arr_to_image(composite_image_gpu, width, height)
+    img_panel = PreviewImage(processing_frame, image = processed_img)
+    on_show_output_checkbox()
 
 
-
-
-image_preview_frame.pack(expand = True, fill = "both", side=RIGHT)
+image_preview_frame.pack(ipadx=20, fill = "y", side=RIGHT)
 button = customtkinter.CTkButton(master=image_preview_frame.interior, text="Load new image", command=load_new_image)
 button.pack(pady=(12, 5))
 
+
 processing_frame = customtkinter.CTkFrame(root)
 processing_frame.pack(expand = True, padx=0, pady=0, side=LEFT, fill = "both")
+
+settings_frame = customtkinter.CTkFrame(root, width=100)
+settings_frame.pack(padx=10, pady=0, fill = "y")
+
+
+def on_show_changes_checkbox():
+    if show_changes_intvar.get() == 1:
+        pack_changes_panel()
+    else:
+        unpack_changes_panel()
+
+show_changes_intvar = customtkinter.IntVar(value=1)
+show_changes_checkbox = customtkinter.CTkCheckBox(settings_frame, text="Show Changes Image", variable=show_changes_intvar,
+                                                 onvalue=1, offvalue=0, command=on_show_changes_checkbox)
+show_changes_checkbox.pack(pady = 10, padx=5)
+
+def on_show_output_checkbox():
+    if show_output_intvar.get() == 1:
+        pack_img_panel()
+    else:
+        unpack_img_panel()
+
+show_output_intvar = customtkinter.IntVar(value=1)
+show_output_checkbox = customtkinter.CTkCheckBox(settings_frame, text="Show Output Image", variable=show_output_intvar,
+                                                 onvalue=1, offvalue=0, command=on_show_output_checkbox)
+show_output_checkbox.pack(pady = 10, padx=5)
+
+
+
 
 render_button = customtkinter.CTkButton(processing_frame, text="Render opened images", command=render)
 render_button.pack(pady=(12, 5))

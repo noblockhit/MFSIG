@@ -52,7 +52,7 @@ class VerticalScrolledFrame(CTk.CTkFrame):
 
 
     def _on_mousewheel(self, event):
-        if self.is_mouse_over:
+        if self.is_mouse_over and event.state != 4:
             self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
 
 
