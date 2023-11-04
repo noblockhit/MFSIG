@@ -202,7 +202,7 @@ button = customtkinter.CTkButton(master=image_preview_frame.interior, text="Load
 button.pack(pady=(12, 5))
 
 processing_frame = customtkinter.CTkFrame(root)
-processing_frame.pack(expand = True, padx=0, pady=0, side=LEFT, fill = "both")
+processing_frame.pack(expand = True, padx=5, pady=5, side=LEFT, fill = "both")
 
 render_button = customtkinter.CTkButton(processing_frame, text="Render opened images", command=render)
 render_button.pack(pady=(12, 5))
