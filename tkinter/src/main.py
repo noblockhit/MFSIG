@@ -57,6 +57,20 @@ def add_image_to_scrollbar(img, name):
     destroy_button = customtkinter.CTkButton(container, text="Remove Image", command=destroy_container)
     destroy_button.pack(padx=2, pady=5)
 
+FILE_EXTENTIONS = {
+    "RAW": [
+        ".nef",
+        ".arw",
+        ".tiff",
+        ".raw",
+    ],
+    "CV2": [
+        ".jpeg",
+        ".jpg",
+        ".png",
+    ],
+}
+
 def load_new_image():
     selected_img_files = filedialog.askopenfiles(filetypes=[("Image-files", ".png .jpg .jpeg .RAW .NEF")])
     for idx, f in enumerate(selected_img_files):
@@ -64,14 +78,20 @@ def load_new_image():
             continue
 
         print(f"Opening image {os.path.basename(f.name)}, {idx+1} out of {len(selected_img_files)}")
-        raw = rawpy.imread(f.name)
-        rgb = raw.postprocess(use_camera_wb=True)
+        if any(f.name.lower().endswith(ending) for ending in FILE_EXTENTIONS["CV2"]):
+            bgr = cv2.imread(f.name)
+            rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+
+        elif any(f.name.lower().endswith(ending) for ending in FILE_EXTENTIONS["RAW"]):
+            with rawpy.imread(f.name) as raw:
+                rgb = raw.postprocess(use_camera_wb=True)
         img = Image.fromarray(rgb)
+
         add_image_to_scrollbar(img, os.path.basename(f.name))
 
         image_arr_dict[os.path.basename(f.name)] = rgb
 
-        del img, raw
+        del img
         gc.collect()
 
 
@@ -144,7 +164,7 @@ def render():
     img1 = list(image_arr_dict.values())[0]
     RESIZE = 100
     MAX_THREADS = 1024
-    radius = 10
+    radius = 1
     if RESIZE != 100:
         scale_percent = RESIZE  # percent of original size
         width = int(img1.shape[1] * scale_percent / 100)
@@ -180,10 +200,7 @@ def render():
                                      previous_sharpnesses[i+1]).nonzero()[0], [i])
         
     changes_arr = changes_arr * int(256 / len(image_arr_dict))
-    scale_percent_prog = 15  # percent of original size
-    width_prog = int(bgr.shape[1] * scale_percent_prog / 100)
-    height_prog = int(bgr.shape[0] * scale_percent_prog / 100)
-    changes_array_2d = cv2.flip(cv2.resize(cv2.rotate(changes_arr.reshape(width, height), cv2.ROTATE_90_CLOCKWISE), (width_prog, height_prog)), 1)
+    changes_array_2d = cv2.flip(cv2.rotate(changes_arr.reshape(width, height), cv2.ROTATE_90_CLOCKWISE), 1)
 
     
     processed_img = cv2.cvtColor(composite_image_gpu.reshape(height, width, 3), cv2.COLOR_BGR2RGB)   
@@ -202,7 +219,7 @@ button = customtkinter.CTkButton(master=image_preview_frame.interior, text="Load
 button.pack(pady=(12, 5))
 
 processing_frame = customtkinter.CTkFrame(root)
-processing_frame.pack(expand = True, padx=5, pady=5, side=LEFT, fill = "both")
+processing_frame.pack(expand = True, padx=0, pady=0, side=LEFT, fill = "both")
 
 render_button = customtkinter.CTkButton(processing_frame, text="Render opened images", command=render)
 render_button.pack(pady=(12, 5))

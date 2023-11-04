@@ -21,7 +21,7 @@ class VerticalScrolledFrame(CTk.CTkFrame):
         self.canvas.bind("<Enter>", self._set_mouseover_true)
         self.canvas.bind("<Leave>", self._set_mouseover_false)
 
-        self.canvas.bind("<MouseWheel>", self._on_mousewheel)
+        parent.bind("<MouseWheel>", self._on_mousewheel)
         self.canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
         vscrollbar.configure(command = self.canvas.yview)
  
@@ -52,8 +52,9 @@ class VerticalScrolledFrame(CTk.CTkFrame):
 
 
     def _on_mousewheel(self, event):
-        print("wheel")
+        print("on mousewheel")
         if self.is_mouse_over:
+            print("and is over")
             self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
 
 
@@ -64,7 +65,6 @@ class VerticalScrolledFrame(CTk.CTkFrame):
 
     def _set_mouseover_false(self, event):
         self.is_mouse_over = False
-        print(self, self.is_mouse_over)
 
 
 if __name__ == '__main__':

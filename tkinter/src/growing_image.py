@@ -68,7 +68,6 @@ class GrowingImage(CTk.CTkCanvas):
 
 
     def _on_mousewheel(self, event):
-        print("wheel image")
         ZOOM_FACTOR = .5
 
         img_mouse_x_portion = self.mouse_x / self.new_image_width
