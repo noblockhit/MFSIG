@@ -1,7 +1,6 @@
 import customtkinter as CTk
 from tkinter.constants import *
 from PIL import ImageTk, Image
-import event_binder
 
 CTk.set_appearance_mode("System")
 CTk.set_default_color_theme("dark-blue")
@@ -30,7 +29,7 @@ class GrowingImage(CTk.CTkCanvas):
         self.is_mouse_over = False
 
         if zoom:
-            self.bind_all("<MouseWheel>", self._on_mousewheel)
+            self.bind("<MouseWheel>", self._on_mousewheel)
             self.zoom_amount = 1
             self.zoom_x_offset = 0
             self.zoom_y_offset = 0
@@ -74,9 +73,7 @@ class GrowingImage(CTk.CTkCanvas):
         img_mouse_x_portion = self.mouse_x / self.new_image_width
         img_mouse_y_portion = self.mouse_y / self.new_image_height
 
-        print("on mousewheel", self.is_mouse_over, event.state == 4)
         if self.is_mouse_over and event.state == 4:
-            print("delta", event.delta)
             if event.delta > 0:
                 if self.zoom_amount * self.src_img.shape[0] < 5 > self.zoom_amount * self.src_img.shape[1]:
                     return

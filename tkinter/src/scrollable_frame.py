@@ -21,7 +21,7 @@ class VerticalScrolledFrame(CTk.CTkFrame):
         self.canvas.bind("<Enter>", self._set_mouseover_true)
         self.canvas.bind("<Leave>", self._set_mouseover_false)
 
-        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+        self.canvas.bind("<MouseWheel>", self._on_mousewheel)
         self.canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
         vscrollbar.configure(command = self.canvas.yview)
  
