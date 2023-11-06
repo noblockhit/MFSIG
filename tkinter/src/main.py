@@ -20,10 +20,7 @@ from math import sqrt
 from threading import Thread
 import multiprocessing as mp
 import subprocess
-<<<<<<< HEAD
 import sys
-=======
->>>>>>> 7ec617521e4e8a891f04d5eaa3cc5768700754a4
 
 
 FILE_EXTENTIONS = {
