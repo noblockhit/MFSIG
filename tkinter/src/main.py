@@ -19,6 +19,9 @@ from image_array_converter import convert_color_arr_to_image, convert_gray_arr_t
 from math import sqrt
 from threading import Thread
 import multiprocessing as mp
+import subprocess
+import sys
+
 
 FILE_EXTENTIONS = {
     "RAW": [
@@ -51,8 +54,128 @@ def save_image(name, cv2_image):
     else:
         raise ValueError(f"Couldn't save the image due to not being able to save with the file type of {name}")
 
-if __name__ == '__main__':
 
+def find_nearest_pow_2(val):
+    for i in range(32):
+        if val < 2**i:
+            return 2**i
+        
+
+mod = SourceModule("""
+__device__ int get_pos(int x, int y, int width, int color) {
+    return (y * width + x) * 3 + color;
+}
+
+__global__ void compareAndPushSharpnesses(char *destination, double *sharpnesses, char *source, int *w_arr, int *h_arr,
+                int *r_arr) {
+    int width = w_arr[0];
+    int height = h_arr[0];
+    int radius = r_arr[0];
+    
+    
+    const int thrd_i = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    if (thrd_i > width*height) {
+        return;
+    }
+    
+    int center_x = thrd_i / height;
+    int center_y = thrd_i % height;
+
+    char center_b = source[get_pos(center_x, center_y, width, 0)];
+    char center_g = source[get_pos(center_x, center_y, width, 1)];
+    char center_r = source[get_pos(center_x, center_y, width, 2)];
+
+    long delta = 0;
+
+    int calculated_pixels = 0;
+
+    
+    for (int x = center_x-radius; x < center_x+radius+1; x++) {
+        for (int y = center_y-radius; y < center_y+radius+1; y++) {
+            if (x < 0 || y < 0 || x > width || y > height) {
+                continue;
+            }
+            
+            if (x == center_x && y == center_y) {
+                continue;
+            }
+            
+            float d = (float)(abs(abs(center_b) - abs(source[get_pos(x, y, width, 0)])) + abs(abs(center_g) - abs(source[get_pos(x, y, width, 1)])) + abs(abs(center_r) - abs(source[get_pos(x, y, width, 2)])));
+            
+            delta += (int)d;
+            calculated_pixels++;
+        }
+    }
+    double sharpness = (double)(delta) / (double)(calculated_pixels * 3 * 255);
+    
+    if (sharpness > sharpnesses[thrd_i]) {
+        sharpnesses[thrd_i] = sharpness;
+        destination[get_pos(center_x, center_y, width, 0)] = center_b;
+        destination[get_pos(center_x, center_y, width, 1)] = center_g;
+        destination[get_pos(center_x, center_y, width, 2)] = center_r;
+    }
+}""")
+
+compareAndPushSharpnesses = mod.get_function("compareAndPushSharpnesses")
+
+
+def render(radius, image_arr_dict, message_queue):
+    img1 = list(image_arr_dict.values())[0]
+    RESIZE = 100
+    MAX_THREADS = 1024
+    if RESIZE != 100:
+        scale_percent = RESIZE  # percent of original size
+        width = int(img1.shape[1] * scale_percent / 100)
+        height = int(img1.shape[0] * scale_percent / 100)
+        dim = (width, height)
+        img1 = cv2.resize(img1, dim, interpolation=cv2.INTER_AREA)
+    else:
+        width = int(img1.shape[1])
+        height = int(img1.shape[0])
+
+    composite_image_gpu = np.zeros((width * height * 3), dtype=np.uint8)
+    sharpnesses_gpu = np.zeros((width * height), dtype=float)
+    previous_sharpnesses = [np.zeros((width * height), dtype=float)]
+    changes_arr = np.zeros((width * height), dtype=np.uint8)
+
+    for i, (name, rgb) in enumerate(image_arr_dict.items()):
+        bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+
+        total_pixels = width*height
+
+        grid_width = find_nearest_pow_2(total_pixels/MAX_THREADS)
+        
+        previous_sharpnesses.append(np.zeros((width * height), dtype=np.uint32))
+
+        compareAndPushSharpnesses(
+            drv.InOut(composite_image_gpu), drv.InOut(sharpnesses_gpu), drv.In(bgr.flatten(order="K")),
+            drv.In(np.array([width])), drv.In(np.array([height])), drv.In(np.array([radius])),
+            block=(MAX_THREADS, 1, 1), grid=(grid_width, 1))
+        
+        previous_sharpnesses[i+1] = copy.deepcopy(sharpnesses_gpu)
+        changed_indecies = np.argwhere(previous_sharpnesses[i+1] - previous_sharpnesses[i] > 0)
+        
+        np.put(changes_arr, changed_indecies, [i+1])
+        message_queue.put((name, i, len(image_arr_dict)))
+
+    ## statistics
+    statistics_calc_time_start = time.time()
+    for number, count in dict(zip(*np.unique(changes_arr, return_counts=True))).items():
+        if number == 0:
+            continue
+        print(f"Pixels used from image {list(image_arr_dict.keys())[number-1]} {count} ({(count / len(changes_arr) * 100):.2f}%)")
+    
+    print(f"Statistics took {time.time() - statistics_calc_time_start} seconds to compute")
+        
+
+    changes_arr = changes_arr * int(255 / len(image_arr_dict))
+    return width, height, changes_arr, composite_image_gpu, sharpnesses_gpu
+
+
+if __name__ == '__main__':
+    if sys.platform.startswith("win32"):
+        mp.freeze_support()
 
     customtkinter.set_appearance_mode("dark")
     customtkinter.set_default_color_theme("dark-blue")
@@ -63,6 +186,7 @@ if __name__ == '__main__':
 
     root.columnconfigure(0, weight=1)
     root.columnconfigure((1,2), weight=0)
+    root.rowconfigure(0, weight=0)
     root.rowconfigure(1, weight=1)
 
     image_arr_dict = {}
@@ -80,10 +204,8 @@ if __name__ == '__main__':
         scaling_factor = curr_diag_size / target_diag_size
         tk_img = customtkinter.CTkImage(img, size=(img.size[0]//scaling_factor, img.size[1]//scaling_factor))
         img_panel = customtkinter.CTkLabel(container, image = tk_img, text="")
-        img_panel.pack(padx=5, pady=5)
         
         name_panel = customtkinter.CTkLabel(container, text=name)
-        name_panel.pack(padx=2, pady=2)
 
 
         def destroy_container():
@@ -102,12 +224,17 @@ if __name__ == '__main__':
             gc.collect()
 
         destroy_button = customtkinter.CTkButton(container, text="Remove Image", command=destroy_container)
+        img_panel.pack(padx=5, pady=5)
+        name_panel.pack(padx=2, pady=2)
         destroy_button.pack(padx=2, pady=5)
 
 
     def on_load_new_image():
-
-        selected_img_files = filedialog.askopenfiles(filetypes=[("Image-files", ".png .jpg .jpeg .RAW .NEF")])
+        selected_img_files = filedialog.askopenfiles(title="Open Images for the render queue", filetypes=[("Image-files", ".png .jpg .jpeg .RAW .NEF")])
+        if not selected_img_files:
+            return
+        
+        initialize_progress("Loading Images:")
 
         image_paths = []
 
@@ -117,9 +244,12 @@ if __name__ == '__main__':
             
             image_paths.append(f.name)
         
-        rgb_values = mp.Pool(len(image_paths)).map(load_image, image_paths)
+        rgb_values = mp.Pool(len(image_paths)).imap(load_image, image_paths)
 
-        for name, rgb in zip(image_paths, rgb_values):
+        for idx, (name, rgb) in enumerate(zip(image_paths, rgb_values)):
+            progress_bar.set((idx+1)/len(image_paths))
+            progress_info_strvar.set(f"{(idx+1)}/{len(image_paths)} Images Loaded")
+
             img = Image.fromarray(rgb)
 
             add_image_to_scrollbar(img, os.path.basename(name))
@@ -128,72 +258,8 @@ if __name__ == '__main__':
 
             del img
             gc.collect()
-
-
-
-    def find_nearest_pow_2(val):
-        for i in range(32):
-            if val < 2**i:
-                return 2**i
-
-    mod = SourceModule("""
-    __device__ int get_pos(int x, int y, int width, int color) {
-        return (y * width + x) * 3 + color;
-    }
-
-    __global__ void compareAndPushSharpnesses(char *destination, double *sharpnesses, char *source, int *w_arr, int *h_arr,
-                    int *r_arr) {
-        int width = w_arr[0];
-        int height = h_arr[0];
-        int radius = r_arr[0];
         
-        
-        const int thrd_i = blockIdx.x * blockDim.x + threadIdx.x;
-        
-        if (thrd_i > width*height) {
-            return;
-        }
-        
-        int center_x = thrd_i / height;
-        int center_y = thrd_i % height;
-
-        char center_b = source[get_pos(center_x, center_y, width, 0)];
-        char center_g = source[get_pos(center_x, center_y, width, 1)];
-        char center_r = source[get_pos(center_x, center_y, width, 2)];
-
-        long delta = 0;
-
-        int calculated_pixels = 0;
-    
-        
-        for (int x = center_x-radius; x < center_x+radius+1; x++) {
-            for (int y = center_y-radius; y < center_y+radius+1; y++) {
-                if (x < 0 || y < 0 || x > width || y > height) {
-                    continue;
-                }
-                
-                if (x == center_x && y == center_y) {
-                    continue;
-                }
-                
-                float d = (float)(abs(abs(center_b) - abs(source[get_pos(x, y, width, 0)])) + abs(abs(center_g) - abs(source[get_pos(x, y, width, 1)])) + abs(abs(center_r) - abs(source[get_pos(x, y, width, 2)])));
-                
-                delta += (int)d;
-                calculated_pixels++;
-            }
-        }
-        double sharpness = (double)(delta) / (double)(calculated_pixels * 3 * 255);
-        
-        if (sharpness > sharpnesses[thrd_i]) {
-            sharpnesses[thrd_i] = sharpness;
-            destination[get_pos(center_x, center_y, width, 0)] = center_b;
-            destination[get_pos(center_x, center_y, width, 1)] = center_g;
-            destination[get_pos(center_x, center_y, width, 2)] = center_r;
-        }
-    }""")
-
-    compareAndPushSharpnesses = mod.get_function("compareAndPushSharpnesses")
-
+        deinitialize_progress()
 
     global output_panel
     global changes_panel
@@ -276,8 +342,12 @@ if __name__ == '__main__':
             return 1
         return 0
 
+    
+    def launch_render():
+        if len(image_arr_dict) < 2:
+            messagebox.showerror("Render exception", "Exception: You have not opened 2 or more images to the render queue.")
+            return
 
-    def render():
         global changes_panel
         global output_panel
         global sharpness_panel
@@ -285,56 +355,29 @@ if __name__ == '__main__':
         global output_img
         global sharpness_img
         global radius
-
-        img1 = list(image_arr_dict.values())[0]
-        RESIZE = 100
-        MAX_THREADS = 1024
-        if RESIZE != 100:
-            scale_percent = RESIZE  # percent of original size
-            width = int(img1.shape[1] * scale_percent / 100)
-            height = int(img1.shape[0] * scale_percent / 100)
-            dim = (width, height)
-            img1 = cv2.resize(img1, dim, interpolation=cv2.INTER_AREA)
-        else:
-            width = int(img1.shape[1])
-            height = int(img1.shape[0])
-
-        composite_image_gpu = np.zeros((width * height * 3), dtype=np.uint8)
-        sharpnesses_gpu = np.zeros((width * height), dtype=float)
-        previous_sharpnesses = [np.zeros((width * height), dtype=float)]
-        changes_arr = np.zeros((width * height), dtype=np.uint8)
-
-        for i, (name, rgb) in enumerate(image_arr_dict.items()):
-            print("rendering:", name, "at index of", i)
-            bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
-
-            total_pixels = width*height
-
-            grid_width = find_nearest_pow_2(total_pixels/MAX_THREADS)
-            
-            previous_sharpnesses.append(np.zeros((width * height), dtype=np.uint32))
-
-            compareAndPushSharpnesses(
-                drv.InOut(composite_image_gpu), drv.InOut(sharpnesses_gpu), drv.In(bgr.flatten(order="K")),
-                drv.In(np.array([width])), drv.In(np.array([height])), drv.In(np.array([radius])),
-                block=(MAX_THREADS, 1, 1), grid=(grid_width, 1))
-            
-            previous_sharpnesses[i+1] = copy.deepcopy(sharpnesses_gpu)
-            changed_indecies = np.argwhere(previous_sharpnesses[i+1] - previous_sharpnesses[i] > 0)
-            
-            np.put(changes_arr, changed_indecies, [i+1])
-
-        ## statistics
-        statistics_calc_time_start = time.time()
-        for number, count in dict(zip(*np.unique(changes_arr, return_counts=True))).items():
-            if number == 0:
-                continue
-            print(f"Pixels used from image {list(image_arr_dict.keys())[number-1]} {count} ({(count / len(changes_arr) * 100):.2f}%)")
         
-        print(f"Statistics took {time.time() - statistics_calc_time_start} seconds to compute")
+        manager = mp.Manager()
+        message_queue = manager.Queue()
+
+        def update_progress_bar_worker(message_queue):
+            initialize_progress("Rendering Images:")
+            while True:
+                name, i, length = message_queue.get()
+                if i+1 == length:
+                    break
+
+                progress_bar.set((i+1)/length)
+                progress_info_strvar.set(f"From Image {name} ({i+1}/{length})")
+            
+            deinitialize_progress()
             
 
-        changes_arr = changes_arr * int(255 / len(image_arr_dict))
+        Thread(target=update_progress_bar_worker, args=(message_queue,)).start()
+        width, height, changes_arr, composite_image_gpu, sharpnesses_gpu = mp.Pool(1).starmap(
+            render, [(radius, image_arr_dict, message_queue)])[0]
+        
+        
+        
 
         unpack_img_panel()
         unpack_changes_panel()
@@ -353,12 +396,46 @@ if __name__ == '__main__':
         on_show_sharpness_checkbox()
 
 
+    ## worker bar
+    def initialize_progress(name, display_info=True):
+        progress_label_strvar.set(name)
+        progress_info_strvar.set("")
+        progress_bar.set(0)
+
+        progress_label.pack(padx=10, side=LEFT)
+        progress_bar.pack(padx=10, side=LEFT)
+        if display_info:
+            progress_info.pack(padx=10, side=RIGHT)
+    
+
+    def deinitialize_progress():
+        progress_label_strvar.set("")
+        progress_info_strvar.set("")
+        progress_bar.set(0)
+
+        progress_label.pack_forget()
+        progress_bar.pack_forget()
+        progress_info.pack_forget()
+
+
+    worker_frame = customtkinter.CTkFrame(root, height=30)
+    worker_frame.grid(row=0, column=0, columnspan=2)
+
+    progress_label_strvar = customtkinter.StringVar(value="a progress:")
+    progress_label = customtkinter.CTkLabel(worker_frame, textvariable=progress_label_strvar)
+
+    progress_bar = customtkinter.CTkProgressBar(worker_frame)
+
+    progress_info_strvar = customtkinter.StringVar(value="10/50")
+    progress_info = customtkinter.CTkLabel(worker_frame, textvariable=progress_info_strvar)
+
+
     ## rendering
 
     rendering_frame = customtkinter.CTkFrame(root)
     rendering_frame.grid(row=1, column=0, sticky="nesw")
 
-    render_button = customtkinter.CTkButton(rendering_frame, text="Render opened images", command=render)
+    render_button = customtkinter.CTkButton(rendering_frame, text="Render opened images", command=lambda: Thread(target=launch_render).start())
     render_button.pack(pady=(12, 5))
 
 
@@ -427,16 +504,30 @@ if __name__ == '__main__':
         global sharpness_img
         global sharpness_panel_packed
 
-        file_name = filedialog.asksaveasfilename(defaultextension=".png", filetypes=[("PNG", ".png"), ("JPG", ".jpg"), ("TIFF", ".tiff")])
+        file_name = filedialog.asksaveasfilename(title="Save as filenames", defaultextension=".png", filetypes=[("PNG", ".png"), ("JPG", ".jpg"), ("TIFF", ".tiff")])
 
+        exported_something = False
         if output_panel_packed and output_img is not None:
             save_image(file_name, output_img)
+            exported_something = True
 
         if changes_panel_packed and changes_img is not None:
             save_image(".".join(file_name.split(".")[:-1] + ["changes"] + [file_name.split(".")[-1]]), changes_img)
+            exported_something = True
 
         if sharpness_panel_packed and sharpness_img is not None:
             save_image(".".join(file_name.split(".")[:-1] + ["sharpnesses"] + [file_name.split(".")[-1]]), sharpness_img)
+            exported_something = True
+
+        if not exported_something:
+            messagebox.showwarning(title="Export warning", message="Warning: Nothing was saved because you have either not rendered the images yet or you unchecked every option above!")
+            return
+        
+        if os.name == "nt":
+            win_style_dir = file_name.replace("/", "\\")
+            cmd = f'explorer /select,"{win_style_dir}"'
+            subprocess.Popen(cmd)
+        
 
 
     save_selected_button = customtkinter.CTkButton(settings_frame, text="Save Shown Images", command=on_save_selected_button)
