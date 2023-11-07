@@ -1,0 +1,19 @@
+Exported output image: True
+Exported sharpness map: True
+Exported changes map: True
+
+Min sharpness: 0.00687 / 1
+Max sharpness: 0.32974 / 1
+Average sharpness: 0.04600 / 1
+Median sharpness: 0.03714 / 1
+
+Pixels used from image DSC_0001.NEF: 3181124 (25.74%)
+Pixels used from image DSC_0019.NEF: 3759820 (30.42%)
+Pixels used from image DSC_0037.NEF: 2770772 (22.42%)
+Pixels used from image DSC_0057.NEF: 2649364 (21.43%)
+
+Loading images took 3.6059655
+Rendering images took 2.991375
+
+
+Statistics took 0.29594 seconds to compute

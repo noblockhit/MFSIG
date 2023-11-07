@@ -21,6 +21,7 @@ from threading import Thread
 import multiprocessing as mp
 import subprocess
 import sys
+import statistics
 
 
 FILE_EXTENTIONS = {
@@ -159,17 +160,6 @@ def render(radius, image_arr_dict, message_queue):
         np.put(changes_arr, changed_indecies, [i+1])
         message_queue.put((name, i, len(image_arr_dict)))
 
-    ## statistics
-    statistics_calc_time_start = time.time()
-    for number, count in dict(zip(*np.unique(changes_arr, return_counts=True))).items():
-        if number == 0:
-            continue
-        print(f"Pixels used from image {list(image_arr_dict.keys())[number-1]} {count} ({(count / len(changes_arr) * 100):.2f}%)")
-    
-    print(f"Statistics took {time.time() - statistics_calc_time_start} seconds to compute")
-        
-
-    changes_arr = changes_arr * int(255 / len(image_arr_dict))
     return width, height, changes_arr, composite_image_gpu, sharpnesses_gpu
 
 
@@ -230,12 +220,14 @@ if __name__ == '__main__':
 
 
     def on_load_new_image():
+        global loading_time
         selected_img_files = filedialog.askopenfiles(title="Open Images for the render queue", filetypes=[("Image-files", ".png .jpg .jpeg .RAW .NEF")])
         if not selected_img_files:
             return
         
         initialize_progress("Loading Images:")
 
+        img_load_time_start = time.time_ns()
         image_paths = []
 
         for f in selected_img_files:
@@ -258,8 +250,10 @@ if __name__ == '__main__':
 
             del img
             gc.collect()
+        loading_time = (time.time_ns() - img_load_time_start) / (10 ** 9) 
         
         deinitialize_progress()
+
 
     global output_panel
     global changes_panel
@@ -274,6 +268,11 @@ if __name__ == '__main__':
     global sharpness_img
 
     global radius
+    
+    global sharpnesses_gpu
+    global changes_arr
+    global rendering_time
+    global loading_time
 
     output_panel = None
     output_panel_packed = False
@@ -287,6 +286,12 @@ if __name__ == '__main__':
     sharpness_panel_packed = None
     sharpness_img = None
     radius = 1
+
+    sharpnesses_gpu = None
+    changes_arr = None
+    rendering_time = -1
+    loading_time = -1
+
 
 
     def pack_img_panel():
@@ -355,6 +360,10 @@ if __name__ == '__main__':
         global output_img
         global sharpness_img
         global radius
+
+        global sharpnesses_gpu
+        global changes_arr
+        global rendering_time
         
         manager = mp.Manager()
         message_queue = manager.Queue()
@@ -373,17 +382,19 @@ if __name__ == '__main__':
             
 
         Thread(target=update_progress_bar_worker, args=(message_queue,)).start()
+
+        render_time_start = time.time_ns()
+
         width, height, changes_arr, composite_image_gpu, sharpnesses_gpu = mp.Pool(1).starmap(
             render, [(radius, image_arr_dict, message_queue)])[0]
         
-        
-        
+        rendering_time = (time.time_ns() - render_time_start) / (10 ** 9)
 
         unpack_img_panel()
         unpack_changes_panel()
         unpack_sharpness_panel()
 
-        changes_img = convert_gray_arr_to_image(changes_arr, width, height)
+        changes_img = convert_gray_arr_to_image(changes_arr * int(255 / len(image_arr_dict)), width, height)
         changes_panel = PreviewImage(rendering_frame, image = changes_img)
         on_show_changes_checkbox()
 
@@ -506,23 +517,82 @@ if __name__ == '__main__':
 
         file_name = filedialog.asksaveasfilename(title="Save as filenames", defaultextension=".png", filetypes=[("PNG", ".png"), ("JPG", ".jpg"), ("TIFF", ".tiff")])
 
-        exported_something = False
+        exported_img = False
+        exported_chng = False
+        exported_shrp = False
         if output_panel_packed and output_img is not None:
             save_image(file_name, output_img)
-            exported_something = True
+            exported_img = True
 
         if changes_panel_packed and changes_img is not None:
             save_image(".".join(file_name.split(".")[:-1] + ["changes"] + [file_name.split(".")[-1]]), changes_img)
-            exported_something = True
+            exported_chng = True
 
         if sharpness_panel_packed and sharpness_img is not None:
             save_image(".".join(file_name.split(".")[:-1] + ["sharpnesses"] + [file_name.split(".")[-1]]), sharpness_img)
-            exported_something = True
+            exported_shrp = True
 
-        if not exported_something:
+        
+        ## metadata
+        if not (exported_img or exported_chng or exported_shrp):
             messagebox.showwarning(title="Export warning", message="Warning: Nothing was saved because you have either not rendered the images yet or you unchecked every option above!")
             return
-        
+        else:
+            ## statistics
+            statistics_calc_time_start = time.time_ns()
+
+            meta_data_lst = [
+                                f"\"Radius\": {radius}X{radius}px mesh\n\n"
+                                f"Exported output image: {exported_img}\n",
+                                f"Exported sharpness map: {exported_shrp}\n",
+                                f"Exported changes map: {exported_chng}\n\n",
+
+                                f"Min sharpness: {np.amin(sharpnesses_gpu):.5f} / 1\n",
+                                f"Max sharpness: {np.amax(sharpnesses_gpu):.5f} / 1\n",
+
+                                f"Average sharpness: {np.average(sharpnesses_gpu):.5f} / 1\n",
+                                f"Median sharpness: {np.median(sharpnesses_gpu):.5f} / 1\n\n",
+                            ]
+            
+            pxl_nums = []
+            for number, count in dict(zip(*np.unique(changes_arr, return_counts=True))).items():
+                if number == 0:
+                    continue
+                pxl_nums.append(count)
+                meta_data_lst.append(
+                    f"Pixels used from image {list(image_arr_dict.keys())[number-1]}: {count} ({(count / (len(changes_arr)-1) * 100):.2f}%)\n")
+
+            meta_data_lst.append("\n")
+            
+            min_pxls_used = min(pxl_nums)
+            max_pxls_used = max(pxl_nums)
+            meta_data_lst.append(f"Min count of pixels used: {min_pxls_used} ({(min_pxls_used / (len(changes_arr)-1) * 100):.2f}%)\n")
+            meta_data_lst.append(f"Max count of pixels used: {max_pxls_used} ({(max_pxls_used / (len(changes_arr)-1) * 100):.2f}%)\n")
+
+            avg_pxls_used = statistics.mean(pxl_nums)
+            mdn_pxls_used = statistics.median(pxl_nums)
+            meta_data_lst.append(f"Average sharpness: {avg_pxls_used} ({(avg_pxls_used / (len(changes_arr)-1) * 100):.2f}%)\n")
+            meta_data_lst.append(f"Median sharpness: {mdn_pxls_used} ({(mdn_pxls_used / (len(changes_arr)-1) * 100):.2f}%)\n")
+
+
+            ## meta-meta statistics
+            statistics_delta_time = (time.time_ns() - statistics_calc_time_start) / (10 ** 9)
+            meta_data_lst.append("\n\n")
+            meta_data_lst.append(f"Loading images took {loading_time} seconds\n")
+            meta_data_lst.append(f"Rendering images took {rendering_time} seconds \n")
+
+            meta_data_lst.append(f"Statistics took {statistics_delta_time:.5f} seconds to compute\n")
+
+            meta_data_file_name = ".".join(file_name.split(".")[:-1] + ["metadata.txt"])
+
+            try:
+                os.remove(meta_data_file_name)
+            except OSError:
+                pass
+            with open(meta_data_file_name, "w") as wf_meta_data:
+                wf_meta_data.writelines(meta_data_lst)
+
+                
         if os.name == "nt":
             win_style_dir = file_name.replace("/", "\\")
             cmd = f'explorer /select,"{win_style_dir}"'
