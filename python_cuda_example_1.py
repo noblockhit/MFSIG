@@ -121,7 +121,7 @@ def find_nearest_pow_2(val):
 
 
 def main():
-    with open(str(get_path() / "imput_paths.txt")) as rf:
+    with open(str(get_path() / "input_paths.txt")) as rf:
         path = Path(rf.read())
 
     sharpnesses = None
@@ -133,10 +133,10 @@ def main():
     GPU = True
     DEBUG_ALL = False
     EVAL_UNTIL = -1
-    RESIZE = 50
+    RESIZE = 100
     MAX_THREADS = 1024
 
-    radius = 1
+    radius = 2
 
 
     FILE_EXTENTIONS = {
@@ -213,6 +213,19 @@ def main():
                 drv.InOut(composite_image_gpu), drv.InOut(sharpnesses_gpu), drv.In(bgr.flatten(order="K")),
                 drv.In(np.array([width])), drv.In(np.array([height])), drv.In(np.array([radius])),
                 block=(MAX_THREADS, 1, 1), grid=(grid_width, 1))
+            
+            
+            prog_width = int(bgr.shape[1] * 12 / 100)
+            prog_height = int(bgr.shape[0] * 12 / 100)
+            prog_dim = (prog_width, prog_height)
+            cv2.imshow('image gpu prog', cv2.resize(composite_image_gpu.reshape(height, width, 3), prog_dim, interpolation=cv2.INTER_AREA))
+            cv2.moveWindow("image gpu prog", 50, 50)
+            
+
+            normalized_prog = cv2.normalize(cv2.resize(cv2.rotate(cv2.flip(sharpnesses_gpu.reshape(width, height), 0), cv2.ROTATE_90_CLOCKWISE), prog_dim, interpolation=cv2.INTER_AREA), None, alpha = 0, beta = 255, norm_type = cv2.NORM_MINMAX, dtype = cv2.CV_32F)
+            cv2.imshow('sharpness gpu prog', normalized_prog.astype(np.uint8))
+            cv2.moveWindow("sharpness gpu prog", 100+prog_width, 50)
+            cv2.waitKey(1000)
 
         print("Time to eval:", time.time() - start)
 
@@ -221,8 +234,8 @@ def main():
     ## only when flattened
     if GPU:
         composite_image_gpu = composite_image_gpu.reshape(height, width, 3)
-        # sharpnesses_gpu = sharpnesses_gpu.reshape(width, height)
-        # sharpnesses_gpu = cv2.rotate(cv2.flip(sharpnesses_gpu, 0), cv2.ROTATE_90_CLOCKWISE)
+        sharpnesses_gpu = sharpnesses_gpu.reshape(width, height)
+        sharpnesses_gpu = cv2.rotate(cv2.flip(sharpnesses_gpu, 0), cv2.ROTATE_90_CLOCKWISE)
 
 
     # if PY:
@@ -296,7 +309,8 @@ def main():
         cv2.imshow('image py', cv2.rotate(composite_image, cv2.ROTATE_90_CLOCKWISE))
         # cv2.imshow('sharpness', cv2.rotate(sharpnesses, cv2.ROTATE_90_CLOCKWISE))
     if GPU:
-        cv2.imshow('image gpu', cv2.rotate(composite_image_gpu, cv2.ROTATE_90_CLOCKWISE))
+        pass
+        # cv2.imshow('image gpu', cv2.rotate(composite_image_gpu, cv2.ROTATE_90_CLOCKWISE))
         # cv2.imshow('sharpness gpu', cv2.rotate(sharpnesses_gpu, cv2.ROTATE_90_CLOCKWISE))
 
     # if GPU and PY:
