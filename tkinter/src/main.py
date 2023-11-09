@@ -11,7 +11,6 @@ import gc
 import os
 import cv2
 import numpy as np
-import pycuda.autoinit ## DONT REMOVE THIS
 import pycuda.driver as drv
 from pycuda.compiler import SourceModule
 import copy
@@ -62,78 +61,77 @@ def find_nearest_pow_2(val):
             return 2**i
         
 
-mod = SourceModule("""
-__device__ int get_pos(int x, int y, int width, int color) {
-    return (y * width + x) * 3 + color;
-}
 
-__global__ void compareAndPushSharpnesses(char *destination, double *sharpnesses, char *source, int *w_arr, int *h_arr,
-                int *r_arr) {
-    int width = w_arr[0];
-    int height = h_arr[0];
-    int radius = r_arr[0];
-    
-    
-    const int thrd_i = blockIdx.x * blockDim.x + threadIdx.x;
-    
-    if (thrd_i > width*height) {
-        return;
-    }
-    
-    int center_x = thrd_i / height;
-    int center_y = thrd_i % height;
-
-    char center_b = source[get_pos(center_x, center_y, width, 0)];
-    char center_g = source[get_pos(center_x, center_y, width, 1)];
-    char center_r = source[get_pos(center_x, center_y, width, 2)];
-
-    long delta = 0;
-
-    int calculated_pixels = 0;
-
-    
-    for (int x = center_x-radius; x < center_x+radius+1; x++) {
-        for (int y = center_y-radius; y < center_y+radius+1; y++) {
-            if (x < 0 || y < 0 || x > width || y > height) {
-                continue;
-            }
-            
-            if (x == center_x && y == center_y) {
-                continue;
-            }
-            
-            float d = (float)(abs(abs(center_b) - abs(source[get_pos(x, y, width, 0)])) + abs(abs(center_g) - abs(source[get_pos(x, y, width, 1)])) + abs(abs(center_r) - abs(source[get_pos(x, y, width, 2)])));
-            
-            delta += (int)d;
-            calculated_pixels++;
-        }
-    }
-    double sharpness = (double)(delta) / (double)(calculated_pixels * 3 * 255);
-    
-    if (sharpness > sharpnesses[thrd_i]) {
-        sharpnesses[thrd_i] = sharpness;
-        destination[get_pos(center_x, center_y, width, 0)] = center_b;
-        destination[get_pos(center_x, center_y, width, 1)] = center_g;
-        destination[get_pos(center_x, center_y, width, 2)] = center_r;
-    }
-}""")
-
-compareAndPushSharpnesses = mod.get_function("compareAndPushSharpnesses")
 
 
 def render(radius, image_arr_dict, message_queue):
+    drv.init()
+    dev = drv.Device(0)
+    ctx = dev.make_context()
+
+    mod = SourceModule("""
+    __device__ int get_pos(int x, int y, int width, int color) {
+        return (y * width + x) * 3 + color;
+    }
+
+    __global__ void compareAndPushSharpnesses(char *destination, double *sharpnesses, char *source, int *w_arr, int *h_arr,
+                    int *r_arr) {
+        int width = w_arr[0];
+        int height = h_arr[0];
+        int radius = r_arr[0];
+        
+        
+        const int thrd_i = blockIdx.x * blockDim.x + threadIdx.x;
+        
+        if (thrd_i > width*height) {
+            return;
+        }
+        
+        int center_x = thrd_i / height;
+        int center_y = thrd_i % height;
+
+        char center_b = source[get_pos(center_x, center_y, width, 0)];
+        char center_g = source[get_pos(center_x, center_y, width, 1)];
+        char center_r = source[get_pos(center_x, center_y, width, 2)];
+
+        long delta = 0;
+
+        int calculated_pixels = 0;
+
+        
+        for (int x = center_x-radius; x < center_x+radius+1; x++) {
+            for (int y = center_y-radius; y < center_y+radius+1; y++) {
+                if (x < 0 || y < 0 || x > width || y > height) {
+                    continue;
+                }
+                
+                if (x == center_x && y == center_y) {
+                    continue;
+                }
+                
+                float d = (float)(abs(abs(center_b) - abs(source[get_pos(x, y, width, 0)])) + abs(abs(center_g) - abs(source[get_pos(x, y, width, 1)])) + abs(abs(center_r) - abs(source[get_pos(x, y, width, 2)])));
+                
+                delta += (int)d;
+                calculated_pixels++;
+            }
+        }
+        double sharpness = (double)(delta) / (double)(calculated_pixels * 3 * 255);
+        
+        if (sharpness > sharpnesses[thrd_i]) {
+            sharpnesses[thrd_i] = sharpness;
+            destination[get_pos(center_x, center_y, width, 0)] = center_b;
+            destination[get_pos(center_x, center_y, width, 1)] = center_g;
+            destination[get_pos(center_x, center_y, width, 2)] = center_r;
+        }
+    }""")
+
+    compareAndPushSharpnesses = mod.get_function("compareAndPushSharpnesses")
+
     img1 = list(image_arr_dict.values())[0]
-    RESIZE = 100
     MAX_THREADS = 1024
-    if RESIZE != 100:
-        scale_percent = RESIZE  # percent of original size
-        width = int(img1.shape[1] * scale_percent / 100)
-        height = int(img1.shape[0] * scale_percent / 100)
-        dim = (width, height)
-        img1 = cv2.resize(img1, dim, interpolation=cv2.INTER_AREA)
-    else:
-        width = int(img1.shape[1])
-        height = int(img1.shape[0])
+    
+    width = int(img1.shape[1])
+    height = int(img1.shape[0])
 
     composite_image_gpu = np.zeros((width * height * 3), dtype=np.uint8)
     sharpnesses_gpu = np.zeros((width * height), dtype=float)
@@ -148,18 +146,21 @@ def render(radius, image_arr_dict, message_queue):
         grid_width = find_nearest_pow_2(total_pixels/MAX_THREADS)
         
         previous_sharpnesses.append(np.zeros((width * height), dtype=np.uint32))
-
-        compareAndPushSharpnesses(
-            drv.InOut(composite_image_gpu), drv.InOut(sharpnesses_gpu), drv.In(bgr.flatten(order="K")),
-            drv.In(np.array([width])), drv.In(np.array([height])), drv.In(np.array([radius])),
-            block=(MAX_THREADS, 1, 1), grid=(grid_width, 1))
-        
+        try:
+            compareAndPushSharpnesses(
+                drv.InOut(composite_image_gpu), drv.InOut(sharpnesses_gpu), drv.In(bgr.flatten(order="K")),
+                drv.In(np.array([width])), drv.In(np.array([height])), drv.In(np.array([radius])),
+                block=(MAX_THREADS, 1, 1), grid=(grid_width, 1))
+        except:
+            ctx.pop()
+            raise
         previous_sharpnesses[i+1] = copy.deepcopy(sharpnesses_gpu)
         changed_indecies = np.argwhere(previous_sharpnesses[i+1] - previous_sharpnesses[i] > 0)
         
         np.put(changes_arr, changed_indecies, [i+1])
         message_queue.put((name, i, len(image_arr_dict)))
 
+    ctx.pop()
     return width, height, changes_arr, composite_image_gpu, sharpnesses_gpu
 
 
@@ -384,9 +385,8 @@ if __name__ == '__main__':
         Thread(target=update_progress_bar_worker, args=(message_queue,)).start()
 
         render_time_start = time.time_ns()
-
-        width, height, changes_arr, composite_image_gpu, sharpnesses_gpu = mp.Pool(1).starmap(
-            render, [(radius, image_arr_dict, message_queue)])[0]
+        width, height, changes_arr, composite_image_gpu, sharpnesses_gpu = render(radius, image_arr_dict, message_queue)
+        
         
         rendering_time = (time.time_ns() - render_time_start) / (10 ** 9)
 

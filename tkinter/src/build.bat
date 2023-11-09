@@ -1,1 +1,1 @@
-python C:\python310\lib\site-packages\PyInstaller\__main__.py -w --onefile main.py
+python C:\python310\lib\site-packages\PyInstaller\__main__.py --onefile main.py
