@@ -1,2 +1,4 @@
 input_paths.txt
-main.exe
+main.spec
+build/
+dist/
