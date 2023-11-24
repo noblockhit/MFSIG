@@ -16,7 +16,6 @@ let img_aspect_ratio;
 let img;
 let dpr_value;
 let mspr_value;
-let loaded_image = false;
 let lowercase_steps = 1;
 let uppercase_steps = 1;
 
@@ -34,10 +33,14 @@ function adjust_image_size() {
     let new_width;
     let new_height;
 
-    if (!loaded_image) {
-        img_container.css("height", "4em");
-        $(btn_container).css("height", "80%");
-    }
+    $.get("/settings/lowercase-motor-steps", (async = false), (value) => {
+        console.log(value);
+        if (!Boolean(value)) {
+            $(img_container).css("height", "4em");
+            $(btn_container).css("height", "80%");
+        }
+    });
+    
 
     if (img_container_aspect_ratio > img_aspect_ratio) {
         new_height = img_container.height();
@@ -148,12 +151,6 @@ $(window).on("load", () => {
 
     $.get("/settings/distance-per-motor-rotation", (async = false), (value) => {
         dpr_value = parseFloat(value);
-    });
-
-    $.get("/live-stream", (async = false), (data, textStatus, xhr) => {
-        if (xhr.status == 299) {
-            loaded_image = false;
-        }
     });
 
     img = $("#live-image");
@@ -309,4 +306,3 @@ $(window).on("load", () => {
 });
 
 addEventListener("resize", adjust_image_size);
-
