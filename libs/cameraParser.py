@@ -42,7 +42,6 @@ def handleStillImageEvent():
         
 
 def event_callback(n_event, _):
-    
     if State.camera:
         if bmscam.BMSCAM_EVENT_IMAGE == n_event:
             handleImageEvent()
