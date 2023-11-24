@@ -256,9 +256,11 @@ def set_camera(camera_idx):
         return "Currently recording, change the value when done or abort the program!", 400
     if State.curr_device is not None:
         reset_camera_properties()
-
-    State.curr_device = State.bms_enum[int(camera_idx)]
-
+    try:
+        State.curr_device = State.bms_enum[int(camera_idx)]
+    except AttributeError:
+        return "Failed to select this device, try loading this page again and reselecting the camera!", 400
+    
     ret = ""
     for idx, reso in cameraParser.get_current_devices_resolution_options(State.curr_device):
         ret += f'<option value="{idx}">{reso[0]} x {reso[1]}</option>\n'
