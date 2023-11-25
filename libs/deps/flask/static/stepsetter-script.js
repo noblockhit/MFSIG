@@ -68,8 +68,9 @@ $(window).on("load", () => {
 
     // receive a message from the server
     socket.addEventListener("message", ({ data }) => {
-        progressBar.style.width = `${data}%`;
-        progressNum.innerHTML = `${data}%`
+        const processed_data = $.parseJSON(data);
+        progressBar.style.width = `${processed_data[0]}%`;
+        progressNum.innerHTML = `${processed_data[1]}`
         socket.send(data);
     });
 

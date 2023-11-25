@@ -113,6 +113,7 @@ class State(metaclass=Meta):
     recording_progress: ClassVar[Union[int, None]]
     current_image_index: ClassVar[Union[int, None]]
     busy_capturing: ClassVar[bool]
+    current_recording_task: ClassVar[Union[str, None]]
     
     ## user configurables
     steps_per_motor_rotation: ClassVar[int]

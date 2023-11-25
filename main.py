@@ -12,14 +12,16 @@ import asyncio
 import time
 from libs.notifier import send_text_to_whatsapp
 from sbNative.runtimetools import get_path
+import json
 
 
 def start_motor_and_prepare_recording():
     if State.start_motor_and_prepare_recording_running:
         return
     State.start_motor_and_prepare_recording_running = True
-    
+
     while True:
+        State.current_recording_task = "No current task, waiting for recording start!"
         while True:
             if State.recording:
                 break
@@ -36,6 +38,7 @@ def start_motor_and_prepare_recording():
                 time.sleep(.001)
 
         if State.with_bms_cam:
+            State.current_recording_task = "Creating destination directory..."
             now = datetime.datetime.now()
             formated_datetime = now.strftime("%Y_%m_%d_at_%H_%M_%S")
 
@@ -43,6 +46,7 @@ def start_motor_and_prepare_recording():
             os.mkdir(str(State.final_image_dir))
 
         # making start smaller than end
+        State.current_recording_task = "Moving the motor to the start position..."
         if State.microscope_start > State.microscope_end:
             State.microscope_end, State.microscope_start = State.microscope_start, State.microscope_end
 
@@ -60,8 +64,10 @@ def start_motor_and_prepare_recording():
 
         State.microscope_position = State.real_motor_position = State.microscope_start
 
+        State.current_recording_task = "Shortly resting to ensure stability..."
         time.sleep(3)
         State.current_image_index = 0
+        State.current_recording_task = "Taking pictures..."
 
         State.camera.Snap(0)
         
@@ -83,8 +89,8 @@ def start_motor_and_prepare_recording():
             while State.busy_capturing:
                 time.sleep(.1)
 
+        State.current_recording_task = "Resetting attributes and notifying you..."
         print(send_text_to_whatsapp("Your recording is done!"))
-        print("resetting values")
 
         State.start_motor_and_prepare_recording_running = False
         State.recording = False
@@ -94,24 +100,25 @@ def start_motor_and_prepare_recording():
             pass
 
 
+def create_progress_response():
+    return json.dumps((State.recording_progress, f"{State.recording_progress}% ({State.current_recording_task})"))
+
+
 async def respond(websocket):
     try:
         async for msg in websocket:
-            if not str(msg).isdigit():
-                response_num = -1
-            else:
-                response_num = int(msg)
-
-            while State.recording_progress is None or response_num == State.recording_progress:
+            for _ in range(20):
+                if create_progress_response() != msg:
+                    break
                 time.sleep(.1)
-            await websocket.send(str(State.recording_progress))
-    except (websockets.exceptions.ConnectionClosedError, websockets.exceptions.ConnectionClosedOK):
-        pass
+            print("send")
+            await websocket.send(create_progress_response())
+    except (websockets.exceptions.ConnectionClosedError, websockets.exceptions.ConnectionClosedOK) as e:
+        print(e)
 
 async def websocket_coro():
     async with serve(respond, "0.0.0.0", 65432):
         await asyncio.Future()
-
 
 def start_ws():
     asyncio.run(websocket_coro())
