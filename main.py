@@ -15,11 +15,11 @@ from sbNative.runtimetools import get_path
 
 
 def start_motor_and_prepare_recording():
+    if State.start_motor_and_prepare_recording_running:
+        return
+    State.start_motor_and_prepare_recording_running = True
+    
     while True:
-        if State.start_motor_and_prepare_recording_running:
-            return
-        State.start_motor_and_prepare_recording_running = True
-
         while True:
             if State.recording:
                 break
@@ -82,7 +82,10 @@ def start_motor_and_prepare_recording():
             State.camera.Snap(0)
             while State.busy_capturing:
                 time.sleep(.1)
-        send_text_to_whatsapp("Your recording is done!")
+
+        print(send_text_to_whatsapp("Your recording is done!"))
+        print("resetting values")
+
         State.start_motor_and_prepare_recording_running = False
         State.recording = False
         try:
