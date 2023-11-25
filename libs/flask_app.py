@@ -81,6 +81,7 @@ def reset_camera_properties():
     State.start_motor_and_prepare_recording_running = False
     State.image_count = 1
     State.recording_progress = None
+    State.current_recording_task = None
     State.current_image_index = 0
     State.busy_capturing = False
     State.with_bms_cam = False
