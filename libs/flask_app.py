@@ -98,7 +98,7 @@ def reset_camera_properties():
     State.lowercase_motor_steps = 1
     State.uppercase_motor_steps = 25
     State.sleep_time_after_step = 2.5
-    State.whatsapp_api_key = ""
+    State.whatsapp_api_key = -1
     State.whatsapp_number = ""
 
 
