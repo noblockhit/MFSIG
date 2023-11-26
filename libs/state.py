@@ -199,10 +199,10 @@ class State(metaclass=Meta):
         
         try:
             if "whatsapp_number" in j.keys():
-                State.whatsapp_number = j["whatsapp_number"]
+                State.whatsapp_number = str(j["whatsapp_number"])
         except ValueError:pass
 
         try:
             if "whatsapp_api_key" in j.keys():
-                State.whatsapp_api_key = j["whatsapp_api_key"]
+                State.whatsapp_api_key = str(j["whatsapp_api_key"])
         except ValueError:pass
