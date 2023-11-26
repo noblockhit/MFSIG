@@ -33,8 +33,8 @@ SETTING_KEYS = {
     "lowercase_motor_steps": int,
     "uppercase_motor_steps": int,
     "sleep_time_after_step": float,
-    "whatsapp_number": int,
-    "whatsapp_api_key": int
+    "whatsapp_number": str,
+    "whatsapp_api_key": str
 }
 
 
@@ -127,8 +127,8 @@ class State(metaclass=Meta):
     lowercase_motor_steps: ClassVar[int]
     uppercase_motor_steps: ClassVar[int]
     sleep_time_after_step: ClassVar[float]
-    whatsapp_number: ClassVar[int]
-    whatsapp_api_key: ClassVar[int]
+    whatsapp_number: ClassVar[str]
+    whatsapp_api_key: ClassVar[str]
 
 
     @classmethod
@@ -204,5 +204,5 @@ class State(metaclass=Meta):
 
         try:
             if "whatsapp_api_key" in j.keys():
-                State.whatsapp_api_key = j["whatsapp_api_key"]
+                State.whatsapp_api_key = str(j["whatsapp_api_key"])
         except ValueError:pass
