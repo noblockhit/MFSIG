@@ -66,21 +66,23 @@ def start_motor_and_prepare_recording():
 
         State.current_recording_task = "Shortly resting to ensure stability..."
         time.sleep(3)
-        State.current_image_index = 0
-        State.current_recording_task = "Taking pictures..."
 
-        State.camera.Snap(0)
         
         # start recording
+        State.current_image_index = 0
+        State.current_recording_task = "Taking pictures..."
         target_total_steps = State.microscope_end - State.microscope_start
-        avg_steps_per_image = target_total_steps / (State.image_count - 1)
+        
+        target_steps = []
 
+        for _i in range(0, State.image_count):
+            target_steps.append(int(State.microscope_start + target_total_steps * (_i / (State.image_count-1))))
 
-        for step in range(target_total_steps):
-            State.motor.step_forward()
-            State.real_motor_position += 1
-            if State.current_image_index * avg_steps_per_image > step:
-                continue
+        for ts_curr in target_steps:
+            for _ in range(ts_curr - State.real_motor_position):
+                State.motor.step_forward()
+
+            State.real_motor_position = ts_curr
 
             time.sleep(State.shake_rest_delay)
             State.current_image_index += 1
@@ -89,8 +91,10 @@ def start_motor_and_prepare_recording():
             while State.busy_capturing:
                 time.sleep(.1)
 
+        time.sleep(2)
+        State.recording_progress = 0
         State.current_recording_task = "Resetting attributes and notifying you..."
-        print(send_text_to_whatsapp("Your recording is done!"))
+        send_text_to_whatsapp("Your recording is done!")
 
         State.start_motor_and_prepare_recording_running = False
         State.recording = False
@@ -111,7 +115,7 @@ async def respond(websocket):
                 if create_progress_response() != msg:
                     break
                 time.sleep(.1)
-            print("send")
+                
             await websocket.send(create_progress_response())
     except (websockets.exceptions.ConnectionClosedError, websockets.exceptions.ConnectionClosedOK) as e:
         print(e)
