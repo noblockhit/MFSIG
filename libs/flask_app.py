@@ -311,7 +311,7 @@ def start_recording():
         return "Already started recording", 400
     
     if State.image_count <= 1:
-        return "You may not take less than 2 images!"
+        return "You may not take less than 2 images!", 400
 
     if State.image_count > abs(State.microscope_end - State.microscope_start):
         return "You may not take more images than Steps taken by the motor, this is redundant due to having multiple images in the same position.", 400

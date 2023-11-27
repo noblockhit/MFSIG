@@ -291,7 +291,7 @@ $(window).on("load", () => {
                     url: "/microscope/start",
                     type: "GET",
                     success: function (start) {
-                        location.href = `stepsetter?total-steps=${Math.abs(ending-start)}`;
+                        location.href = `stepsetter`;
                     }
                 });
             }

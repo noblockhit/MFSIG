@@ -83,9 +83,12 @@ abs_motor_type = type("Motor", (ABSType,), dict({
     "calibrate": lambda *_:_,
 }))
 
+def fake_snap_func(*_):
+    State.progress()
+
 abs_camera_type = type("Camera", (ABSType,), dict({
     "Close": lambda *_:_,
-    "Snap": lambda *_:(print("snapped"), State.progress())
+    "Snap": fake_snap_func
 }))
 
 @dataclass
@@ -133,7 +136,8 @@ class State(metaclass=Meta):
 
     @classmethod
     def progress(cls):
-        State.recording_progress = int((State.current_image_index+1) / (State.image_count) * 100)
+        State.recording_progress = int((State.current_image_index) / (State.image_count) * 100)
+        print(State.recording_progress)
         State.busy_capturing = False
 
 
