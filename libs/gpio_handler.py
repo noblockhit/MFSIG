@@ -1,6 +1,5 @@
 import time
 import atexit
-# 400 schritte sind pi mal daumen eine Umdrehung
 from .state import State, abs_camera_type, abs_motor_type
 
 
