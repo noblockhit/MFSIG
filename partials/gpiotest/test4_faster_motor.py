@@ -12,7 +12,7 @@ try:
     def p_on(pin):
         GPIO.output(pin, GPIO.HIGH)
     def p_off(pin):
-            GPIO.output(pin, GPIO.LOW)
+        GPIO.output(pin, GPIO.LOW)
 
 except ImportError:
     pins_value = {k: 0 for k in pins}
