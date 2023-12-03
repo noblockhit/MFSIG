@@ -14,6 +14,9 @@ try:
     def p_off(pin):
         GPIO.output(pin, GPIO.LOW)
 
+    for pin in pins:
+        GPIO.setup(pin, GPIO.OUT)
+
 except ImportError:
     pins_value = {k: 0 for k in pins}
 
