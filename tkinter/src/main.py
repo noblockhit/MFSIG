@@ -43,9 +43,14 @@ def load_image(name):
 
     elif any(name.lower().endswith(ending) for ending in FILE_EXTENTIONS["RAW"]):
         with rawpy.imread(name) as raw:
-            rgb = raw.postprocess(use_camera_wb=True)
+            rgb = raw.postprocess(use_camera_wb=False)
 
-    return rgb
+    if rgb.shape[0] > rgb.shape[1]:
+        rgb = cv2.rotate(rgb, cv2.ROTATE_90_CLOCKWISE)
+
+
+    ## denoising
+    return cv2.medianBlur(rgb, 5)
 
 
 def save_image(name, cv2_image):
