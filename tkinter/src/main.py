@@ -34,6 +34,7 @@ FILE_EXTENTIONS = {
         ".jpg",
         ".png",
         ".tiff",
+        ".tif"
     ],
 }
 
@@ -222,7 +223,7 @@ if __name__ == '__main__':
 
     def on_load_new_image():
         global loading_time
-        selected_img_files = filedialog.askopenfiles(title="Open Images for the render queue", filetypes=[("Image-files", ".png .jpg .jpeg .RAW .NEF")])
+        selected_img_files = filedialog.askopenfiles(title="Open Images for the render queue", filetypes=[("Image-files", ".tiff .tif .png .jpg .jpeg .RAW .NEF")])
         if not selected_img_files:
             return
         
