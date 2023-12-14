@@ -1,44 +1,8 @@
-import tkinter as tk
-import customtkinter
-from PIL import ImageTk, Image
 import rawpy
-from tkinter import filedialog, messagebox, RIGHT, LEFT
-import time
-import gc
-import os
-import cv2
-import numpy as np
-import pycuda.driver as drv
-from pycuda.compiler import SourceModule
-import copy
-from math import sqrt
-from threading import Thread
 import multiprocessing as mp
-import subprocess
-import sys
-import statistics
-import matplotlib.pyplot as plt
-from pathlib import Path
-import tkinter as tk
-import customtkinter
-from PIL import ImageTk, Image
-import rawpy
-from tkinter import filedialog, messagebox, RIGHT, LEFT
+from tkinter import filedialog
 import time
-import gc
-import os
 import cv2
-import numpy as np
-import pycuda.driver as drv
-from pycuda.compiler import SourceModule
-import copy
-from math import sqrt
-from threading import Thread
-import multiprocessing as mp
-import subprocess
-import sys
-import statistics
-import math
 
 
 def show(name, data, x, y):
@@ -142,8 +106,7 @@ def main():
                 except ZeroDivisionError:
                     continue
                 else:
-                    if w > 25 < h:
-                        if w < 130 > h:
+                    if w > 25 < h and w < 130 > h:
                             cv2.drawContours(result, [cntr], 0, (0,0,255), 2)
                             cv2.rectangle(input_img, (x, y), (x + w, y + h), (0,255,255), 1)
                             cv2.circle(result, (center_x, center_y), 2, (255,0,255), 2)
