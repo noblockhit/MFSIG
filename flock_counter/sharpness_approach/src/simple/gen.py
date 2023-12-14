@@ -71,6 +71,10 @@ def on_load_new_image():
 
     loading_time = (time.time_ns() - img_load_time_start) / (10 ** 9)
 
+
+
+
+
 if __name__ == "__main__":
     on_load_new_image()
 
@@ -94,8 +98,7 @@ if __name__ == "__main__":
 
     print(spot_selected)
     x, y = spot_selected
-    width = 250
-    height = 250
+    width = height = 800
     global dir
 
     def save_image(name, cv2_image):
