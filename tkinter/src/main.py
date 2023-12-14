@@ -67,9 +67,6 @@ def find_nearest_pow_2(val):
             return 2**i
         
 
-
-
-
 def render(radius, image_arr_dict, message_queue):
     drv.init()
     dev = drv.Device(0)
