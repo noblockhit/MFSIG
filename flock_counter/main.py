@@ -72,12 +72,25 @@ def key_out_tips(img_in):
     return edged
 
 
+def rect_is_same(rect1, rect2):
+    _, x1, y1, w1, h1 = rect1
+    _, x2, y2, w2, h2 = rect2
+
+    # Check for overlap
+    if (x1 < x2 + w2 and x1 + w1 > x2 and
+        y1 < y2 + h2 and y1 + h1 > y2):
+        return True
+    else:
+        return False
+
+
 def main():
     on_load_new_image()
     
     print("done")
 
-    for input_img in imgs.values():
+    rects = []
+    for image_name, input_img in imgs.items():
         img = key_out_tips(input_img)
         # threshold
         thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY)[1]
@@ -91,12 +104,10 @@ def main():
         hierarchy = hierarchy[0]
 
         # count inner contours
+
         result = img.copy()
         result = cv2.merge([result,result,result])
         for cntr, hier in zip(contours, hierarchy):
-            # discard outermost no parent contours and keep innermost no child contours
-            # hier = indices for next, previous, child, parent
-            # no parent or no child indicated by negative values
             if hier[3] == -1:
                 try:
                     M = cv2.moments(cntr)
@@ -106,18 +117,49 @@ def main():
                 except ZeroDivisionError:
                     continue
                 else:
-                    if w > 25 < h and w < 130 > h:
-                            cv2.drawContours(result, [cntr], 0, (0,0,255), 2)
-                            cv2.rectangle(input_img, (x, y), (x + w, y + h), (0,255,255), 1)
-                            cv2.circle(result, (center_x, center_y), 2, (255,0,255), 2)
+                    if w > 25 < h and w < 100 > h:
+                        cv2.drawContours(result, [cntr], 0, (0,0,255), 2)
+                        cv2.rectangle(result, (x, y), (x + w, y + h), (0,255,255), 1)
+                        cv2.circle(result, (center_x, center_y), 2, (255,0,255), 2)
+                        print(image_name, x, y, w, h)
+                        rects.append([image_name, x, y, w, h])
 
         
-
         # show result
-        cv2.destroyAllWindows()
-        show("img", input_img, 0, 30)
-        show("result", result, 900, 30)
-        cv2.waitKey(300)
+        # cv2.destroyAllWindows()
+        # show("img", input_img, 0, 30)
+        # show("result", result, 900, 30)
+        # cv2.waitKey(300)
+    
+    for idx, r1 in enumerate(rects):
+        for r2 in rects:
+            if r1 == r2:
+                continue
+
+            if rect_is_same(r1, r2):
+                if r1[3] * r1[4] < r2[3] * r2[4]:### delete larger rectangle
+                    r1[0] = None
+                else:
+                    r2[0] = None
+    
+    rects = [r for r in rects if r[0] != None]
+
+
+    while True:
+        for name, img in imgs.items():
+            for image_name, x, y, w, h in rects:
+                print(image_name, x, y, w, h)
+                if image_name == name:
+                    cv2.rectangle(img, (x, y), (x + w, y + h), (0,0,255), 2)
+                else:
+                    cv2.rectangle(img, (x, y), (x + w, y + h), (255,255,255), 2)
+            
+            
+            show("image", img, 50, 50)
+            cv2.waitKey(200)
+
+            
+
 
 if __name__ == "__main__":
     main()
