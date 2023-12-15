@@ -7,7 +7,7 @@ import cv2
 
 def show(name, data, x, y):
     ar = data.shape[1] / data.shape[0]
-    height = 900
+    height = 400
     width = int(ar*height)
     print(width, height)
     cv2.imshow(name, cv2.resize(data, (width, height)))
@@ -69,7 +69,7 @@ def key_out_tips(img_in):
 
     img = cv2.bitwise_and(img_in, img_in, mask=mask)
     edged = cv2.Canny(image=img, threshold1=120, threshold2=200)
-    return edged
+    return img, edged
 
 
 def rect_is_same(rect1, rect2):
@@ -91,7 +91,7 @@ def main():
 
     rects = []
     for image_name, input_img in imgs.items():
-        img = key_out_tips(input_img)
+        keyed, img = key_out_tips(input_img)
         # threshold
         thresh = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY)[1]
 
@@ -113,11 +113,13 @@ def main():
                     M = cv2.moments(cntr)
                     center_x = int(M["m10"] / M["m00"])
                     center_y = int(M["m01"] / M["m00"])
+                    area = cv2.contourArea(cntr)
                     x,y,w,h = cv2.boundingRect(cntr)
                 except ZeroDivisionError:
                     continue
                 else:
-                    if w > 25 < h and w < 100 > h:
+                    if w > 75 < h and w < 220 > h:
+                        print(w, h, area)
                         cv2.drawContours(result, [cntr], 0, (0,0,255), 2)
                         cv2.rectangle(result, (x, y), (x + w, y + h), (0,255,255), 1)
                         cv2.circle(result, (center_x, center_y), 2, (255,0,255), 2)
@@ -126,10 +128,13 @@ def main():
 
         
         # show result
-        # cv2.destroyAllWindows()
-        # show("img", input_img, 0, 30)
-        # show("result", result, 900, 30)
-        # cv2.waitKey(300)
+        cv2.destroyAllWindows()
+        show("input img", input_img, 0, 30)
+        show("keyed img", keyed, 400, 30)
+        show("result", result, 800, 30)
+        cv2.waitKey(2000)
+        print(f"finished calc for {image_name}")
+    cv2.destroyAllWindows()
     
     for idx, r1 in enumerate(rects):
         for r2 in rects:
@@ -148,11 +153,10 @@ def main():
     while True:
         for name, img in imgs.items():
             for image_name, x, y, w, h in rects:
-                print(image_name, x, y, w, h)
                 if image_name == name:
-                    cv2.rectangle(img, (x, y), (x + w, y + h), (0,0,255), 2)
+                    cv2.rectangle(img, (x, y), (x + w, y + h), (0,0,255), 6)
                 else:
-                    cv2.rectangle(img, (x, y), (x + w, y + h), (255,255,255), 2)
+                    cv2.rectangle(img, (x, y), (x + w, y + h), (255,255,255), 4)
             
             
             show("image", img, 50, 50)
