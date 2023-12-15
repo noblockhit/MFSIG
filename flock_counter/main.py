@@ -118,10 +118,9 @@ def main():
                     continue
                 else:
                     if w > 25 < h and w < 100 > h:
-                        cv2.drawContours(result, [cntr], 0, (0,0,255), 2)
-                        cv2.rectangle(result, (x, y), (x + w, y + h), (0,255,255), 1)
-                        cv2.circle(result, (center_x, center_y), 2, (255,0,255), 2)
-                        print(image_name, x, y, w, h)
+                        # cv2.drawContours(result, [cntr], 0, (0,0,255), 2)
+                        # cv2.rectangle(result, (x, y), (x + w, y + h), (0,255,255), 1)
+                        # cv2.circle(result, (center_x, center_y), 2, (255,0,255), 2)
                         rects.append([image_name, x, y, w, h])
 
         
@@ -150,9 +149,9 @@ def main():
             for image_name, x, y, w, h in rects:
                 print(image_name, x, y, w, h)
                 if image_name == name:
-                    cv2.rectangle(img, (x, y), (x + w, y + h), (0,0,255), 2)
+                    cv2.rectangle(img, (x, y), (x + w, y + h), (0,0,255), 4)
                 else:
-                    cv2.rectangle(img, (x, y), (x + w, y + h), (255,255,255), 2)
+                    cv2.rectangle(img, (x, y), (x + w, y + h), (255,255,255), 4)
             
             
             show("image", img, 50, 50)
