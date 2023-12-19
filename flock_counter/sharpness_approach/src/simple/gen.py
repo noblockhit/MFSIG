@@ -50,7 +50,7 @@ def load_image(name):
     return cv2.medianBlur(rgb, 5)
 
 
-imgs = []
+imgs = {}
 
 def on_load_new_image():
     global loading_time
@@ -64,10 +64,10 @@ def on_load_new_image():
     for f in selected_img_files:
         image_paths.append(f.name)
     
-    rgb_values = mp.Pool(len(image_paths)).imap(load_image, image_paths)
+    rgb_values = mp.Pool(min(60, len(image_paths))).imap(load_image, image_paths)
 
     for idx, (name, rgb) in enumerate(zip(image_paths, rgb_values)):
-        imgs.append(rgb)
+        imgs[name] = rgb
 
     loading_time = (time.time_ns() - img_load_time_start) / (10 ** 9)
 
@@ -87,7 +87,7 @@ if __name__ == "__main__":
             spot_selected = x, y
 
     while True:
-        for img in imgs:
+        for img in imgs.values():
             cv2.imshow("select spot", img)
             cv2.moveWindow("select spot", 50, 50)
             cv2.waitKey(100)
@@ -103,6 +103,7 @@ if __name__ == "__main__":
 
     def save_image(name, cv2_image):
         global dir
+        print(str(Path(dir) / Path(name)))
         cv2.imwrite(str(Path(dir) / Path(name)), cv2.cvtColor(cv2_image, cv2.COLOR_BGR2RGB))
     
     def save():
@@ -111,11 +112,10 @@ if __name__ == "__main__":
 
     save()
 
-    for idx, img in enumerate(imgs):
-        print("cropped: ")
+    for name, img in sorted(list(imgs.items())):
         c = img[y-height//2:y+height//2, x-width//2:x+width//2]
-        save_image(f"{idx}.tiff", c)
+        save_image(f"{name}.tiff", c)
 
         cv2.imshow("cropped", c)
-        cv2.waitKey(1000)
+        cv2.waitKey(500)
     

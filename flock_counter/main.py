@@ -3,8 +3,9 @@ import multiprocessing as mp
 from tkinter import filedialog
 import time
 import cv2
-from matplotlib import colors as mcolors
 import numpy as np
+import numpy as np
+import plotly.graph_objects as go
 
 
 color_palette = [
@@ -109,7 +110,7 @@ def on_load_new_image():
     for f in selected_img_files:
         image_paths.append(f.name)
     image_paths = sorted(image_paths)
-    
+    print(image_paths)
     rgb_values = mp.Pool(min(60, len(image_paths))).imap(load_image, image_paths)
 
     for idx, (name, rgb) in enumerate(zip(image_paths, rgb_values)):
@@ -121,7 +122,7 @@ def on_load_new_image():
 
 def key_out_tips(img_in):
     blurred = cv2.medianBlur(img_in, 7)
-    mask = cv2.cvtColor(cv2.threshold(blurred, 180, 1, cv2.THRESH_BINARY)[1], cv2.COLOR_RGB2GRAY)
+    mask = cv2.cvtColor(cv2.threshold(blurred, 240, 1, cv2.THRESH_BINARY)[1], cv2.COLOR_RGB2GRAY)
 
     img = cv2.bitwise_and(img_in, img_in, mask=mask)
     edged = cv2.Canny(image=cv2.cvtColor(mask*255, cv2.COLOR_GRAY2BGR), threshold1=140, threshold2=255)
@@ -141,58 +142,56 @@ def rect_is_same(rect1, rect2):
 
 
 def generate_circles(arg):
-    temp_col_idx = 0
-    image_name, input_img = arg
-    circles = []
-    keyed, img = key_out_tips(input_img)
-    # threshold
-    thresh = cv2.threshold(img, 1, 255, cv2.THRESH_BINARY)[1]
+    try:
+        temp_col_idx = 0
+        idx, (image_name, input_img) = arg
+        circles = []
+        keyed, img = key_out_tips(input_img)
+        # threshold
+        thresh = cv2.threshold(img, 1, 255, cv2.THRESH_BINARY)[1]
 
-    # get contours
-    contours = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-    hierarchy = contours[1] if len(contours) == 2 else contours[2]
-    contours = contours[0] if len(contours) == 2 else contours[1]
+        # get contours
+        contours = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+        hierarchy = contours[1] if len(contours) == 2 else contours[2]
+        contours = contours[0] if len(contours) == 2 else contours[1]
 
-    # get the actual inner list of hierarchy descriptions
-    hierarchy = hierarchy[0]
+        # get the actual inner list of hierarchy descriptions
+        hierarchy = hierarchy[0]
 
-    # count inner contours
+        # count inner contours
 
-    result = img.copy()
-    result = cv2.merge([result,result,result])
-    for cntr, hier in zip(contours, hierarchy):
-        if hier[3] == -1:
-            (rect_x,rect_y),(w,h),angl = cv2.minAreaRect(cntr)
-            # x = rect_x + w//2
-            # y = rect_y + h//2
-            # radius = (w+h)//4
-            (x,y),radius = cv2.minEnclosingCircle(cntr)
-            x, y, radius = int(x), int(y), int(radius)
+        result = img.copy()
+        result = cv2.merge([result,result,result])
+        for cntr, hier in zip(contours, hierarchy):
+            if hier[3] == -1:
+                (rect_x,rect_y),(w,h),angl = cv2.minAreaRect(cntr)
+                # x = rect_x + w//2
+                # y = rect_y + h//2
+                # radius = (w+h)//4
+                (x,y),radius = cv2.minEnclosingCircle(cntr)
+                x, y, radius = int(x), int(y), int(radius)
 
-            
-            if w > 37 < h and w < 180 > h:
-                if 28 < radius < 90:
-                    # cv2.drawContours(result, [cntr], 0, colors[temp_col_idx % len(colors)], 4)
-                    # temp_col_idx += 1
-                    # cv2.circle(result, (x, y), radius, (255,0,0), 2)
+                
+                if w > 37 < h and w < 180 > h:
+                    if 28 < radius < 90:
+                        # cv2.drawContours(result, [cntr], 0, colors[temp_col_idx % len(colors)], 4)
+                        # temp_col_idx += 1
+                        # cv2.circle(result, (x, y), radius, (255,0,0), 2)
+                        circles.append([image_name, x, y, radius, idx])
+                                
 
-                    circles.append([image_name, x, y, radius, 0])
-            #     elif 15 < radius < 140:
-            #         circles.append([image_name, x, y, radius, 1])
-            # elif w > 15 < h and w < 250 > h:
-            #     circles.append([image_name, x, y, radius, 2])
-                            
-
-    # qs.show(f"res {image_name}", result)
-    # cv2.waitKey(0)
-    return circles
+        # qs.show(f"res {image_name}", result)
+        # cv2.waitKey(0)
+        return circles
+    except TypeError:
+        return [] 
 
 def main():
     on_load_new_image()
     
     print("done")
 
-    circles_list = mp.Pool(min(60, len(imgs))).imap(generate_circles, imgs.items())
+    circles_list = mp.Pool(min(60, len(imgs))).imap(generate_circles, list(enumerate(imgs.items())))
 
     circles = []
     for cs in circles_list:
@@ -200,54 +199,57 @@ def main():
         if len(cs) > 0:
             print(f"evaluated {cs[0][0]}")
 
-    for idx, c1 in enumerate(circles):
-        if c1[4] != 0:
-            continue
-        print(f"filtering cricle {idx+1}/{len(circles)}")
-        for c2 in circles[idx:]:
-            if c2[4] != 0:
-                continue
-            if c1 == c2:
-                continue
+    # for idx, c1 in enumerate(circles):
+    #     if c1[4] != 0:
+    #         continue
+    #     print(f"filtering cricle {idx+1}/{len(circles)}")
+    #     for c2 in circles[idx:]:
+    #         if c2[4] != 0:
+    #             continue
+    #         if c1 == c2:
+    #             continue
 
-            if (c1[1] - c2[1])**2+(c1[2] - c2[2])**2 < (c1[3] + c2[3])**2:
-                if c1[3] > c2[3]:### delete larger
-                    c1[0] = None
-                else:
-                    c2[0] = None
+    #         if (c1[1] - c2[1])**2+(c1[2] - c2[2])**2 < (c1[3] + c2[3])**2:
+    #             if c1[3] > c2[3]:### delete larger
+    #                 c1[0] = None
+    #             else:
+    #                 c2[0] = None
     
-    circles = [c for c in circles if c[0] != None]
+    # circles = [c for c in circles if c[0] != None]
 
 
-    circle_count = 0
     print(f"There were/was {len(circles)} fiber(s) counted!")
-    while True:
-        for name, img in imgs.items():
-            for idx, (image_name, center_x, center_y, radius, stage) in enumerate(circles):
-                cv2.putText(img, f"{idx}", (center_x, center_y), cv2.FONT_HERSHEY_SIMPLEX, 3, 255, 4)
 
-                if stage == 0:
-                    if image_name == name:
-                        cv2.circle(img, (center_x, center_y), radius, (0,0,255), 6)
-                        circle_count += 1
-                    else:
-                        cv2.circle(img, (center_x, center_y), radius, (255,255,255), 4)
-                elif stage == 1:
-                    cv2.circle(img, (center_x, center_y), radius, (0,255,0), 3)
-                elif stage == 2:
-                    cv2.circle(img, (center_x, center_y), radius, (255,0,0), 3)
+    plot_data_x, plot_data_y, plot_data_z = zip(*[(center_x, center_y, image_idx) for image_name, center_x, center_y, radius, image_idx in circles])
+    
+    marker_data = go.Scatter3d(
+        x=plot_data_x, 
+        y=plot_data_y, 
+        z=plot_data_z, 
+        marker=go.scatter3d.Marker(size=3), 
+        opacity=0.8, 
+        mode='markers'
+    )
+    fig=go.Figure(data=marker_data)
+    fig.write_html('tmp.html', auto_open=True)
+
+    # for name, img in imgs.items():
+    #     for idx, (image_name, center_x, center_y, radius, image_idx) in enumerate(circles):
+    #         # cv2.putText(img, f"{idx}", (center_x, center_y), cv2.FONT_HERSHEY_SIMPLEX, 3, 255, 4)
+    #         # if image_name == name:
+    #         #     cv2.circle(img, (center_x, center_y), radius, (0,0,255), 6)
+    #         #     circle_count += 1
+    #         # else:
+    #         #     cv2.circle(img, (center_x, center_y), radius, (255,255,255), 4)
 
 
-                #     cv2.rectangle(img, (x, y), (x + w, y + h), (0,0,255), 10)
-                # else:
-                #     cv2.rectangle(img, (x, y), (x + w, y + h), (255,255,255), 8)
-            
-                    
-            qs.show("image", img)
-            cv2.waitKey(200)
-        print(f"There were/was {len(circles)} fiber(s) counted!")
-
-            
+    #         #     cv2.rectangle(img, (x, y), (x + w, y + h), (0,0,255), 10)
+    #         # else:
+    #         #     cv2.rectangle(img, (x, y), (x + w, y + h), (255,255,255), 8)
+        
+                
+    #     # qs.show("image", img)
+    #     # cv2.waitKey(200)
 
 
 if __name__ == "__main__":
