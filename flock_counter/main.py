@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 import numpy as np
 import plotly.graph_objects as go
+from rawloader import load_raw_image
 
 
 color_palette = [
@@ -88,8 +89,7 @@ def load_image(name):
         rgb = cv2.cvtColor(cv2.imread(name), cv2.COLOR_BGR2RGB)
 
     elif any(name.lower().endswith(ending) for ending in FILE_EXTENTIONS["RAW"]):
-        with rawpy.imread(name) as raw:
-            rgb = raw.postprocess(use_camera_wb=False)
+        rgb = load_raw_image(name, 35)
 
     if rgb.shape[0] > rgb.shape[1]:
         rgb = cv2.rotate(rgb, cv2.ROTATE_90_CLOCKWISE)
@@ -190,6 +190,8 @@ def main():
     on_load_new_image()
     
     print("done")
+    qs.show("tmp1", list(imgs.values())[0])
+    cv2.waitKey(0)
 
     circles_list = mp.Pool(min(60, len(imgs))).imap(generate_circles, list(enumerate(imgs.items())))
 

@@ -67,6 +67,7 @@ def on_load_new_image():
     rgb_values = mp.Pool(min(60, len(image_paths))).imap(load_image, image_paths)
 
     for idx, (name, rgb) in enumerate(zip(image_paths, rgb_values)):
+        print("loaded", name)
         imgs[name] = rgb
 
     loading_time = (time.time_ns() - img_load_time_start) / (10 ** 9)
@@ -113,7 +114,9 @@ if __name__ == "__main__":
     save()
 
     for name, img in sorted(list(imgs.items())):
-        c = img[y-height//2:y+height//2, x-width//2:x+width//2]
+        right, top = max(0, x-width//2), max(0, y-height//2)
+
+        c = img[top:top+height, right:right+width]
         save_image(f"{name}.tiff", c)
 
         cv2.imshow("cropped", c)
