@@ -4,7 +4,6 @@ from tkinter import filedialog
 import time
 import cv2
 import numpy as np
-import numpy as np
 import plotly.graph_objects as go
 from rawloader import load_raw_image
 
@@ -89,7 +88,7 @@ def load_image(name):
         rgb = cv2.cvtColor(cv2.imread(name), cv2.COLOR_BGR2RGB)
 
     elif any(name.lower().endswith(ending) for ending in FILE_EXTENTIONS["RAW"]):
-        rgb = load_raw_image(name, 35)
+        rgb = load_raw_image(name, "auto")
 
     if rgb.shape[0] > rgb.shape[1]:
         rgb = cv2.rotate(rgb, cv2.ROTATE_90_CLOCKWISE)
@@ -122,7 +121,7 @@ def on_load_new_image():
 
 def key_out_tips(img_in):
     blurred = cv2.medianBlur(img_in, 7)
-    mask = cv2.cvtColor(cv2.threshold(blurred, 240, 1, cv2.THRESH_BINARY)[1], cv2.COLOR_RGB2GRAY)
+    mask = cv2.cvtColor(cv2.threshold(blurred, 80, 1, cv2.THRESH_BINARY)[1], cv2.COLOR_RGB2GRAY)
 
     img = cv2.bitwise_and(img_in, img_in, mask=mask)
     edged = cv2.Canny(image=cv2.cvtColor(mask*255, cv2.COLOR_GRAY2BGR), threshold1=140, threshold2=255)
