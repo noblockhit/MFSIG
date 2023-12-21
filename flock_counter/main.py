@@ -1,12 +1,10 @@
-import rawpy
 import multiprocessing as mp
 from tkinter import filedialog
 import time
 import cv2
-import numpy as np
-import numpy as np
-import plotly.graph_objects as go
 from rawloader import load_raw_image
+from display3d import show as show3d
+import pickle
 
 
 color_palette = [
@@ -188,10 +186,6 @@ def generate_circles(arg):
 
 def main():
     on_load_new_image()
-    
-    print("done")
-    qs.show("tmp1", list(imgs.values())[0])
-    cv2.waitKey(0)
 
     circles_list = mp.Pool(min(60, len(imgs))).imap(generate_circles, list(enumerate(imgs.items())))
 
@@ -200,6 +194,22 @@ def main():
         circles += cs
         if len(cs) > 0:
             print(f"evaluated {cs[0][0]}")
+
+    plot_data_x, plot_data_y, plot_data_z = zip(*[(center_x, center_y, image_idx) for image_name, center_x, center_y, radius, image_idx in circles])
+
+    lines = []
+    lines.append(list(range(0,len(circles))))
+
+
+    pairs = []
+    for i in lines[0]:
+        pass
+
+
+    show3d((plot_data_x, plot_data_y, plot_data_z))
+    with open(b"tmp.3dgraph", "wb") as wf:
+        pickle.dump({"circles":(plot_data_x, plot_data_y, plot_data_z), "lines": lines}, wf)
+    input()
 
     # for idx, c1 in enumerate(circles):
     #     if c1[4] != 0:
@@ -219,21 +229,6 @@ def main():
     
     # circles = [c for c in circles if c[0] != None]
 
-
-    print(f"There were/was {len(circles)} fiber(s) counted!")
-
-    plot_data_x, plot_data_y, plot_data_z = zip(*[(center_x, center_y, image_idx) for image_name, center_x, center_y, radius, image_idx in circles])
-    
-    marker_data = go.Scatter3d(
-        x=plot_data_x, 
-        y=plot_data_y, 
-        z=plot_data_z, 
-        marker=go.scatter3d.Marker(size=3), 
-        opacity=0.8, 
-        mode='markers'
-    )
-    fig=go.Figure(data=marker_data)
-    fig.write_html('tmp.html', auto_open=True)
 
     # for name, img in imgs.items():
     #     for idx, (image_name, center_x, center_y, radius, image_idx) in enumerate(circles):
