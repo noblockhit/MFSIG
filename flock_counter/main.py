@@ -201,9 +201,18 @@ def main():
     lines.append(list(range(0,len(circles))))
 
 
-    pairs = []
-    for i in lines[0]:
-        pass
+    pairs = [-1]*len(circles)
+    for x, p in enumerate(pairs):
+        dist = 10*10**9
+        for y in lines[0]:
+            new_dist = (plot_data_x[x]-plot_data_x[y])**2 + (plot_data_x[x]-plot_data_y[y])**2
+            print(f"{x:02d}, {y:02d}, {new_dist:09d}")
+            if new_dist < dist:
+                pairs[x] = y
+            dist = new_dist
+
+    lines.append(pairs)
+    print(lines)
 
 
     show3d((plot_data_x, plot_data_y, plot_data_z))
