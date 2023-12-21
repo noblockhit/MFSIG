@@ -5,6 +5,7 @@ import cv2
 from rawloader import load_raw_image
 from display3d import show as show3d
 import pickle
+import numpy as np
 
 
 color_palette = [
@@ -195,27 +196,36 @@ def main():
         if len(cs) > 0:
             print(f"evaluated {cs[0][0]}")
 
-    plot_data_x, plot_data_y, plot_data_z = zip(*[(center_x, center_y, image_idx) for image_name, center_x, center_y, radius, image_idx in circles])
-
-    lines = []
-    lines.append(list(range(0,len(circles))))
+    plot_data_x, plot_data_y, plot_data_z, radiuses = zip(*[(center_x, center_y, image_idx, radius) for image_name, center_x, center_y, radius, image_idx in circles])
 
 
-    pairs = [-1]*len(circles)
-    for x, p in enumerate(pairs):
-        dist = 10*10**9
-        for y in lines[0]:
-            new_dist = (plot_data_x[x]-plot_data_x[y])**2 + (plot_data_x[x]-plot_data_y[y])**2
-            print(f"{x:02d}, {y:02d}, {new_dist:09d}")
-            if new_dist < dist:
-                pairs[x] = y
-            dist = new_dist
+    lines = [
+        [],
+        [],
+        []
+    ]
 
-    lines.append(pairs)
+    for idx1, point1 in enumerate(zip(plot_data_x, plot_data_y, plot_data_z)):
+        pair = [point1, None]
+        distance = float("inf")
+        for idx2, point2 in enumerate(zip(plot_data_x, plot_data_y, plot_data_z)):
+            if point1[2]+1 == point2[2]:
+                new_distance = (point1[0] - point2[0])**2 + (point1[1] - point2[1])**2
+                if (2 * np.average(radiuses))**2 > new_distance < distance:
+                    distance = new_distance
+                    pair[1] = point2
+
+        if pair[1] != None:
+            print("put", *pair)
+            lines[0] += pair[0][0],pair[1][0],None
+            lines[1] += pair[0][1],pair[1][1],None
+            lines[2] += pair[0][2],pair[1][2],None
+    
     print(lines)
 
 
-    show3d((plot_data_x, plot_data_y, plot_data_z))
+
+    show3d((plot_data_x, plot_data_y, plot_data_z), lines)
     with open(b"tmp.3dgraph", "wb") as wf:
         pickle.dump({"circles":(plot_data_x, plot_data_y, plot_data_z), "lines": lines}, wf)
     input()

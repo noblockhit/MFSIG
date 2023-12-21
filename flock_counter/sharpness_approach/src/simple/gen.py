@@ -1,23 +1,9 @@
-import tkinter as tk
-import customtkinter
-from PIL import ImageTk, Image
 import rawpy
 from tkinter import filedialog, messagebox, RIGHT, LEFT
 import time
-import gc
 import os
 import cv2
-import numpy as np
-import pycuda.driver as drv
-from pycuda.compiler import SourceModule
-import copy
-from math import sqrt
-from threading import Thread
 import multiprocessing as mp
-import subprocess
-import sys
-import statistics
-import matplotlib.pyplot as plt
 from pathlib import Path
 
 FILE_EXTENTIONS = {
@@ -99,7 +85,7 @@ if __name__ == "__main__":
 
     print(spot_selected)
     x, y = spot_selected
-    width = height = 800
+    width = height = 400
     global dir
 
     def save_image(name, cv2_image):
@@ -117,7 +103,7 @@ if __name__ == "__main__":
         right, top = max(0, x-width//2), max(0, y-height//2)
 
         c = img[top:top+height, right:right+width]
-        save_image(f"{name}.tiff", c)
+        save_image(f"{dir}\\{os.path.basename(name)}.tiff", c)
 
         cv2.imshow("cropped", c)
         cv2.waitKey(500)
