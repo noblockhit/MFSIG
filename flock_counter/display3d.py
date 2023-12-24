@@ -2,8 +2,13 @@ import plotly.graph_objects as go
 import pickle
 
 def show(circles=None, lines=None):
-    if circles == None:
-        raise AttributeError("Cant display 3d graph without any lines.")
+    if circles is None:
+        circles = [[], [], []]
+    
+    if lines is None:
+        lines = [[], [], []]
+
+
     plot_data_x, plot_data_y, plot_data_z = circles
     
     marker_data = go.Scatter3d(
