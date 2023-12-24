@@ -8,7 +8,7 @@ def show(circles=None, lines=None):
     if lines is None:
         lines = [[], [], []]
 
-
+    print(f"There are {len(circles[0])} circles and {len(lines[0])} lines")
     plot_data_x, plot_data_y, plot_data_z = circles
     
     marker_data = go.Scatter3d(

@@ -6,6 +6,9 @@ from rawloader import load_raw_image
 from display3d import show as show3d
 import pickle
 import numpy as np
+import collections
+import pycuda.driver as drv
+from pycuda.compiler import SourceModule
 
 
 color_palette = [
@@ -52,8 +55,10 @@ class qs:
     name_and_pos = {}
 
     @staticmethod
-    def show(name, data):
-        if name in qs.name_and_pos.keys():
+    def show(name, data, alias=None):
+        if alias is None:
+            alias = name
+        if alias in qs.name_and_pos.keys():
             qs.name_and_pos = {}
         if len(qs.name_and_pos) == 0:
             x = 30
@@ -62,11 +67,11 @@ class qs:
         y = 30
 
         ar = data.shape[1] / data.shape[0]
-        height = 1100
+        height = 900
         width = int(ar*height)
         cv2.imshow(name, cv2.resize(data, (width, height)))
         cv2.moveWindow(name, x, y)
-        qs.name_and_pos[name] = (x, y, width, height)
+        qs.name_and_pos[alias] = (x, y, width, height)
     
 FILE_EXTENTIONS = {
     "RAW": [
@@ -95,7 +100,8 @@ def load_image(name):
 
     return rgb
 
-imgs = {}
+
+imgs = collections.OrderedDict({})
 
 def on_load_new_image():
     global loading_time
@@ -110,7 +116,7 @@ def on_load_new_image():
         image_paths.append(f.name)
     image_paths = sorted(image_paths)
     print(image_paths)
-    rgb_values = mp.Pool(min(60, len(image_paths))).imap(load_image, image_paths)
+    rgb_values = mp.Pool(min(8, len(image_paths))).imap(load_image, image_paths)
 
     for idx, (name, rgb) in enumerate(zip(image_paths, rgb_values)):
         print("loaded", name)
@@ -120,8 +126,8 @@ def on_load_new_image():
 
 
 def key_out_tips(img_in):
-    blurred = cv2.medianBlur(img_in, 7)
-    mask = cv2.cvtColor(cv2.threshold(blurred, 80, 1, cv2.THRESH_BINARY)[1], cv2.COLOR_RGB2GRAY)
+    blurred = cv2.medianBlur(img_in, 3)
+    mask = cv2.cvtColor(cv2.threshold(blurred, 180, 1, cv2.THRESH_BINARY)[1], cv2.COLOR_RGB2GRAY)
 
     img = cv2.bitwise_and(img_in, img_in, mask=mask)
     edged = cv2.Canny(image=cv2.cvtColor(mask*255, cv2.COLOR_GRAY2BGR), threshold1=140, threshold2=255)
@@ -163,32 +169,129 @@ def generate_circles(arg):
         result = cv2.merge([result,result,result])
         for cntr, hier in zip(contours, hierarchy):
             if hier[3] == -1:
-                (rect_x,rect_y),(w,h),angl = cv2.minAreaRect(cntr)
-                # x = rect_x + w//2
-                # y = rect_y + h//2
-                # radius = (w+h)//4
                 (x,y),radius = cv2.minEnclosingCircle(cntr)
                 x, y, radius = int(x), int(y), int(radius)
 
-                
-                if w > 37 < h and w < 180 > h:
-                    if 28 < radius < 90:
-                        # cv2.drawContours(result, [cntr], 0, colors[temp_col_idx % len(colors)], 4)
-                        # temp_col_idx += 1
-                        # cv2.circle(result, (x, y), radius, (255,0,0), 2)
-                        circles.append([image_name, x, y, radius, idx])
-                                
+                if 25 < radius < 90:
+                    cv2.drawContours(result, [cntr], 0, colors[temp_col_idx % len(colors)], 4)
+                    temp_col_idx += 1
+                    cv2.circle(result, (x, y), radius, (255,0,0), 2)
+                    circles.append([image_name, x, y, radius, idx])
+                            
 
-        # qs.show(f"res {image_name}", result)
-        # cv2.waitKey(0)
+        # qs.show(f"res {image_name[-15:]}", result, alias="Result from contours")
         return circles
     except TypeError:
         return [] 
 
+def line_generator(plot_data_x, plot_data_y, plot_data_z, radiuses, lines):
+    avg_radius = np.average(radiuses)
+    for idx1, point1 in enumerate(zip(plot_data_x, plot_data_y, plot_data_z)):
+        pair = [point1, None]
+        distance = float("inf")
+        for idx2, point2 in enumerate(zip(plot_data_x, plot_data_y, plot_data_z)):
+            if 0 < point2[2] - point1[2] < 8:
+                new_distance_2d = (point1[0] - point2[0])**2 + (point1[1] - point2[1])**2
+                new_distance_3d = new_distance_2d + ((point1[2] - point2[2])*20)**2
+
+                if new_distance_2d < avg_radius**2 and new_distance_3d < distance:
+                    distance = new_distance_3d
+                    pair[1] = point2
+
+        if pair[1] != None:
+            print("put", *pair)
+            lines[0] += pair[0][0],pair[1][0],None
+            lines[1] += pair[0][1],pair[1][1],None
+            lines[2] += pair[0][2],pair[1][2],None
+
+
+def find_nearest_pow_2(val):
+    for i in range(32):
+        if val < 2**i:
+            return 2**i
+
+
+def line_generator_gpu(data_x, data_y, data_z, radiuses, lines):
+    drv.init()
+    dev = drv.Device(0)
+    ctx = dev.make_context()
+
+    mod = SourceModule("""
+    __global__ void createLines(int *data_x, int *data_y, int *data_z,
+                                int *length_arr, int* maximum_distance_arr,
+                                int *lines_x, int *lines_y, int *lines_z) {
+        const int length = length_arr[0];
+        const int maximum_distance = maximum_distance_arr[0];
+
+        const int thrd_i = blockIdx.x * blockDim.x + threadIdx.x;
+
+        const int x = data_x[thrd_i];
+        const int y = data_y[thrd_i];
+        const int z = data_z[thrd_i];
+        
+        int distance = 2000000000;
+                       
+
+        for (int i = 0; i < length; i++) {
+            int other_x = data_x[i];
+            int other_y = data_y[i];
+            int other_z = data_z[i];
+
+            int height_distance = z - other_z;
+            
+            if (0 < height_distance && height_distance < 8) {
+                int new_distance_2d = (x-other_x)*(x-other_x) + (y-other_y)*(y-other_y);
+                int new_distance_3d = new_distance_2d + (z-other_z)*(z-other_z);
+                if (new_distance_2d < maximum_distance && new_distance_3d < distance) {
+                    distance = new_distance_3d;
+                    lines_x[thrd_i*3+1] = other_x;
+                    lines_y[thrd_i*3+1] = other_y;
+                    lines_z[thrd_i*3+1] = other_z;
+                }
+            }
+        }
+        if (lines_x[thrd_i*3+1] > -1) {
+            lines_x[thrd_i*3] = x;
+            lines_y[thrd_i*3] = y;
+            lines_z[thrd_i*3] = z;
+        }
+                       
+    }""")
+
+    create_lines = mod.get_function("createLines")
+
+    MAX_THREADS = 1024
+
+    grid_width = find_nearest_pow_2(len(data_x)/MAX_THREADS)
+    lines_x = np.empty(len(data_x)*3, dtype=np.int32)
+    lines_y = np.empty(len(data_y)*3, dtype=np.int32)
+    lines_z = np.empty(len(data_z)*3, dtype=np.int32)
+
+    lines_x[:] = -1
+    lines_y[:] = -1
+    lines_z[:] = -1
+    
+    try:
+        create_lines(
+            drv.In(np.array(data_x, dtype=np.int32)), drv.In(np.array(data_y, dtype=np.int32)), drv.In(np.array(data_z, dtype=np.int32)),
+            drv.In(np.array([len(data_x)])), drv.In(np.array([240])), 
+            drv.InOut(lines_x), drv.InOut(lines_y), drv.InOut(lines_z),
+            block=(MAX_THREADS, 1, 1), grid=(grid_width, 1))
+    except:
+        ctx.pop()
+        raise
+    else:
+        ctx.pop()
+
+    lines[0] = [x if x >= 0 else None for x in lines_x]
+    lines[1] = [y if y >= 0 else None for y in lines_y]
+    lines[2] = [z if z >= 0 else None for z in lines_z]
+
+
 def main():
     on_load_new_image()
 
-    circles_list = mp.Pool(min(60, len(imgs))).imap(generate_circles, list(enumerate(imgs.items())))
+    circles_list = mp.Pool(min(8, len(imgs))).imap(generate_circles, list(enumerate(imgs.items())))
 
     circles = []
     for cs in circles_list:
@@ -204,68 +307,13 @@ def main():
         [],
         []
     ]
-
-    for idx1, point1 in enumerate(zip(plot_data_x, plot_data_y, plot_data_z)):
-        pair = [point1, None]
-        distance = float("inf")
-        for idx2, point2 in enumerate(zip(plot_data_x, plot_data_y, plot_data_z)):
-            if point1[2]+1 == point2[2]:
-                new_distance = (point1[0] - point2[0])**2 + (point1[1] - point2[1])**2
-                if (2 * np.average(radiuses))**2 > new_distance < distance:
-                    distance = new_distance
-                    pair[1] = point2
-
-        if pair[1] != None:
-            print("put", *pair)
-            lines[0] += pair[0][0],pair[1][0],None
-            lines[1] += pair[0][1],pair[1][1],None
-            lines[2] += pair[0][2],pair[1][2],None
-    
-    print(lines)
-
+    line_generator_gpu(plot_data_x, plot_data_y, plot_data_z, radiuses, lines)
 
 
     show3d((plot_data_x, plot_data_y, plot_data_z), lines)
     with open(b"tmp.3dgraph", "wb") as wf:
         pickle.dump({"circles":(plot_data_x, plot_data_y, plot_data_z), "lines": lines}, wf)
     input()
-
-    # for idx, c1 in enumerate(circles):
-    #     if c1[4] != 0:
-    #         continue
-    #     print(f"filtering cricle {idx+1}/{len(circles)}")
-    #     for c2 in circles[idx:]:
-    #         if c2[4] != 0:
-    #             continue
-    #         if c1 == c2:
-    #             continue
-
-    #         if (c1[1] - c2[1])**2+(c1[2] - c2[2])**2 < (c1[3] + c2[3])**2:
-    #             if c1[3] > c2[3]:### delete larger
-    #                 c1[0] = None
-    #             else:
-    #                 c2[0] = None
-    
-    # circles = [c for c in circles if c[0] != None]
-
-
-    # for name, img in imgs.items():
-    #     for idx, (image_name, center_x, center_y, radius, image_idx) in enumerate(circles):
-    #         # cv2.putText(img, f"{idx}", (center_x, center_y), cv2.FONT_HERSHEY_SIMPLEX, 3, 255, 4)
-    #         # if image_name == name:
-    #         #     cv2.circle(img, (center_x, center_y), radius, (0,0,255), 6)
-    #         #     circle_count += 1
-    #         # else:
-    #         #     cv2.circle(img, (center_x, center_y), radius, (255,255,255), 4)
-
-
-    #         #     cv2.rectangle(img, (x, y), (x + w, y + h), (0,0,255), 10)
-    #         # else:
-    #         #     cv2.rectangle(img, (x, y), (x + w, y + h), (255,255,255), 8)
-        
-                
-    #     # qs.show("image", img)
-    #     # cv2.waitKey(200)
 
 
 if __name__ == "__main__":

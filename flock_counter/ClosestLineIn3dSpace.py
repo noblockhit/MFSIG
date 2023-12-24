@@ -51,7 +51,6 @@ b = max_y - min_y
 c = max_z - min_z
 
 d = (a**2 + b**2 + c**2)**(.5)
-print(d)
 
 data = np.concatenate((x[:, np.newaxis], 
                        y[:, np.newaxis], 
@@ -65,9 +64,5 @@ uu, dd, vv = np.linalg.svd(data - datamean)
 linepts = vv[0] * np.mgrid[-d/2:d/2:2j][:, np.newaxis]
 
 linepts += datamean
-
-print(data.T)
-print(x,y,z)
-print(linepts.T)
 
 show3d(data.T, lines=linepts.T)

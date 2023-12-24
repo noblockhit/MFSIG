@@ -5,6 +5,8 @@ import os
 import cv2
 import multiprocessing as mp
 from pathlib import Path
+import collections
+
 
 FILE_EXTENTIONS = {
     "RAW": [
@@ -36,7 +38,7 @@ def load_image(name):
     return cv2.medianBlur(rgb, 5)
 
 
-imgs = {}
+imgs = collections.OrderedDict({})
 
 def on_load_new_image():
     global loading_time
@@ -85,7 +87,7 @@ if __name__ == "__main__":
 
     print(spot_selected)
     x, y = spot_selected
-    width = height = 400
+    width = height = 900
     global dir
 
     def save_image(name, cv2_image):
