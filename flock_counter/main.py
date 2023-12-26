@@ -11,45 +11,50 @@ import pycuda.driver as drv
 from pycuda.compiler import SourceModule
 
 
-color_palette = [
-    0x3366cc,
-    0xdc3912,
-    0xff9900,
-    0x109618,
-    0x990099,
-    0x0099c6,
-    0xdd4477,
-    0x66aa00,
-    0xb82e2e,
-    0x316395,
-    0x994499,
-    0x22aa99,
-    0xaaaa11,
-    0x6633cc,
-    0xe67300,
-    0x8b0707,
-    0x651067,
-    0x329262,
-    0x5574a6,
-    0x3b3eac,
-    0xb77322,
-    0x16d620,
-    0xb91383,
-    0xf4359e,
-    0x9c5935,
-    0xa9c413,
-    0x2a778d,
-    0x668d1c,
-    0xbea413,
-    0x0c5922,
-    0x743411
+KEYING_BLUR_RADIUS = 1
+KEYING_MASK_THRESHHOLD = 180
+CANNY_THRESHHOLD_1 = 140
+MIN_RADIUS = 25
+MAX_RADIUS = 90
+IMAGE_DISTANCE_TO_PIXEL_FACTOR = 20
+MAXIMUM_PLANAR_DISTANCE_TO_SAME_TIP = 140
+MAX_CORES_FOR_MP = 8
+PREVIEW_IMAGE_HEIGHT = 900
+
+
+colors = [
+    (51, 104, 101),
+    (20, 67, 37),
+    (22, 117, 8),
+    (16, 135, 0),
+    (16, 2, 113),
+    (57, 54, 6),
+    (20, 80, 9),
+    (103, 40, 25),
+    (18, 7, 4),
+    (50, 54, 117),
+    (16, 4, 69),
+    (34, 113, 137),
+    (17, 24, 70),
+    (102, 151, 147),
+    (21, 16, 39),
+    (145, 17, 48),
+    (102, 35, 51),
+    (51, 20, 39),
+    (86, 0, 66),
+    (56, 130, 102),
+    (18, 2, 37),
+    (20, 150, 96),
+    (18, 18, 145),
+    (22, 0, 69),
+    (16, 36, 100),
+    (17, 18, 87),
+    (39, 131, 17),
+    (103, 32, 121),
+    (18, 73, 56),
+    (128, 146, 80),
+    (118, 21, 80)
 ]
-
-def hex_to_rgb(h):
-    return tuple(int(str(h)[i:i+2], 16) for i in (0, 2, 4))
-
-colors = [hex_to_rgb(c) for c in color_palette]
-
 
 class qs:
     name_and_pos = {}
@@ -67,12 +72,13 @@ class qs:
         y = 30
 
         ar = data.shape[1] / data.shape[0]
-        height = 900
+        height = PREVIEW_IMAGE_HEIGHT
         width = int(ar*height)
         cv2.imshow(name, cv2.resize(data, (width, height)))
         cv2.moveWindow(name, x, y)
         qs.name_and_pos[alias] = (x, y, width, height)
-    
+
+
 FILE_EXTENTIONS = {
     "RAW": [
         ".nef",
@@ -88,6 +94,10 @@ FILE_EXTENTIONS = {
     ],
 }
 
+
+imgs = collections.OrderedDict({})
+
+
 def load_image(name):
     if any(name.lower().endswith(ending) for ending in FILE_EXTENTIONS["CV2"]):
         rgb = cv2.cvtColor(cv2.imread(name), cv2.COLOR_BGR2RGB)
@@ -101,8 +111,6 @@ def load_image(name):
     return rgb
 
 
-imgs = collections.OrderedDict({})
-
 def on_load_new_image():
     global loading_time
     selected_img_files = filedialog.askopenfiles(title="Open Images for the render queue", filetypes=[("Image-files", ".tiff .tif .png .jpg .jpeg .RAW .NEF")])
@@ -115,8 +123,8 @@ def on_load_new_image():
     for f in selected_img_files:
         image_paths.append(f.name)
     image_paths = sorted(image_paths)
-    print(image_paths)
-    rgb_values = mp.Pool(min(8, len(image_paths))).imap(load_image, image_paths)
+    print(image_paths, len(image_paths))
+    rgb_values = mp.Pool(min(MAX_CORES_FOR_MP, len(image_paths))).imap(load_image, image_paths)
 
     for idx, (name, rgb) in enumerate(zip(image_paths, rgb_values)):
         print("loaded", name)
@@ -126,24 +134,12 @@ def on_load_new_image():
 
 
 def key_out_tips(img_in):
-    blurred = cv2.medianBlur(img_in, 3)
-    mask = cv2.cvtColor(cv2.threshold(blurred, 180, 1, cv2.THRESH_BINARY)[1], cv2.COLOR_RGB2GRAY)
+    blurred = cv2.medianBlur(img_in, KEYING_BLUR_RADIUS*2+1)
+    mask = cv2.cvtColor(cv2.threshold(blurred, KEYING_MASK_THRESHHOLD, 1, cv2.THRESH_BINARY)[1], cv2.COLOR_RGB2GRAY)
 
     img = cv2.bitwise_and(img_in, img_in, mask=mask)
-    edged = cv2.Canny(image=cv2.cvtColor(mask*255, cv2.COLOR_GRAY2BGR), threshold1=140, threshold2=255)
+    edged = cv2.Canny(image=cv2.cvtColor(mask*255, cv2.COLOR_GRAY2BGR), threshold1=CANNY_THRESHHOLD_1, threshold2=255)
     return img, edged
-
-
-def rect_is_same(rect1, rect2):
-    _, x1, y1, w1, h1 = rect1
-    _, x2, y2, w2, h2 = rect2
-
-    # Check for overlap
-    if (x1 < x2 + w2 and x1 + w1 > x2 and
-        y1 < y2 + h2 and y1 + h1 > y2):
-        return True
-    else:
-        return False
 
 
 def generate_circles(arg):
@@ -172,7 +168,7 @@ def generate_circles(arg):
                 (x,y),radius = cv2.minEnclosingCircle(cntr)
                 x, y, radius = int(x), int(y), int(radius)
 
-                if 25 < radius < 90:
+                if MIN_RADIUS < radius < MAX_RADIUS:
                     cv2.drawContours(result, [cntr], 0, colors[temp_col_idx % len(colors)], 4)
                     temp_col_idx += 1
                     cv2.circle(result, (x, y), radius, (255,0,0), 2)
@@ -183,26 +179,6 @@ def generate_circles(arg):
         return circles
     except TypeError:
         return [] 
-
-def line_generator(plot_data_x, plot_data_y, plot_data_z, radiuses, lines):
-    avg_radius = np.average(radiuses)
-    for idx1, point1 in enumerate(zip(plot_data_x, plot_data_y, plot_data_z)):
-        pair = [point1, None]
-        distance = float("inf")
-        for idx2, point2 in enumerate(zip(plot_data_x, plot_data_y, plot_data_z)):
-            if 0 < point2[2] - point1[2] < 8:
-                new_distance_2d = (point1[0] - point2[0])**2 + (point1[1] - point2[1])**2
-                new_distance_3d = new_distance_2d + ((point1[2] - point2[2])*20)**2
-
-                if new_distance_2d < avg_radius**2 and new_distance_3d < distance:
-                    distance = new_distance_3d
-                    pair[1] = point2
-
-        if pair[1] != None:
-            print("put", *pair)
-            lines[0] += pair[0][0],pair[1][0],None
-            lines[1] += pair[0][1],pair[1][1],None
-            lines[2] += pair[0][2],pair[1][2],None
 
 
 def find_nearest_pow_2(val):
@@ -274,7 +250,7 @@ def line_generator_gpu(data_x, data_y, data_z, radiuses, lines):
     try:
         create_lines(
             drv.In(np.array(data_x, dtype=np.int32)), drv.In(np.array(data_y, dtype=np.int32)), drv.In(np.array(data_z, dtype=np.int32)),
-            drv.In(np.array([len(data_x)])), drv.In(np.array([240])), 
+            drv.In(np.array([len(data_x)])), drv.In(np.array([MAXIMUM_PLANAR_DISTANCE_TO_SAME_TIP])), 
             drv.InOut(lines_x), drv.InOut(lines_y), drv.InOut(lines_z),
             block=(MAX_THREADS, 1, 1), grid=(grid_width, 1))
     except:
@@ -291,7 +267,7 @@ def line_generator_gpu(data_x, data_y, data_z, radiuses, lines):
 def main():
     on_load_new_image()
 
-    circles_list = mp.Pool(min(8, len(imgs))).imap(generate_circles, list(enumerate(imgs.items())))
+    circles_list = mp.Pool(min(MAX_CORES_FOR_MP, len(imgs))).imap(generate_circles, list(enumerate(imgs.items())))
 
     circles = []
     for cs in circles_list:
