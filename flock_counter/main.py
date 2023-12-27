@@ -104,9 +104,9 @@ def key_out_tips(img_in, keying_blur_radius, keying_mask_threshhold, canny_thres
     blurred = cv2.medianBlur(img_in, keying_blur_radius*2+1)
     mask = cv2.cvtColor(cv2.threshold(blurred, keying_mask_threshhold, 1, cv2.THRESH_BINARY)[1], cv2.COLOR_RGB2GRAY)
 
-    img = cv2.bitwise_and(img_in, img_in, mask=mask)
+    keyed = cv2.resize(cv2.bitwise_and(img_in, img_in, mask=mask), (img_in.shape[1]//3, img_in.shape[0]//3)) 
     edges = cv2.Canny(image=cv2.cvtColor(mask*255, cv2.COLOR_GRAY2BGR), threshold1=canny_threshhold_1, threshold2=255)
-    return img, edges
+    return keyed, edges
 
 
 def generate_circles(idx, image_name, input_img, keying_blur_radius, keying_mask_threshhold, canny_threshhold_1, min_radius, max_radius):
@@ -119,6 +119,8 @@ def generate_circles(idx, image_name, input_img, keying_blur_radius, keying_mask
 
         # get contours
         contours = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+        del thresh ## OPTIMIZATION
+        
         hierarchy = contours[1] if len(contours) == 2 else contours[2]
         contours = contours[0] if len(contours) == 2 else contours[1]
 
@@ -127,6 +129,7 @@ def generate_circles(idx, image_name, input_img, keying_blur_radius, keying_mask
         # count inner contours
 
         result = cv2.merge([edges,edges,edges])
+        del edges ## OPTIMIZATION
         for cntr, hier in zip(contours, hierarchy):
             if hier[3] != -1:
                 continue
@@ -138,8 +141,8 @@ def generate_circles(idx, image_name, input_img, keying_blur_radius, keying_mask
                 temp_col_idx += 1
                 cv2.circle(result, (x, y), radius, (255,0,0), 2)
                 circles.append([image_name, x, y, radius, idx])
-                            
-        return keyed, edges, result, circles
+        result = cv2.resize(result, (keyed.shape[1], keyed.shape[0]))
+        return keyed, result, circles
     except TypeError:
         return [] 
 
@@ -162,8 +165,8 @@ def load_and_evaluate_image(args):
     else:
         raise ValueError("Second item in `args` is neither a tuple of a name and an image nor just the path to a file")
 
-    keyed, edges, result, circles = generate_circles(idx, name, image, keying_blur_radius, keying_mask_threshhold, canny_threshhold_1, min_radius, max_radius)
-    return idx, name, image, keyed, edges, result, circles
+    keyed, edges_result, circles = generate_circles(idx, name, image, keying_blur_radius, keying_mask_threshhold, canny_threshhold_1, min_radius, max_radius)
+    return idx, name, image, keyed, edges_result, circles
 
 
 def find_nearest_pow_2(val):
@@ -275,11 +278,10 @@ def on_load_new_image():
         args = [(idx, img, KEYING_BLUR_RADIUS, KEYING_MASK_THRESHHOLD, CANNY_THRESHHOLD_1, MIN_RADIUS, MAX_RADIUS) for idx, img in args]
         images_and_circles = mp.Pool(min(MAX_CORES_FOR_MP, len(image_paths))).map(load_and_evaluate_image, args)
         
-        for idx, name, image, keyed, edges, result, circles in images_and_circles:
+        for idx, name, image, keyed, edges_result, circles in images_and_circles:
             qs.show("image", image)
             qs.show("keyed", keyed)
-            qs.show("edges", edges)
-            qs.show("result", result)
+            qs.show("edges_result", edges_result)
             cv2.waitKey(2000)
 
             if name not in imgs.keys():
