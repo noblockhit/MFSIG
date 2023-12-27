@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from typing import Any, ClassVar, get_type_hints, Union, _UnionGenericAlias
-import types
+from typing import Any, ClassVar, get_type_hints, Union
+import subprocess
 import werkzeug.serving as serving
 from platformdirs import user_config_dir
 from pathlib import Path
@@ -210,3 +210,12 @@ class State(metaclass=Meta):
             if "whatsapp_api_key" in j.keys():
                 State.whatsapp_api_key = str(j["whatsapp_api_key"])
         except ValueError:pass
+
+def outgoing_webrequest(func):
+    def wrapper(*args, **kwargs):
+        subprocess.run("sudo systemctl stop dnsmasq")
+        ret = func(*args, **kwargs)
+        subprocess.run("sudo systemctl start dnsmasq")
+        return ret
+    return wrapper
+        
