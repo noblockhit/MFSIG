@@ -18,8 +18,8 @@ MIN_RADIUS = 25
 MAX_RADIUS = 90
 IMAGE_DISTANCE_TO_PIXEL_FACTOR = 20
 MAXIMUM_PLANAR_DISTANCE_TO_SAME_TIP = 140
-MAX_CORES_FOR_MP = 8
-PREVIEW_IMAGE_HEIGHT = 900
+MAX_CORES_FOR_MP = mp.cpu_count()-1
+PREVIEW_IMAGE_HEIGHT = 1000
 
 
 colors = [
@@ -72,6 +72,10 @@ class qs:
         y = 30
 
         ar = data.shape[1] / data.shape[0]
+        if ar > 1:
+            data = cv2.rotate(data, cv2.ROTATE_90_CLOCKWISE)
+            ar = data.shape[1] / data.shape[0]
+
         height = PREVIEW_IMAGE_HEIGHT
         width = int(ar*height)
         cv2.imshow(name, cv2.resize(data, (width, height)))
@@ -95,90 +99,71 @@ FILE_EXTENTIONS = {
 }
 
 
-imgs = collections.OrderedDict({})
 
-
-def load_image(name):
-    if any(name.lower().endswith(ending) for ending in FILE_EXTENTIONS["CV2"]):
-        rgb = cv2.cvtColor(cv2.imread(name), cv2.COLOR_BGR2RGB)
-
-    elif any(name.lower().endswith(ending) for ending in FILE_EXTENTIONS["RAW"]):
-        rgb = load_raw_image(name, "auto")
-
-    if rgb.shape[0] > rgb.shape[1]:
-        rgb = cv2.rotate(rgb, cv2.ROTATE_90_CLOCKWISE)
-
-    return rgb
-
-
-def on_load_new_image():
-    global loading_time
-    selected_img_files = filedialog.askopenfiles(title="Open Images for the render queue", filetypes=[("Image-files", ".tiff .tif .png .jpg .jpeg .RAW .NEF")])
-    if not selected_img_files:
-        return
-
-    img_load_time_start = time.time_ns()
-    image_paths = []
-
-    for f in selected_img_files:
-        image_paths.append(f.name)
-    image_paths = sorted(image_paths)
-    print(image_paths, len(image_paths))
-    rgb_values = mp.Pool(min(MAX_CORES_FOR_MP, len(image_paths))).imap(load_image, image_paths)
-
-    for idx, (name, rgb) in enumerate(zip(image_paths, rgb_values)):
-        print("loaded", name)
-        imgs[name] = rgb
-
-    loading_time = (time.time_ns() - img_load_time_start) / (10 ** 9) 
-
-
-def key_out_tips(img_in):
-    blurred = cv2.medianBlur(img_in, KEYING_BLUR_RADIUS*2+1)
-    mask = cv2.cvtColor(cv2.threshold(blurred, KEYING_MASK_THRESHHOLD, 1, cv2.THRESH_BINARY)[1], cv2.COLOR_RGB2GRAY)
+def key_out_tips(img_in, keying_blur_radius, keying_mask_threshhold, canny_threshhold_1):
+    blurred = cv2.medianBlur(img_in, keying_blur_radius*2+1)
+    mask = cv2.cvtColor(cv2.threshold(blurred, keying_mask_threshhold, 1, cv2.THRESH_BINARY)[1], cv2.COLOR_RGB2GRAY)
 
     img = cv2.bitwise_and(img_in, img_in, mask=mask)
-    edged = cv2.Canny(image=cv2.cvtColor(mask*255, cv2.COLOR_GRAY2BGR), threshold1=CANNY_THRESHHOLD_1, threshold2=255)
-    return img, edged
+    edges = cv2.Canny(image=cv2.cvtColor(mask*255, cv2.COLOR_GRAY2BGR), threshold1=canny_threshhold_1, threshold2=255)
+    return img, edges
 
 
-def generate_circles(arg):
+def generate_circles(idx, image_name, input_img, keying_blur_radius, keying_mask_threshhold, canny_threshhold_1, min_radius, max_radius):
     try:
         temp_col_idx = 0
-        idx, (image_name, input_img) = arg
         circles = []
-        keyed, img = key_out_tips(input_img)
+        keyed, edges = key_out_tips(input_img, keying_blur_radius, keying_mask_threshhold, canny_threshhold_1)
         # threshold
-        thresh = cv2.threshold(img, 1, 255, cv2.THRESH_BINARY)[1]
+        thresh = cv2.threshold(edges, 1, 255, cv2.THRESH_BINARY)[1]
 
         # get contours
         contours = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
         hierarchy = contours[1] if len(contours) == 2 else contours[2]
         contours = contours[0] if len(contours) == 2 else contours[1]
 
-        # get the actual inner list of hierarchy descriptions
         hierarchy = hierarchy[0]
 
         # count inner contours
 
-        result = img.copy()
-        result = cv2.merge([result,result,result])
+        result = cv2.merge([edges,edges,edges])
         for cntr, hier in zip(contours, hierarchy):
-            if hier[3] == -1:
-                (x,y),radius = cv2.minEnclosingCircle(cntr)
-                x, y, radius = int(x), int(y), int(radius)
+            if hier[3] != -1:
+                continue
+            (x,y),radius = cv2.minEnclosingCircle(cntr)
+            x, y, radius = int(x), int(y), int(radius)
 
-                if MIN_RADIUS < radius < MAX_RADIUS:
-                    cv2.drawContours(result, [cntr], 0, colors[temp_col_idx % len(colors)], 4)
-                    temp_col_idx += 1
-                    cv2.circle(result, (x, y), radius, (255,0,0), 2)
-                    circles.append([image_name, x, y, radius, idx])
+            if min_radius < radius < max_radius:
+                cv2.drawContours(result, [cntr], 0, colors[temp_col_idx % len(colors)], 4)
+                temp_col_idx += 1
+                cv2.circle(result, (x, y), radius, (255,0,0), 2)
+                circles.append([image_name, x, y, radius, idx])
                             
-
-        # qs.show(f"res {image_name[-15:]}", result, alias="Result from contours")
-        return circles
+        return keyed, edges, result, circles
     except TypeError:
         return [] 
+
+
+def load_and_evaluate_image(args):
+    idx, imagename_or_img, keying_blur_radius, keying_mask_threshhold, canny_threshhold_1, min_radius, max_radius = args
+    if isinstance(imagename_or_img, str):
+        name = imagename_or_img
+        if any(name.lower().endswith(ending) for ending in FILE_EXTENTIONS["CV2"]):
+            image = cv2.cvtColor(cv2.imread(name), cv2.COLOR_BGR2RGB)
+
+        elif any(name.lower().endswith(ending) for ending in FILE_EXTENTIONS["RAW"]):
+            image = load_raw_image(name, "auto")
+
+        if image.shape[0] > image.shape[1]:
+            image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+
+    elif isinstance(imagename_or_img, tuple):
+        name, image = imagename_or_img
+    else:
+        raise ValueError("Second item in `args` is neither a tuple of a name and an image nor just the path to a file")
+
+    keyed, edges, result, circles = generate_circles(idx, name, image, keying_blur_radius, keying_mask_threshhold, canny_threshhold_1, min_radius, max_radius)
+    return idx, name, image, keyed, edges, result, circles
 
 
 def find_nearest_pow_2(val):
@@ -194,10 +179,11 @@ def line_generator_gpu(data_x, data_y, data_z, radiuses, lines):
 
     mod = SourceModule("""
     __global__ void createLines(int *data_x, int *data_y, int *data_z,
-                                int *length_arr, int* maximum_distance_arr,
+                                int *length_arr, int* maximum_distance_arr, int*image_distance_to_pixel_factor_arr
                                 int *lines_x, int *lines_y, int *lines_z) {
         const int length = length_arr[0];
         const int maximum_distance = maximum_distance_arr[0];
+        const int image_distance_to_pixel_factor = image_distance_to_pixel_factor_arr[0];
 
         const int thrd_i = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -217,7 +203,7 @@ def line_generator_gpu(data_x, data_y, data_z, radiuses, lines):
             
             if (0 < height_distance && height_distance < 8) {
                 int new_distance_2d = (x-other_x)*(x-other_x) + (y-other_y)*(y-other_y);
-                int new_distance_3d = new_distance_2d + (z-other_z)*(z-other_z);
+                int new_distance_3d = new_distance_2d + (z-other_z)*(z-other_z)*image_distance_to_pixel_factor*image_distance_to_pixel_factor;
                 if (new_distance_2d < maximum_distance && new_distance_3d < distance) {
                     distance = new_distance_3d;
                     lines_x[thrd_i*3+1] = other_x;
@@ -250,7 +236,7 @@ def line_generator_gpu(data_x, data_y, data_z, radiuses, lines):
     try:
         create_lines(
             drv.In(np.array(data_x, dtype=np.int32)), drv.In(np.array(data_y, dtype=np.int32)), drv.In(np.array(data_z, dtype=np.int32)),
-            drv.In(np.array([len(data_x)])), drv.In(np.array([MAXIMUM_PLANAR_DISTANCE_TO_SAME_TIP])), 
+            drv.In(np.array([len(data_x)])), drv.In(np.array([MAXIMUM_PLANAR_DISTANCE_TO_SAME_TIP])), drv.In(np.array([IMAGE_DISTANCE_TO_PIXEL_FACTOR])),
             drv.InOut(lines_x), drv.InOut(lines_y), drv.InOut(lines_z),
             block=(MAX_THREADS, 1, 1), grid=(grid_width, 1))
     except:
@@ -264,17 +250,51 @@ def line_generator_gpu(data_x, data_y, data_z, radiuses, lines):
     lines[2] = [z if z >= 0 else None for z in lines_z]
 
 
+def on_load_new_image():
+    imgs = collections.OrderedDict({})
+
+    selected_img_files = filedialog.askopenfiles(title="Open Images for the render queue", filetypes=[("Image-files", ".tiff .tif .png .jpg .jpeg .RAW .NEF")])
+    if not selected_img_files:
+        return
+
+    image_paths = []
+
+    for f in selected_img_files:
+        image_paths.append(f.name)
+    image_paths = sorted(image_paths)
+    
+    satisfied = False
+    first_load = True
+    while not satisfied:
+        all_circles = []
+        if first_load:
+            args = enumerate(image_paths)
+            first_load = False
+        else:
+            args = enumerate(imgs.items())
+        args = [(idx, img, KEYING_BLUR_RADIUS, KEYING_MASK_THRESHHOLD, CANNY_THRESHHOLD_1, MIN_RADIUS, MAX_RADIUS) for idx, img in args]
+        images_and_circles = mp.Pool(min(MAX_CORES_FOR_MP, len(image_paths))).map(load_and_evaluate_image, args)
+        
+        for idx, name, image, keyed, edges, result, circles in images_and_circles:
+            qs.show("image", image)
+            qs.show("keyed", keyed)
+            qs.show("edges", edges)
+            qs.show("result", result)
+            cv2.waitKey(2000)
+
+            if name not in imgs.keys():
+                print("loaded and evaluated", name)
+                imgs[name] = image
+            else:
+                print("evaluated", name)
+            all_circles += circles
+
+        
+    return imgs, all_circles
+
+
 def main():
-    on_load_new_image()
-
-    circles_list = mp.Pool(min(MAX_CORES_FOR_MP, len(imgs))).imap(generate_circles, list(enumerate(imgs.items())))
-
-    circles = []
-    for cs in circles_list:
-        circles += cs
-        if len(cs) > 0:
-            print(f"evaluated {cs[0][0]}")
-
+    imgs, circles = on_load_new_image()
     plot_data_x, plot_data_y, plot_data_z, radiuses = zip(*[(center_x, center_y, image_idx, radius) for image_name, center_x, center_y, radius, image_idx in circles])
 
 
