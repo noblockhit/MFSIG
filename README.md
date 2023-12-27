@@ -19,6 +19,6 @@ Installation steps:
 
 * install raspap
 * change raspap website port to 5000
-* execute: `echo "server=1.1.1.1" | sudo tee /etc/dnsmasq.d/010_captive_portal.conf`
+* execute: `echo "address=/#/1.1.1.1" | sudo tee /etc/dnsmasq.d/010_captive_portal.conf`
 * (_optional_) for launching on startup edit/create a file at `sudo nano /etc/xdg/lxsession/LXDE-pi/autostart` and add `@lxterminal -e /home/<username>/<path>/<to>/<mfsig>/launch.sh`
 * execute: `sudo systemctl restart dnsmasq`
