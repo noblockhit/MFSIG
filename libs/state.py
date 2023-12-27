@@ -213,9 +213,11 @@ class State(metaclass=Meta):
 
 def outgoing_webrequest(func):
     def wrapper(*args, **kwargs):
-        subprocess.run("sudo systemctl stop dnsmasq")
+        if State.isGPIO:
+            subprocess.run("sudo systemctl stop dnsmasq")
         ret = func(*args, **kwargs)
-        subprocess.run("sudo systemctl start dnsmasq")
+        if State.isGPIO:
+            subprocess.run("sudo systemctl start dnsmasq")
         return ret
     return wrapper
         
