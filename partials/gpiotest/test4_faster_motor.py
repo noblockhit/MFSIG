@@ -100,6 +100,7 @@ class PrebakedMotor:
 
 
     def step_forward(self):
+        start = time.perf_counter_ns()
         if self.step % 2 == 0:
             p_on(self.instructions[self.step % self.instructuion_length])
 
@@ -109,9 +110,10 @@ class PrebakedMotor:
         self.step += 1
         if self.step > self.instructuion_length*4:
             self.step = (self.step % self.instructuion_length) + self.instructuion_length
-        time.sleep(sleep_time_after_step / 1000)
+        time.sleep(sleep_time_after_step / 1000 - (time.perf_counter_ns() - start)*10**-9)
 
     def step_backward(self):
+        start = time.perf_counter_ns()
         if self.step % 2 == 0:
             p_on(self.instructions[(self.step-1) % self.instructuion_length])
 
@@ -122,7 +124,7 @@ class PrebakedMotor:
 
         if self.step < self.instructuion_length:
             self.step = self.step + self.instructuion_length
-        time.sleep(sleep_time_after_step / 1000)
+        time.sleep(sleep_time_after_step / 1000 - (time.perf_counter_ns() - start)*10**-9)
 
 
 import random
