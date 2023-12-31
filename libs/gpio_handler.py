@@ -1,7 +1,6 @@
 import time
 import atexit
-# 400 schritte sind pi mal daumen eine Umdrehung
-from .state import State
+from .state import State, abs_camera_type, abs_motor_type
 
 
 def p_on(pin):
@@ -19,52 +18,54 @@ def p_off(pin):
 
 
 
-class Motor:
+class Motor(abs_motor_type):
     def __init__(self, pins):
         for pin in pins:
             GPIO.setup(pin, GPIO.OUT)
             p_off(pin)
-
-        self.step = 0
         self.pins = pins
-        self.pins_dict = {pin: False for pin in pins}
-        self.pin_on(self.pins[0])
-        
-        atexit.register(self.cleanup)
-    
-    def pin_on(self, pin):
-        self.pins_dict[pin] = True
-        p_on(pin)
+        self.bake_instructions()
 
-    def pin_off(self, pin):
-        self.pins_dict[pin] = False
-        GPIO.output(pin, GPIO.LOW)
+        p_on(self.pins[0])
+        self.step = self.instructuion_length * 2
+    
+
+    def bake_instructions(self):
+        self.instructions = {}
+        for idx in range(len(self.pins)):
+            self.instructions[idx*2] = self.pins[(idx+1) % len(self.pins)]
+            self.instructions[idx*2 + 1] = self.pins[idx]
+
+        self.instructuion_length = len(self.instructions)
+
+
 
     def step_forward(self):
-        self.step += 1
-        if self.step == len(self.pins) * 2:
-            self.step = 0
-
+        start = time.perf_counter_ns()
         if self.step % 2 == 0:
-            self.pin_on(self.pins[self.step//2])
-            self.pin_off(self.pins[(self.step//2-1) % len(self.pins)])
-        else:
-            self.pin_on(self.pins[(self.step//2+1) % len(self.pins)])
-            
-        time.sleep(0.01)
+            p_on(self.instructions[self.step % self.instructuion_length])
+
+        if self.step % 2 == 1:
+            p_off(self.instructions[self.step % self.instructuion_length])
+        
+        self.step += 1
+        if self.step > self.instructuion_length*4:
+            self.step = (self.step % self.instructuion_length) + self.instructuion_length
+        time.sleep(max(0, (State.sleep_time_after_step / 1000) - (time.perf_counter_ns() - start)*10**-9))
 
     def step_backward(self):
-        self.step -= 1
-        if self.step < 0:
-            self.step = len(self.pins)*2-1
-
+        start = time.perf_counter_ns()
         if self.step % 2 == 0:
-            self.pin_on(self.pins[self.step//2])
-            self.pin_off(self.pins[(self.step//2+1) % len(self.pins)])
-        else:
-            self.pin_on(self.pins[(self.step//2) % len(self.pins)])
-            
-        time.sleep(0.01)
+            p_on(self.instructions[(self.step-1) % self.instructuion_length])
+
+        if self.step % 2 == 1:
+            p_off(self.instructions[(self.step-1) % self.instructuion_length])
+        
+        self.step -= 1
+
+        if self.step < self.instructuion_length:
+            self.step = self.step + self.instructuion_length
+        time.sleep(max(0, (State.sleep_time_after_step / 1000) - (time.perf_counter_ns() - start)*10**-9))
 
 
     def cleanup(self):
@@ -83,7 +84,7 @@ class Motor:
             time.sleep(.3)
         
 
-class Camera:
+class Camera(abs_camera_type):
     def __init__(self, bcm_pin_number):
         self.pin = bcm_pin_number
         GPIO.setup(self.pin, GPIO.OUT)
@@ -96,35 +97,10 @@ class Camera:
         p_on(self.pin)
         time.sleep(2)
         p_off(self.pin)
-        time.sleep(.5)
+        time.sleep(State.digi_cam_delay)
         State.progress()
-        
 
 
 import RPi
 import RPi.GPIO as GPIO
 GPIO.setmode(GPIO.BCM)
-
-if __name__ == "__main__":
-    try:
-        m = Motor([16, 19, 20, 21])
-        while True:
-            m.calibrate()
-        
-        m.cleanup()
-        exit()
-        time.sleep(5)
-        
-        i = 0
-        
-        
-        while True:
-            i += 1
-            m.step_backward()
-            time.sleep(.01)
-
-    except:
-        import traceback
-        traceback.print_exc()
-    finally:
-        m.cleanup()

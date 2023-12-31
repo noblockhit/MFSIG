@@ -28,32 +28,50 @@
                 <img src="/live-stream" id="live-image" alt="It seems like you have not started the camera or it takes a long time to respond. In case this is intentional, please ignore this warning."/>
             </div>
             <div class="button-container">
-                <button>
-                    Motor
-                    <input
-                        type="range"
-                        id="slider"
-                        name="slider"
-                        min="-5"
-                        max="5"
-                    />
-                </button>
+                <div class="sub-button-container">
+                    
+                    <button class="tl unselectable" id="move-up">up</button>
+                    <button class="tr unselectable" id="move-up-2">UP</button>
 
-                <button id="move-down">Down</button>
-                <button id="move-up">Up</button>
+                    <form class="mr bbox" id="pos-in-steps">
+                        <label for="pos-in-steps">Pos</label>
+                        <input name="pos-in-steps-input" id="pos-in-steps-input" value="0"></input>
+                        <span>steps</span>
+                    </form>
 
-                <button id="set-ending">Set end</button>
-                <button id="set-start">Set start</button>
+                    <form class="ml bbox" id="pos-in-unit">
+                        <label for="pos-in-unit">Pos</label>
+                        <input name="pos-in-unit-input" id="pos-in-unit-input" value="0"></input>
+                        <span class="unit">mm</span>
+                    </form>
 
-                <button id="move-ending">Go to end</button>
-                <button id="move-start">Go to start</button>
+                    <button class="bl unselectable" id="move-down">down</button>
+                    <button class="br unselectable" id="move-down-2">DOWN</button>
+                </div>
+                
+                <div class="sub-button-container">
+                    <button class="tl unselectable" id="set-start">Set start</button>
+                    <button class="tr unselectable" id="set-ending">Set end</button>
 
-                <button id="ending">End: 0</button>
-                <button id="start">Start: 0</button>
+                    <form class="mr bbox" id="start-in-unit">
+                        <label for="start-in-unit">Pos</label>
+                        <input name="start-in-unit-input" id="start-in-unit-input" value="0"></input>
+                        <span class="unit">mm</span>
+                    </form>
+                    
+                    <form class="ml bbox" id="end-in-unit">
+                        <label for="end-in-unit">Pos</label>
+                        <input name="end-in-unit-input" id="end-in-unit-input" value="0"></input>
+                        <span class="unit">mm</span>
+                    </form>
 
-                <button id="current">Current: 0</button>
-                <button id="motor-controls">Next</button>
+                    <button class="bl unselectable" id="move-start">Go to start</button> 
+                    <button class="br unselectable" id="move-ending">Go to end</button>
+                </div>
+                <div class="sub-button-container">
+                    <button id="continue-to-stepsetter">Next</button>
+                </div>
             </div>
         </div>
     </body>
-</html>
+</html> 

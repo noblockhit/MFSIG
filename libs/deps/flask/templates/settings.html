@@ -25,6 +25,34 @@
     <body>
         <div class="container">
             <h1>Change the default Settings in case you don't use my exact layout!</h1>
+            <div class="sub-container" id="units">
+                <form autocomplete="off" action="" name="units-form" id="units-form">
+                    <label for="units-input">Units:</label>
+                    <select name="units-input" id="units-input">
+                        <option value="1">m</option>
+                        <option selected="selected" value="1000">mm</option>
+                        <option value="1000000">µm</option>
+                        <option value="1000000000">nm</option>
+                        <option value="1000000000000">pm</option>
+                    </select>
+                </form>
+            </div>
+
+            <div class="sub-container" id="motor-steps-per-rotation">
+                <form autocomplete="off" action="" name="motor-steps-per-rotation-form" id="motor-steps-per-rotation-form">
+                    <label for="motor-steps-per-rotation-input">Motor steps per rotation:</label>
+                    <input name="motor-steps-per-rotation-input" id="motor-steps-per-rotation-input" value="400"></input>
+                </form>
+            </div>
+
+            <div class="sub-container" id="distance-per-rotation">
+                <form autocomplete="off" action="" name="distance-per-rotation-form" id="distance-per-rotation-form">
+                    <label for="distance-per-rotation-input">Distance per rotation:</label>
+                    <input name="distance-per-rotation-input" id="distance-per-rotation-input" value="1000"></input>
+                    <p class="unit">mm</p>
+                </form>
+            </div>
+
             <div class="sub-container" id="gpio-default-on">
                 <form autocomplete="off" action="" name="gpio-default-on-form" id="gpio-default-on-form">
                     <label for="gpio-default-on-input">Whether the pins should be on or off by default:</label>
@@ -60,6 +88,62 @@
                     Confirm and test (The Camera should trigger once. (The resistance should drop heavily over the output in case you are using my circuit, but the voltage should remain, with the camera disconnected, very close to 0!))
                 </button>
                 <br><p>Hint: You are responsible for your own equipment and I will not cover any damage caused neither to the raspberry nor your camera. I strongly advise to measure resistance and voltage on your output cable! The default on option is still buggy with a GPIO connected camera, the testing doesn't always provide the expected result!</p>
+            </div>
+
+            <div class="sub-container" id="digi-cam-delay">
+                <form autocomplete="off" action="" name="digi-cam-delay-form" id="digi-cam-delay-form">
+                    <label for="digi-cam-delay-input">Delay between GPIO camera pictures: </label>
+                    <input name="digi-cam-delay-input" id="digi-cam-delay-input" value="1"></input>
+                    <p>s</p>
+                    <br><p>Hint: This can be really benefitial when using long exposure times, slow cameras or a flash that might tend to overheat (Use about 6 seconds when using flashes, data from experience)!</p>
+                </form>
+            </div>
+
+            <div class="sub-container" id="shake-rest-delay">
+                <form autocomplete="off" action="" name="shake-rest-delay-form" id="shake-rest-delay-form">
+                    <label for="shake-rest-delay-input">Delay between Motor rotaion and taking the next picture: </label>
+                    <input name="shake-rest-delay-input" id="shake-rest-delay-input" value="2"></input>
+                    <p>s</p>
+                    <br><p>Hint: The microscope (-table) tends to shake a little after moving the microscopetable which is getting amplified by the selected "zoom" on it and thus sometimes renders the image useless. In case you observe this on your camera, stop the recording and increase this value!</p>
+                </form>
+            </div>
+
+            <div class="sub-container" id="lowercase-motor-steps">
+                <form autocomplete="off" action="" name="lowercase-motor-steps-form" id="lowercase-motor-steps-form">
+                    <label for="lowercase-motor-steps-input">Steps taken by lowercase move buttons: </label>
+                    <input name="lowercase-motor-steps-input" id="lowercase-motor-steps-input" value="1"></input>
+                </form>
+            </div>
+
+            <div class="sub-container" id="uppercase-motor-steps">
+                <form autocomplete="off" action="" name="uppercase-motor-steps-form" id="uppercase-motor-steps-form">
+                    <label for="uppercase-motor-steps-input">Steps taken by UPPERCASE move buttons: </label>
+                    <input name="uppercase-motor-steps-input" id="uppercase-motor-steps-input" value="25"></input>
+                </form>
+            </div>
+
+            <div class="sub-container" id="sleep-time-after-step">
+                <form autocomplete="off" action="" name="sleep-time-after-step-form" id="sleep-time-after-step-form">
+                    <label for="sleep-time-after-step-input">Waiting duration after a step was made: </label>
+                    <input name="sleep-time-after-step-input" id="sleep-time-after-step-input" value="2.5"></input>
+                    <p>ms</p>
+                    <br><p>The Motor physically needs time to take a step and not stall or shake back to the original position, therefor, you need to adjust this value which sets the given time to take a step, based on the motor, microscope, transistor, input voltage/current and so on. It's best to test it using the GPIO setting confirmation for the motor above. Don't adjust this value too closely because environment differences can also influence the time this needs to be set to, longer delay is slower motor but lower risk of skipping steps!</p>
+                </form>
+            </div>
+
+            <div class="sub-container" id="whatsapp-number">
+                <form autocomplete="off" action="" name="whatsapp-number-form" id="whatsapp-number-form">
+                    <label for="whatsapp-number-input">Whatsapp notification number: </label>
+                    <input name="whatsapp-number-input" id="whatsapp-number-input" value=""></input>
+                    <br><p>Whatsapp number without double 00 or + at the beginning, just plain numbers, germany starting with 49</p>
+                </form>
+            </div>
+            
+            <div class="sub-container" id="whatsapp-api-key">
+                <form autocomplete="off" action="" name="whatsapp-api-key-form" id="whatsapp-api-key-form">
+                    <label for="whatsapp-api-key-input">Whatsapp api key: </label>
+                    <input name="whatsapp-api-key-input" id="whatsapp-api-key-input" value=""></input>
+                </form>
             </div>
 
             <a href="/" class="sub-container">

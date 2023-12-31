@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from typing import Any, ClassVar, get_type_hints, Union, _UnionGenericAlias
-import types
+from typing import Any, ClassVar, get_type_hints, Union
+import subprocess
 import werkzeug.serving as serving
 from platformdirs import user_config_dir
 from pathlib import Path
@@ -8,6 +8,7 @@ import os
 import json
 import time
 import colorama
+from typeguard import check_type, TypeCheckError
 
 
 if __name__ == '__main__':
@@ -27,6 +28,13 @@ SETTING_KEYS = {
     "GPIO_camera_pin": int,
     "distance_per_motor_rotation": float,
     "motor_rotation_units": int,
+    "digi_cam_delay": float,
+    "shake_rest_delay": float,
+    "lowercase_motor_steps": int,
+    "uppercase_motor_steps": int,
+    "sleep_time_after_step": float,
+    "whatsapp_number": str,
+    "whatsapp_api_key": str
 }
 
 
@@ -53,7 +61,6 @@ with open(str(CONFIGURATION_FILE_PATH), "r") as rf:
 class ABSType:
     pass
 
-
 class Meta(type):
     def __setattr__(self, __name: str, __value: Any) -> None:
         hints = get_type_hints(self)
@@ -61,26 +68,28 @@ class Meta(type):
         class_hint = hints.get(__name)
         if not class_hint:
             return super().__setattr__(__name, __value)
-        
         hint = class_hint.__dict__.get("__args__")[0]
-        can_be_none = isinstance(hint, _UnionGenericAlias)
+        try:
+            
+            v = check_type(__value, hint)
+            return super().__setattr__(__name, v)
+        except TypeCheckError:
+            raise ValueError(f"The property {__name} only takes {hint}, got {type(__value)} <{__value}> instead.")
 
-        if can_be_none:
-            possible_hints = hint.__dict__.get("__args__")
-        else:
-            possible_hints = [hint]
+abs_motor_type = type("Motor", (ABSType,), dict({
+    "step_forward": lambda *_:print("real motor position:", State.real_motor_position),
+    "step_backward": lambda *_:print("real motor position:", State.real_motor_position),
+    "cleanup": lambda *_:_,
+    "calibrate": lambda *_:_,
+}))
 
+def fake_snap_func(*_):
+    State.progress()
 
-        val_type = type(__value)
-        
-        for _hint in possible_hints:
-            if not (isinstance(_hint, types.FunctionType) or isinstance(_hint, types.LambdaType) or hasattr(_hint, "__self__")):
-                if (isinstance(__value, _hint) or (__value is None and can_be_none)) or (ABSType in _hint.__bases__ and val_type.__name__ == _hint.__name__):
-                        return super().__setattr__(__name, __value)
-        raise ValueError(f"The property {__name} only takes {possible_hints}, got {val_type} <{__value}> instead.")
-
-abs_motor_type = type("Motor", (ABSType,), dict())
-abs_camera_type = type("Camera", (ABSType,), dict())
+abs_camera_type = type("Camera", (ABSType,), dict({
+    "Close": lambda *_:_,
+    "Snap": fake_snap_func
+}))
 
 @dataclass
 class State(metaclass=Meta):
@@ -93,7 +102,7 @@ class State(metaclass=Meta):
     imgWidth: ClassVar[Union[int, None]]
     imgHeight: ClassVar[Union[int, None]]
     pData: ClassVar[Union[bytes, None]]
-    camera: ClassVar[Union[bmscam.Bmscam, abs_camera_type, None]]
+    camera: ClassVar[Union[bmscam.Bmscam, abs_camera_type]]
     recording: ClassVar[bool]
     start_motor_and_prepare_recording: ClassVar[bool]
     real_motor_position: ClassVar[int]
@@ -107,6 +116,7 @@ class State(metaclass=Meta):
     recording_progress: ClassVar[Union[int, None]]
     current_image_index: ClassVar[Union[int, None]]
     busy_capturing: ClassVar[bool]
+    current_recording_task: ClassVar[Union[str, None]]
     
     ## user configurables
     steps_per_motor_rotation: ClassVar[int]
@@ -115,11 +125,19 @@ class State(metaclass=Meta):
     GPIO_motor_pins: ClassVar[list]
     GPIO_camera_pin: ClassVar[Union[int, None]]
     GPIO_default_on: ClassVar[bool]
+    digi_cam_delay: ClassVar[float]
+    shake_rest_delay: ClassVar[float]
+    lowercase_motor_steps: ClassVar[int]
+    uppercase_motor_steps: ClassVar[int]
+    sleep_time_after_step: ClassVar[float]
+    whatsapp_number: ClassVar[str]
+    whatsapp_api_key: ClassVar[str]
 
 
     @classmethod
     def progress(cls):
-        State.recording_progress = int((State.current_image_index+1) / (State.image_count) * 100)
+        State.recording_progress = int((State.current_image_index) / (State.image_count) * 100)
+        print(State.recording_progress)
         State.busy_capturing = False
 
 
@@ -128,7 +146,7 @@ class State(metaclass=Meta):
         global SETTING_KEYS
         with open(str(CONFIGURATION_FILE_PATH), "w") as wf:
             content = json.dumps(
-                {key: getattr(State, key, default=None) for key in SETTING_KEYS.keys()},
+                {key: getattr(State, key, None) for key in SETTING_KEYS.keys()},
                 indent=4
             )
             wf.write(content)
@@ -166,3 +184,40 @@ class State(metaclass=Meta):
             State.distance_per_motor_rotation = j["distance_per_motor_rotation"]
         if "motor_rotation_units" in j.keys():
             State.motor_rotation_units = j["motor_rotation_units"]
+        
+
+        if "digi_cam_delay" in j.keys():
+            State.digi_cam_delay = j["digi_cam_delay"]
+
+        if "shake_rest_delay" in j.keys():
+            State.shake_rest_delay = j["shake_rest_delay"]
+        
+        if "lowercase_motor_steps" in j.keys():
+            State.lowercase_motor_steps = j["lowercase_motor_steps"]
+
+        if "uppercase_motor_steps" in j.keys():
+            State.uppercase_motor_steps = j["uppercase_motor_steps"]
+        
+        if "sleep_time_after_step" in j.keys():
+            State.sleep_time_after_step = j["sleep_time_after_step"]
+        
+        try:
+            if "whatsapp_number" in j.keys():
+                State.whatsapp_number = str(j["whatsapp_number"])
+        except ValueError:pass
+
+        try:
+            if "whatsapp_api_key" in j.keys():
+                State.whatsapp_api_key = str(j["whatsapp_api_key"])
+        except ValueError:pass
+
+def outgoing_webrequest(func):
+    def wrapper(*args, **kwargs):
+        if State.isGPIO:
+            subprocess.run("sudo systemctl stop dnsmasq".split(" "))
+        ret = func(*args, **kwargs)
+        if State.isGPIO:
+            subprocess.run("sudo systemctl start dnsmasq".split(" "))
+        return ret
+    return wrapper
+        

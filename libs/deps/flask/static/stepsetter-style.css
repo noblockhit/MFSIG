@@ -55,10 +55,6 @@
     margin: 1em;
 }
 
-#units-form select,
-#units-form option,
-#distance-per-rotation input,
-#motor-steps-per-rotation-form input,
 #image-delta-distance input,
 #total-image-amount-form input {
     border: none;
