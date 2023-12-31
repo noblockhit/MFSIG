@@ -21,6 +21,7 @@ def p_off(pin):
 class Motor(abs_motor_type):
     def __init__(self, pins):
         for pin in pins:
+            GPIO.setup(pin, GPIO.OUT)
             p_off(pin)
         self.pins = pins
         self.bake_instructions()
