@@ -13,18 +13,12 @@ $(window).on("load", function () {
             type: "POST",
             dataType: "text",
             success: function (data) {
-                console.log("success " + data);
                 $("#reso-select").html(
                     `<option value="-1" selected disabled hidden>No resolution selected...</option>` +
                         data
                 );
                 adjust_option_width();
-            },
-
-            error: function (err) {
-                console.log("Ajax error:");
-                console.log(err);
-            },
+            }
         });
     });
 
@@ -82,11 +76,7 @@ function update_sub_dirs() {
                 update_sub_dirs();
             })
 
-        },
-        error: function (err) {
-            console.log("Ajax error:");
-            console.log(err);
-        },
+        }
     });
 }
 
@@ -97,11 +87,7 @@ function update_curr_image_dir() {
         success: function (data) {
             $("#save-input").val(data);
             update_sub_dirs();
-        },
-        error: function (err) {
-            console.log("Ajax error:");
-            console.log(err);
-        },
+        }
     });
 
     

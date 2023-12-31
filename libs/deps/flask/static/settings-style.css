@@ -59,16 +59,16 @@ a.sub-container {
     text-align: center;
 }
 
-#gpio-default-on-form select,
-#gpio-default-on-form option,
-#gpio-camera-pin-form input,
-#gpio-motor-pins-form input {
+select,
+option,
+input {
     border: none;
     border-bottom: 2px solid white;
     background-color: black;
     padding: .5em;
     margin: .5em;
     margin-left: auto;
+    width: 8em;
 }
 
 .sub-container p {

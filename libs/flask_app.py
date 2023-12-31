@@ -10,7 +10,8 @@ from pathlib import Path
 import os
 import json
 from libs import cameraParser
-from .state import State, SETTING_KEYS
+from .state import State, SETTING_KEYS, abs_motor_type, abs_camera_type
+import socket
 
 
 org_mk_server = serving.make_server
@@ -71,7 +72,7 @@ def reset_camera_properties():
 
     State.curr_device = None
     State.resolution_idx = None
-    State.camera = None
+    State.camera = abs_camera_type()
     State.microscope_start = 0
     State.microscope_end = 0
     State.microscope_position = 0
@@ -80,8 +81,10 @@ def reset_camera_properties():
     State.start_motor_and_prepare_recording_running = False
     State.image_count = 1
     State.recording_progress = None
+    State.current_recording_task = None
     State.current_image_index = 0
     State.busy_capturing = False
+    State.with_bms_cam = False
 
     ## possible user configs
     State.distance_per_motor_rotation = 100.0
@@ -90,12 +93,22 @@ def reset_camera_properties():
     State.GPIO_motor_pins = [21, 20, 19, 16]
     State.GPIO_default_on = False
     State.GPIO_camera_pin = 26
+    State.digi_cam_delay = 1
+    State.shake_rest_delay = 2
+    State.lowercase_motor_steps = 1
+    State.uppercase_motor_steps = 25
+    State.sleep_time_after_step = 2.5
+    State.whatsapp_api_key = ""
+    State.whatsapp_number = ""
+
 
     State.load_configuration()
 
     if State.isGPIO:
         State.motor = gpio_handler.Motor(State.GPIO_motor_pins)
         State.motor.calibrate()
+    else:
+        State.motor = abs_motor_type()
 
 
 reset_camera_properties()
@@ -103,8 +116,7 @@ reset_camera_properties()
 
 @app.route("/settings/<_key>", methods=["GET"])
 def get_setting(_key):
-    return str(getattr(State, _key.replace("-","_"), default="")), 200
-
+    return str(getattr(State, _key.replace("-","_"), "")), 200
 
 @app.route("/settings/<_key>/<value>", methods=["POST"])
 def set_setting(_key, value):
@@ -131,8 +143,7 @@ def set_setting(_key, value):
             temp_camera.Close()
             del temp_camera
         else:
-            print("There is no GPIO connection so this couldn't be tested, the value was set regardless!")
-            return "There is no GPIO connection so this couldn't be tested, the value was set regardless!", 400
+            return "There is no GPIO connection so this couldn't be tested, the value was set regardless!", 299
         
     
     if key == "GPIO_motor_pins":
@@ -149,11 +160,10 @@ def set_setting(_key, value):
                 time.sleep(.5)
 
         else:
-            print("There is no GPIO connection so this couldn't be tested, the value was set regardless!")
-            return "There is no GPIO connection so this couldn't be tested, the value was set regardless!", 400
+            return "There is no GPIO connection so this couldn't be tested, the value was set regardless!", 299
     
     if key in _perm_and_reload_requiering:
-        return "Warning, the changes made to the motor to prepare a recording have been reset by a reload", 400
+        return "Warning, the changes made to the motor to prepare a recording have been reset by a reload", 299
     return "", 200
 
 @app.route("/cam-select")
@@ -177,7 +187,7 @@ def liveview():
     if State.with_bms_cam:
         if (State.curr_device is None or 
             State.resolution_idx is None):
-            return "One or more of the parameters necessary for the BMS camera have not been set, please return to the main page and choose to use another way of capturing an image or set all the necessary parameters!"
+            return "One or more of the parameters necessary for the BMS camera have not been set, please return to the main page and choose to use another way of capturing an image or set all the necessary parameters!", 400
     
         if State.camera is not None:
             State.camera.Close()
@@ -207,6 +217,8 @@ def liveview():
     else:
         if State.isGPIO:
             State.camera = gpio_handler.Camera(State.GPIO_camera_pin)
+        else:
+            State.camera = abs_camera_type()
 
     return render_template("liveview.html")
 
@@ -227,6 +239,8 @@ def favicon():
 
 @app.route("/image-count/<count>", methods=["POST"])
 def set_image_count(count):
+    if State.recording:
+        return "Currently recording, change the value when done or abort the program!", 400
     State.image_count = int(float(count))
     return "", 200
 
@@ -242,11 +256,15 @@ def get_cameras():
 
 @app.route("/camera/<camera_idx>", methods=["POST"])
 def set_camera(camera_idx):
+    if State.recording:
+        return "Currently recording, change the value when done or abort the program!", 400
     if State.curr_device is not None:
         reset_camera_properties()
-
-    State.curr_device = State.bms_enum[int(camera_idx)]
-
+    try:
+        State.curr_device = State.bms_enum[int(camera_idx)]
+    except AttributeError:
+        return "Failed to select this device, try loading this page again and reselecting the camera!", 400
+    
     ret = ""
     for idx, reso in cameraParser.get_current_devices_resolution_options(State.curr_device):
         ret += f'<option value="{idx}">{reso[0]} x {reso[1]}</option>\n'
@@ -256,6 +274,8 @@ def set_camera(camera_idx):
 
 @app.route("/resolution/<reso_idx>", methods=["POST"])
 def set_resolution(reso_idx):
+    if State.recording:
+        return "Currently recording, change the value when done or abort the program!", 400
     State.resolution_idx = int(reso_idx)
     return "", 200
 
@@ -292,7 +312,7 @@ def start_recording():
         return "Already started recording", 400
     
     if State.image_count <= 1:
-        return "You may not take less than 2 images!"
+        return "You may not take less than 2 images!", 400
 
     if State.image_count > abs(State.microscope_end - State.microscope_start):
         return "You may not take more images than Steps taken by the motor, this is redundant due to having multiple images in the same position.", 400
@@ -306,45 +326,69 @@ def current_pos():
     return str(State.microscope_position)
 
 
-@app.route("/microscope/move/<amount>")
-def move_down(amount):
-    State.microscope_position += int(amount)
+@app.route("/microscope/move-by/<amount>")
+def move_by(amount):
+    if State.recording:
+        return "Currently recording, change the value when done or abort the program!", 400
+    State.microscope_position += int(float(amount))
+    return str(State.microscope_position)
+
+@app.route("/microscope/move-to/<position>")
+def move_to(position):
+    if State.recording:
+        return "Currently recording, change the value when done or abort the program!", 400
+    State.microscope_position = int(float(position))
     return str(State.microscope_position)
 
 
 @app.route("/microscope/move/start", methods=["GET"])
 def move_start():
+    if State.recording:
+        return "Currently recording, change the position when done or abort the program!", 400
     State.microscope_position = State.microscope_start
     return str(State.microscope_position)
 
 
 @app.route("/microscope/move/end", methods=["GET"])
 def move_end():
+    if State.recording:
+        return "Currently recording, change the position when done or abort the program!", 400
     State.microscope_position = State.microscope_end
     return str(State.microscope_position)
 
 
-@app.route("/microscope/start", methods=["GET", "POST"])
-def set_start():
+@app.route("/microscope/start", methods=["GET", "POST"], defaults={"pos": None})
+@app.route("/microscope/start/<pos>", methods=["POST"])
+def set_start(pos):
     if request.method == "POST":
-        State.microscope_start = State.microscope_position
-
-    elif request.method == "CONNECT":
-        State.microscope_position = State.microscope_start
+        if State.recording:
+            return "Currently recording, change the value when done or abort the program!", 400
+        if pos:
+            State.microscope_start = int(float(pos))
+        else:
+            State.microscope_start = State.microscope_position
 
     return str(State.microscope_start)
 
 
-@app.route("/microscope/end",  methods=["GET", "POST"])
-def set_end():
+@app.route("/microscope/end",  methods=["GET", "POST"], defaults={"pos": None})
+@app.route("/microscope/end/<pos>", methods=["POST"])
+def set_end(pos):
     if request.method == "POST":
-        State.microscope_end = State.microscope_position
+        if State.recording:
+            return "Currently recording, change the value when done or abort the program!", 400
+        if pos:
+            State.microscope_end = int(float(pos))
+        else:
+            State.microscope_end = State.microscope_position
 
     return str(State.microscope_end)
 
 
 @app.route("/live-stream")
 def live_stream():
+    if not State.with_bms_cam:
+        return Response("You chose not to use a bms camera, rather one controlled by the GPIO!", 299)
     if not State.imgWidth or not State.imgHeight or not State.pData:
         return Response("The camera has seemingly not been started yet", status=400)
 
@@ -354,4 +398,8 @@ def live_stream():
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
 def catch_all(path):
-    return redirect("http://10.3.141.1/cam-select")
+    if State.isGPIO:
+        ip = "10.3.141.1"
+    else:
+        ip = socket.gethostbyname(socket.gethostname())
+    return redirect(f"http://{ip}/cam-select")
