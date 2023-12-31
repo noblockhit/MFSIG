@@ -1,11 +1,9 @@
 import time
 import datetime
-import sys
 import os
 import threading
 from libs import flask_app
 from libs.state import State
-import socket
 import websockets
 from websockets.server import serve
 import asyncio
@@ -55,12 +53,12 @@ def start_motor_and_prepare_recording():
         if distance_to_start > 0:
             for _ in range(distance_to_start):
                 State.motor.step_forward()
-                time.sleep(0.001) ## not entirely sure why this is necessary, the motor stalls when not, but a delay should technically already be implemented into the step function, might need to change it to a clocking system in the future to streamline the delay regardless of code expense (time spent calculating) inbetween two steps
+                State.real_motor_position += 1
 
         elif distance_to_start < 0:
             for _ in range(-distance_to_start):
                 State.motor.step_backward()
-                time.sleep(0.001) ## not entirely sure why this is necessary, the motor stalls when not, but a delay should technically already be implemented into the step function, might need to change it to a clocking system in the future to streamline the delay regardless of code expense (time spent calculating) inbetween two steps
+                State.real_motor_position -= 1
 
         State.microscope_position = State.real_motor_position = State.microscope_start
 
@@ -81,8 +79,7 @@ def start_motor_and_prepare_recording():
         for ts_curr in target_steps:
             for _ in range(ts_curr - State.real_motor_position):
                 State.motor.step_forward()
-
-            State.real_motor_position = ts_curr
+                State.real_motor_position += 1
 
             time.sleep(State.shake_rest_delay)
             State.current_image_index += 1
