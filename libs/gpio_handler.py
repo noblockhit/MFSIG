@@ -51,7 +51,7 @@ class Motor(abs_motor_type):
         self.step += 1
         if self.step > self.instructuion_length*4:
             self.step = (self.step % self.instructuion_length) + self.instructuion_length
-        time.sleep(State.sleep_time_after_step / 1000 - (time.perf_counter_ns() - start)*10**-9)
+        time.sleep(max(0, (State.sleep_time_after_step / 1000) - (time.perf_counter_ns() - start)*10**-9))
 
     def step_backward(self):
         start = time.perf_counter_ns()
@@ -65,7 +65,7 @@ class Motor(abs_motor_type):
 
         if self.step < self.instructuion_length:
             self.step = self.step + self.instructuion_length
-        time.sleep(State.sleep_time_after_step / 1000 - (time.perf_counter_ns() - start)*10**-9)
+        time.sleep(max(0, (State.sleep_time_after_step / 1000) - (time.perf_counter_ns() - start)*10**-9))
 
 
     def cleanup(self):
