@@ -545,16 +545,16 @@ if __name__ == '__main__':
             statistics_calc_time_start = time.time_ns()
 
             meta_data_lst = [
-                                f"\"Radius\": {radius}X{radius}px mesh\n\n"
-                                f"Exported output image: {exported_img}\n",
-                                f"Exported sharpness map: {exported_shrp}\n",
-                                f"Exported changes map: {exported_chng}\n\n",
+                                f'"Radius":                     {radius}X{radius}px mesh\n\n'
+                                f"Exported output image:        {exported_img}\n",
+                                f"Exported sharpness map:       {exported_shrp}\n",
+                                f"Exported changes map:         {exported_chng}\n\n",
 
-                                f"Min sharpness: {np.amin(sharpnesses_gpu):.5f} / 1\n",
-                                f"Max sharpness: {np.amax(sharpnesses_gpu):.5f} / 1\n",
+                                f"Min sharpness:                {np.amin(sharpnesses_gpu):.5f} / 1\n",
+                                f"Max sharpness:                {np.amax(sharpnesses_gpu):.5f} / 1\n",
 
-                                f"Average sharpness: {np.average(sharpnesses_gpu):.5f} / 1\n",
-                                f"Median sharpness: {np.median(sharpnesses_gpu):.5f} / 1\n\n",
+                                f"Average sharpness:            {np.average(sharpnesses_gpu):.5f} / 1\n",
+                                f"Median sharpness:             {np.median(sharpnesses_gpu):.5f} / 1\n\n",
                             ]
             
             pxl_nums = []
@@ -563,28 +563,29 @@ if __name__ == '__main__':
                     continue
                 pxl_nums.append(count)
                 meta_data_lst.append(
-                    f"Pixels used from image {list(image_arr_dict.keys())[number-1]}: {count} ({(count / (len(changes_arr)-1) * 100):.2f}%)\n")
+                    f"Pixels used from image {list(image_arr_dict.keys())[number-1]}: \t{count:{len(str(output_img.shape[0]*output_img.shape[1]))}d} ({(count / (len(changes_arr)-1) * 100):.2f}%)\n")
 
             meta_data_lst.append("\n")
             
             min_pxls_used = min(pxl_nums)
             max_pxls_used = max(pxl_nums)
-            meta_data_lst.append(f"Min count of pixels used: {min_pxls_used} ({(min_pxls_used / (len(changes_arr)-1) * 100):.2f}%)\n")
-            meta_data_lst.append(f"Max count of pixels used: {max_pxls_used} ({(max_pxls_used / (len(changes_arr)-1) * 100):.2f}%)\n")
+                                   
+            meta_data_lst.append(f"Min count of pixels used:     {min_pxls_used} ({(min_pxls_used / (len(changes_arr)-1) * 100):.2f}%)\n")
+            meta_data_lst.append(f"Max count of pixels used:     {max_pxls_used} ({(max_pxls_used / (len(changes_arr)-1) * 100):.2f}%)\n")
 
             avg_pxls_used = statistics.mean(pxl_nums)
             mdn_pxls_used = statistics.median(pxl_nums)
-            meta_data_lst.append(f"Average sharpness: {avg_pxls_used} ({(avg_pxls_used / (len(changes_arr)-1) * 100):.2f}%)\n")
-            meta_data_lst.append(f"Median sharpness: {mdn_pxls_used} ({(mdn_pxls_used / (len(changes_arr)-1) * 100):.2f}%)\n")
+            meta_data_lst.append(f"Average count of pixels used: {avg_pxls_used} ({(avg_pxls_used / (len(changes_arr)-1) * 100):.2f}%)\n")
+            meta_data_lst.append(f"Median count of pixels used:  {mdn_pxls_used} ({(mdn_pxls_used / (len(changes_arr)-1) * 100):.2f}%)\n")
 
 
             ## meta-meta statistics
             statistics_delta_time = (time.time_ns() - statistics_calc_time_start) / (10 ** 9)
             meta_data_lst.append("\n\n")
-            meta_data_lst.append(f"Loading images took {loading_time} seconds\n")
-            meta_data_lst.append(f"Rendering images took {rendering_time} seconds \n")
+            meta_data_lst.append(f"Loading images took           {loading_time:.5f} seconds\n")
+            meta_data_lst.append(f"Rendering images took         {rendering_time:.5f} seconds\n")
 
-            meta_data_lst.append(f"Statistics took {statistics_delta_time:.5f} seconds to compute\n")
+            meta_data_lst.append(f"Statistics took               {statistics_delta_time:.5f} seconds to compute\n")
 
             meta_data_file_name = ".".join(file_name.split(".")[:-1] + ["metadata.txt"])
 
