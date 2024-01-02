@@ -116,6 +116,8 @@ reset_camera_properties()
 
 @app.route("/settings/<_key>", methods=["GET"])
 def get_setting(_key):
+    if "whatsapp" in _key.lower():
+        return "Not so fast, i thought of this...", 200
     return str(getattr(State, _key.replace("-","_"), "")), 200
 
 @app.route("/settings/<_key>/<value>", methods=["POST"])
