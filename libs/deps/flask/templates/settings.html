@@ -108,6 +108,15 @@
                 </form>
             </div>
 
+            <div class="sub-container" id="sleep-time-after-step">
+                <form autocomplete="off" action="" name="sleep-time-after-step-form" id="sleep-time-after-step-form">
+                    <label for="sleep-time-after-step-input">Waiting duration after a step was made: </label>
+                    <input name="sleep-time-after-step-input" id="sleep-time-after-step-input" value="2.5"></input>
+                    <p>ms</p>
+                    <br><p>The Motor physically needs time to take a step and not stall or shake back to the original position, therefor, you need to adjust this value which sets the given time to take a step, based on the motor, microscope, transistor, input voltage/current and so on. It's best to test it using the GPIO setting confirmation for the motor above. Don't adjust this value too closely because environment differences can also influence the time this needs to be set to, longer delay is slower motor but lower risk of skipping steps!</p>
+                </form>
+            </div>
+
             <div class="sub-container" id="lowercase-motor-steps">
                 <form autocomplete="off" action="" name="lowercase-motor-steps-form" id="lowercase-motor-steps-form">
                     <label for="lowercase-motor-steps-input">Steps taken by lowercase move buttons: </label>
@@ -119,15 +128,6 @@
                 <form autocomplete="off" action="" name="uppercase-motor-steps-form" id="uppercase-motor-steps-form">
                     <label for="uppercase-motor-steps-input">Steps taken by UPPERCASE move buttons: </label>
                     <input name="uppercase-motor-steps-input" id="uppercase-motor-steps-input" value="25"></input>
-                </form>
-            </div>
-
-            <div class="sub-container" id="sleep-time-after-step">
-                <form autocomplete="off" action="" name="sleep-time-after-step-form" id="sleep-time-after-step-form">
-                    <label for="sleep-time-after-step-input">Waiting duration after a step was made: </label>
-                    <input name="sleep-time-after-step-input" id="sleep-time-after-step-input" value="2.5"></input>
-                    <p>ms</p>
-                    <br><p>The Motor physically needs time to take a step and not stall or shake back to the original position, therefor, you need to adjust this value which sets the given time to take a step, based on the motor, microscope, transistor, input voltage/current and so on. It's best to test it using the GPIO setting confirmation for the motor above. Don't adjust this value too closely because environment differences can also influence the time this needs to be set to, longer delay is slower motor but lower risk of skipping steps!</p>
                 </form>
             </div>
 
