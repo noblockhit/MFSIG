@@ -291,7 +291,7 @@ def on_load_new_image():
             qs.show(f"image", image, alias="image")
             qs.show(f"keyed", keyed, alias="keyed")
             qs.show(f"edges_result", edges_result, alias="edges_result")
-            key_ord = cv2.waitKey(0)
+            key_ord = cv2.waitKey(5)
             
             if key_ord == ord("q"):
                 shown_index -= 1
