@@ -604,7 +604,7 @@ if __name__ == '__main__':
         
 
 
-    save_selected_button = customtkinter.CTkButton(settings_frame, text="Save Shown Images", command=on_save_selected_button)
+    save_selected_button = customtkinter.CTkButton(settings_frame, text="Save shown images", command=on_save_selected_button)
     save_selected_button.grid(pady=5, row=5, column=0, sticky="nw")
 
     ## previews

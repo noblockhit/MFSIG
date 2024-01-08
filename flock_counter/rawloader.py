@@ -24,6 +24,7 @@ def load_raw_image(path, brightness: Union[float, int, str]=1):
                 uint_16_demosaiced = cv2.cvtColor(raw_array, 46)
                 brightness = 65535/np.amax(uint_16_demosaiced)
                 return cv2.convertScaleAbs(uint_16_demosaiced, alpha=(255.0/65535.0) * 16 * brightness)
+            raise ValueError(f"brightness must be \"auto\", float or an int, not {brightness}")
         else:
             return cv2.convertScaleAbs(cv2.cvtColor(raw_array, 46), alpha=(255.0/65535.0) * 16 * brightness)
 

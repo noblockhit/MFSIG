@@ -155,7 +155,7 @@ def load_and_evaluate_image(args):
             image = cv2.cvtColor(cv2.imread(name), cv2.COLOR_BGR2RGB)
 
         elif any(name.lower().endswith(ending) for ending in FILE_EXTENTIONS["RAW"]):
-            image = load_raw_image(name, "auto")
+            image = load_raw_image(name, 35)
 
         if image.shape[0] > image.shape[1]:
             image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
@@ -182,7 +182,7 @@ def line_generator_gpu(data_x, data_y, data_z, radiuses, lines):
 
     mod = SourceModule("""
     __global__ void createLines(int *data_x, int *data_y, int *data_z,
-                                int *length_arr, int* maximum_distance_arr, int*image_distance_to_pixel_factor_arr
+                                int *length_arr, int* maximum_distance_arr, int*image_distance_to_pixel_factor_arr,
                                 int *lines_x, int *lines_y, int *lines_z) {
         const int length = length_arr[0];
         const int maximum_distance = maximum_distance_arr[0];
@@ -219,8 +219,7 @@ def line_generator_gpu(data_x, data_y, data_z, radiuses, lines):
             lines_x[thrd_i*3] = x;
             lines_y[thrd_i*3] = y;
             lines_z[thrd_i*3] = z;
-        }
-                       
+        }             
     }""")
 
     create_lines = mod.get_function("createLines")
@@ -268,6 +267,7 @@ def on_load_new_image():
     
     satisfied = False
     first_load = True
+    shown_index = 0
     while not satisfied:
         all_circles = []
         if first_load:
@@ -278,18 +278,35 @@ def on_load_new_image():
         args = [(idx, img, KEYING_BLUR_RADIUS, KEYING_MASK_THRESHHOLD, CANNY_THRESHHOLD_1, MIN_RADIUS, MAX_RADIUS) for idx, img in args]
         images_and_circles = mp.Pool(min(MAX_CORES_FOR_MP, len(image_paths))).map(load_and_evaluate_image, args)
         
-        for idx, name, image, keyed, edges_result, circles in images_and_circles:
-            qs.show("image", image)
-            qs.show("keyed", keyed)
-            qs.show("edges_result", edges_result)
-            cv2.waitKey(2000)
 
+        for _, name, image, _, _, circles in images_and_circles:
             if name not in imgs.keys():
-                print("loaded and evaluated", name)
                 imgs[name] = image
-            else:
-                print("evaluated", name)
             all_circles += circles
+        
+        while True:
+            idx, name, image, keyed, edges_result, _ = images_and_circles[shown_index]
+            # cv2.destroyAllWindows()
+            print(shown_index)
+            qs.show(f"image", image, alias="image")
+            qs.show(f"keyed", keyed, alias="keyed")
+            qs.show(f"edges_result", edges_result, alias="edges_result")
+            key_ord = cv2.waitKey(0)
+            
+            if key_ord == ord("q"):
+                shown_index -= 1
+            elif key_ord == ord("e"):
+                shown_index += 1
+            elif key_ord == ord("r"):
+                cv2.destroyAllWindows()
+                break
+            
+            elif key_ord == ord("s"):
+                satisfied = True
+                cv2.destroyAllWindows()
+                break
+            
+            shown_index = (shown_index+len(images_and_circles)) % len(images_and_circles)
 
         
     return imgs, all_circles
