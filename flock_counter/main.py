@@ -11,6 +11,17 @@ import pycuda.driver as drv
 from pycuda.compiler import SourceModule
 
 
+global KEYING_BLUR_RADIUS
+global KEYING_MASK_THRESHHOLD
+global CANNY_THRESHHOLD_1
+global MIN_RADIUS
+global MAX_RADIUS
+global IMAGE_DISTANCE_TO_PIXEL_FACTOR
+global MAXIMUM_PLANAR_DISTANCE_TO_SAME_TIP
+global MAX_CORES_FOR_MP
+global PREVIEW_IMAGE_HEIGHT
+
+
 KEYING_BLUR_RADIUS = 1
 KEYING_MASK_THRESHHOLD = 180
 CANNY_THRESHHOLD_1 = 140
@@ -55,6 +66,61 @@ colors = [
     (128, 146, 80),
     (118, 21, 80)
 ]
+
+
+class Slider:
+    sliders = []
+    @staticmethod
+    def __call__(event, x, y, flags, param):
+        for sl in Slider.sliders:
+            if sl.x <= x <= sl.x + sl.width and sl.y <= y <= sl.y + sl.height:
+                if event == cv2.EVENT_MOUSEWHEEL:
+                    if flags > 0:
+                        sl.value = min(sl.max_val, sl.value + sl.step_size)
+                    else:
+                        sl.value = max(sl.min_val, sl.value - sl.step_size)
+                
+                elif event == cv2.EVENT_LBUTTONDOWN:
+                    percentage = (x - sl.x) / sl.width
+                    exact_amout = percentage * sl.max_val
+                    
+                    sl.value = min(sl.max_val, max(sl.min_val, round(exact_amout / sl.step_size) * sl.step_size))
+                    
+                break
+                    
+        
+    def __init__(self, min_val, max_val, step_size, value, x, y, width, height, name):
+        self.min_val = min_val
+        self.max_val = max_val
+        self.step_size = step_size
+        self.value = value
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.name = name
+        Slider.sliders.append(self)
+    
+    
+    def draw(self, surface):
+        n_text_width, n_text_height = cv2.getTextSize(self.name, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)[0]
+        n_text_y = int(self.y + n_text_height*1.25)
+        n_text_x = int(self.x - n_text_width - 5)
+        cv2.putText(surface, self.name, (n_text_x, n_text_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+        
+        
+        cv2.rectangle(surface, (self.x-1, self.y-1), (self.x + self.width+1, self.y + self.height+1), (255, 255, 255), -1)
+        cv2.rectangle(surface, (self.x, self.y), (self.x + self.width, self.y + self.height), (0, 0, 0), -1)
+        cv2.rectangle(surface, (self.x, self.y), (self.x + int(self.value/self.max_val* self.width), self.y + self.height), (255, 0, 0), -1)
+        v_text_width, v_text_height = cv2.getTextSize(str(self.value), cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)[0]
+        v_text_y = int(self.y + v_text_height*1.25)
+        v_text_x = int(self.x + self.value/self.max_val* self.width)
+        
+        if self.value/self.max_val >= .5:
+            v_text_x -= v_text_width
+
+        cv2.putText(surface, str(self.value), (v_text_x, v_text_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+
 
 class qs:
     name_and_pos = {}
@@ -149,6 +215,7 @@ def generate_circles(idx, image_name, input_img, keying_blur_radius, keying_mask
 
 def load_and_evaluate_image(args):
     idx, imagename_or_img, keying_blur_radius, keying_mask_threshhold, canny_threshhold_1, min_radius, max_radius = args
+    print(keying_mask_threshhold)
     if isinstance(imagename_or_img, str):
         name = imagename_or_img
         if any(name.lower().endswith(ending) for ending in FILE_EXTENTIONS["CV2"]):
@@ -176,6 +243,16 @@ def find_nearest_pow_2(val):
 
 
 def line_generator_gpu(data_x, data_y, data_z, radiuses, lines):
+    global KEYING_BLUR_RADIUS
+    global KEYING_MASK_THRESHHOLD
+    global CANNY_THRESHHOLD_1
+    global MIN_RADIUS
+    global MAX_RADIUS
+    global IMAGE_DISTANCE_TO_PIXEL_FACTOR
+    global MAXIMUM_PLANAR_DISTANCE_TO_SAME_TIP
+    global MAX_CORES_FOR_MP
+    global PREVIEW_IMAGE_HEIGHT
+
     drv.init()
     dev = drv.Device(0)
     ctx = dev.make_context()
@@ -251,8 +328,51 @@ def line_generator_gpu(data_x, data_y, data_z, radiuses, lines):
     lines[1] = [y if y >= 0 else None for y in lines_y]
     lines[2] = [z if z >= 0 else None for z in lines_z]
 
+global FIRST_SHOW
+FIRST_SHOW = True
+def show_previews(image, keyed, edges_result):
+    global FIRST_SHOW
+    IMG_WIDTH = 640
+    for idx, (name, img) in enumerate([("image", image), ("keyed", keyed), ("edges", edges_result)]):
+        ar = img.shape[1] / img.shape[0]
+        if ar > 1:
+            img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+            ar = img.shape[1] / img.shape[0]
+
+        width = IMG_WIDTH
+        height = int(width/ar)
+        img = cv2.resize(img, (width, height))
+        if name == "image":            
+            for sl in Slider.sliders:
+                sl.draw(img)
+            
+        cv2.imshow(name, img)
+        if FIRST_SHOW:
+            cv2.moveWindow(name, IMG_WIDTH*idx, 0)
+    FIRST_SHOW = False
+    cv2.setMouseCallback("image", Slider.__call__)
+
 
 def on_load_new_image():
+    global KEYING_BLUR_RADIUS
+    global KEYING_MASK_THRESHHOLD
+    global CANNY_THRESHHOLD_1
+    global MIN_RADIUS
+    global MAX_RADIUS
+    global IMAGE_DISTANCE_TO_PIXEL_FACTOR
+    global MAXIMUM_PLANAR_DISTANCE_TO_SAME_TIP
+    global MAX_CORES_FOR_MP
+    global PREVIEW_IMAGE_HEIGHT
+
+    KBR_slider = Slider(1, 5, 1, KEYING_BLUR_RADIUS, 250, 5, 350, 20, "Keying blur radius")
+    KMT_slider = Slider(1, 255, 1, KEYING_MASK_THRESHHOLD, 250, 30, 350, 20, "Keying masks thresh")
+    CANNY_slider = Slider(1, 255, 1, CANNY_THRESHHOLD_1, 250, 55, 350, 20, "Canny Thresh")
+    MINR_slider = Slider(50, 150, 1, MIN_RADIUS, 250, 80, 350, 20, "Min radius")
+    MAXR_slider = Slider(1, 100, 1, MAX_RADIUS, 250, 105, 350, 20, "Max radius")
+    IDTPF_slider = Slider(5, 100, 1, IMAGE_DISTANCE_TO_PIXEL_FACTOR, 250, 130, 350, 20, "Image distance")
+    MPDTST_slider = Slider(50, 400, 1, MAXIMUM_PLANAR_DISTANCE_TO_SAME_TIP, 250, 155, 350, 20, "Min tip distance")
+
+
     imgs = collections.OrderedDict({})
 
     selected_img_files = filedialog.askopenfiles(title="Open Images for the render queue", filetypes=[("Image-files", ".tiff .tif .png .jpg .jpeg .RAW .NEF")])
@@ -276,6 +396,7 @@ def on_load_new_image():
         else:
             args = enumerate(imgs.items())
         args = [(idx, img, KEYING_BLUR_RADIUS, KEYING_MASK_THRESHHOLD, CANNY_THRESHHOLD_1, MIN_RADIUS, MAX_RADIUS) for idx, img in args]
+
         images_and_circles = mp.Pool(min(MAX_CORES_FOR_MP, len(image_paths))).map(load_and_evaluate_image, args)
         
 
@@ -287,12 +408,16 @@ def on_load_new_image():
         while True:
             idx, name, image, keyed, edges_result, _ = images_and_circles[shown_index]
             # cv2.destroyAllWindows()
-            print(shown_index)
-            qs.show(f"image", image, alias="image")
-            qs.show(f"keyed", keyed, alias="keyed")
-            qs.show(f"edges_result", edges_result, alias="edges_result")
-            key_ord = cv2.waitKey(5)
-            
+            show_previews(image, keyed, edges_result)
+            key_ord = cv2.waitKey(1)
+            KEYING_BLUR_RADIUS = KBR_slider.value
+            KEYING_MASK_THRESHHOLD = KMT_slider.value
+            CANNY_THRESHHOLD_1 = CANNY_slider.value
+            MAX_RADIUS = MAXR_slider.value
+            MIN_RADIUS = MINR_slider.value
+            IMAGE_DISTANCE_TO_PIXEL_FACTOR = IDTPF_slider.value
+            MAXIMUM_PLANAR_DISTANCE_TO_SAME_TIP = MPDTST_slider.value
+
             if key_ord == ord("q"):
                 shown_index -= 1
             elif key_ord == ord("e"):
