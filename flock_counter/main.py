@@ -215,7 +215,6 @@ def generate_circles(idx, image_name, input_img, keying_blur_radius, keying_mask
 
 def load_and_evaluate_image(args):
     idx, imagename_or_img, keying_blur_radius, keying_mask_threshhold, canny_threshhold_1, min_radius, max_radius = args
-    print(keying_mask_threshhold)
     if isinstance(imagename_or_img, str):
         name = imagename_or_img
         if any(name.lower().endswith(ending) for ending in FILE_EXTENTIONS["CV2"]):
@@ -242,7 +241,7 @@ def find_nearest_pow_2(val):
             return 2**i
 
 
-def line_generator_gpu(data_x, data_y, data_z, radiuses, lines):
+def line_generator_gpu(circles_x_coords, circles_y_coords, circles_z_coords, radiuses, lines):
     global KEYING_BLUR_RADIUS
     global KEYING_MASK_THRESHHOLD
     global CANNY_THRESHHOLD_1
@@ -271,7 +270,7 @@ def line_generator_gpu(data_x, data_y, data_z, radiuses, lines):
         const int y = data_y[thrd_i];
         const int z = data_z[thrd_i];
         
-        int distance = 2000000000;
+        int distance = 2147483647;
                        
 
         for (int i = 0; i < length; i++) {
@@ -303,10 +302,10 @@ def line_generator_gpu(data_x, data_y, data_z, radiuses, lines):
 
     MAX_THREADS = 1024
 
-    grid_width = find_nearest_pow_2(len(data_x)/MAX_THREADS)
-    lines_x = np.empty(len(data_x)*3, dtype=np.int32)
-    lines_y = np.empty(len(data_y)*3, dtype=np.int32)
-    lines_z = np.empty(len(data_z)*3, dtype=np.int32)
+    grid_width = find_nearest_pow_2(len(circles_x_coords)/MAX_THREADS)
+    lines_x = np.empty(len(circles_x_coords)*3, dtype=np.int32)
+    lines_y = np.empty(len(circles_y_coords)*3, dtype=np.int32)
+    lines_z = np.empty(len(circles_z_coords)*3, dtype=np.int32)
 
     lines_x[:] = -1
     lines_y[:] = -1
@@ -314,8 +313,8 @@ def line_generator_gpu(data_x, data_y, data_z, radiuses, lines):
     
     try:
         create_lines(
-            drv.In(np.array(data_x, dtype=np.int32)), drv.In(np.array(data_y, dtype=np.int32)), drv.In(np.array(data_z, dtype=np.int32)),
-            drv.In(np.array([len(data_x)])), drv.In(np.array([MAXIMUM_PLANAR_DISTANCE_TO_SAME_TIP])), drv.In(np.array([IMAGE_DISTANCE_TO_PIXEL_FACTOR])),
+            drv.In(np.array(circles_x_coords, dtype=np.int32)), drv.In(np.array(circles_y_coords, dtype=np.int32)), drv.In(np.array(circles_z_coords, dtype=np.int32)),
+            drv.In(np.array([len(circles_x_coords)])), drv.In(np.array([MAXIMUM_PLANAR_DISTANCE_TO_SAME_TIP])), drv.In(np.array([IMAGE_DISTANCE_TO_PIXEL_FACTOR])),
             drv.InOut(lines_x), drv.InOut(lines_y), drv.InOut(lines_z),
             block=(MAX_THREADS, 1, 1), grid=(grid_width, 1))
     except:
@@ -353,7 +352,7 @@ def show_previews(image, keyed, edges_result):
     cv2.setMouseCallback("image", Slider.__call__)
 
 
-def on_load_new_image():
+def load_images_and_make_circles():
     global KEYING_BLUR_RADIUS
     global KEYING_MASK_THRESHHOLD
     global CANNY_THRESHHOLD_1
@@ -438,8 +437,8 @@ def on_load_new_image():
 
 
 def main():
-    imgs, circles = on_load_new_image()
-    plot_data_x, plot_data_y, plot_data_z, radiuses = zip(*[(center_x, center_y, image_idx, radius) for image_name, center_x, center_y, radius, image_idx in circles])
+    imgs, circles = load_images_and_make_circles()
+    circles_x_coords, circles_y_coords, circles_z_coords, radiuses = zip(*[(center_x, center_y, image_idx, radius) for image_name, center_x, center_y, radius, image_idx in circles])
 
 
     lines = [
@@ -447,12 +446,12 @@ def main():
         [],
         []
     ]
-    line_generator_gpu(plot_data_x, plot_data_y, plot_data_z, radiuses, lines)
+    line_generator_gpu(circles_x_coords, circles_y_coords, circles_z_coords, radiuses, lines)
 
 
-    show3d((plot_data_x, plot_data_y, plot_data_z), lines)
+    show3d((circles_x_coords, circles_y_coords, circles_z_coords), lines)
     with open(b"tmp.3dgraph", "wb") as wf:
-        pickle.dump({"circles":(plot_data_x, plot_data_y, plot_data_z), "lines": lines}, wf)
+        pickle.dump({"circles":(circles_x_coords, circles_y_coords, circles_z_coords), "lines": lines}, wf)
     input()
 
 
