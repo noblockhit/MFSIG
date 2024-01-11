@@ -374,13 +374,16 @@ if __name__ == '__main__':
 
         def update_progress_bar_worker(message_queue):
             initialize_progress("Rendering Images:")
+            start_time = time.perf_counter_ns()
             while True:
                 name, i, length = message_queue.get()
                 if i+1 == length:
                     break
 
                 progress_bar.set((i+1)/length)
-                progress_info_strvar.set(f"From Image {name} ({i+1}/{length})")
+                time_elapsed = (time.perf_counter_ns() - start_time) * 10**-9
+                time_per_image = time_elapsed / (i+1)
+                progress_info_strvar.set(f"From Image {name} ({i+1}/{length}, {time_per_image*(length-i-1):.0f}s remaining)")
             
             deinitialize_progress()
             
