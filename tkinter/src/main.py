@@ -23,6 +23,9 @@ import sys
 import statistics
 
 
+MAX_CORES_FOR_MP = mp.cpu_count()-1
+
+
 FILE_EXTENTIONS = {
     "RAW": [
         ".nef",
@@ -240,7 +243,7 @@ if __name__ == '__main__':
             
             image_paths.append(f.name)
         
-        rgb_values = mp.Pool(len(image_paths)).imap(load_image, image_paths)
+        rgb_values = mp.Pool(min(MAX_CORES_FOR_MP, len(image_paths))).imap(load_image, image_paths)
 
         for idx, (name, rgb) in enumerate(zip(image_paths, rgb_values)):
             progress_bar.set((idx+1)/len(image_paths))
@@ -435,8 +438,8 @@ if __name__ == '__main__':
         progress_info.pack_forget()
 
 
-    worker_frame = customtkinter.CTkFrame(root, height=30)
-    worker_frame.grid(row=0, column=0, columnspan=2)
+    worker_frame = customtkinter.CTkFrame(root, height=30, fg_color="Black")
+    worker_frame.grid(row=0, column=0, columnspan=3, padx=20, pady=10)
 
     progress_label_strvar = customtkinter.StringVar(value="a progress:")
     progress_label = customtkinter.CTkLabel(worker_frame, textvariable=progress_label_strvar)
