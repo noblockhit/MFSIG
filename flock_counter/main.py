@@ -17,7 +17,7 @@ global CANNY_THRESHHOLD_1
 global MIN_RADIUS
 global MAX_RADIUS
 global IMAGE_DISTANCE_TO_PIXEL_FACTOR
-global MAXIMUM_PLANAR_DISTANCE_TO_SAME_TIP
+global MAXIMUM_DISTANCE_TO_SAME_TIP
 global MAX_CORES_FOR_MP
 global PREVIEW_IMAGE_HEIGHT
 
@@ -28,7 +28,7 @@ CANNY_THRESHHOLD_1 = 140
 MIN_RADIUS = 25
 MAX_RADIUS = 90
 IMAGE_DISTANCE_TO_PIXEL_FACTOR = 20
-MAXIMUM_PLANAR_DISTANCE_TO_SAME_TIP = 140
+MAXIMUM_DISTANCE_TO_SAME_TIP = 140
 MAX_CORES_FOR_MP = mp.cpu_count()-1
 PREVIEW_IMAGE_HEIGHT = 1000
 
@@ -248,7 +248,7 @@ def line_generator_gpu(circles_x_coords, circles_y_coords, circles_z_coords, rad
     global MIN_RADIUS
     global MAX_RADIUS
     global IMAGE_DISTANCE_TO_PIXEL_FACTOR
-    global MAXIMUM_PLANAR_DISTANCE_TO_SAME_TIP
+    global MAXIMUM_DISTANCE_TO_SAME_TIP
     global MAX_CORES_FOR_MP
     global PREVIEW_IMAGE_HEIGHT
 
@@ -280,10 +280,10 @@ def line_generator_gpu(circles_x_coords, circles_y_coords, circles_z_coords, rad
 
             int height_distance = z - other_z;
             
-            if (0 < height_distance && height_distance < 8) {
+            if (0 < height_distance && height_distance < 3) {
                 int new_distance_2d = (x-other_x)*(x-other_x) + (y-other_y)*(y-other_y);
-                int new_distance_3d = new_distance_2d + (z-other_z)*(z-other_z)*image_distance_to_pixel_factor*image_distance_to_pixel_factor;
-                if (new_distance_2d < maximum_distance && new_distance_3d < distance) {
+                int new_distance_3d = new_distance_2d + (height_distance*image_distance_to_pixel_factor)*(height_distance*image_distance_to_pixel_factor);
+                if (new_distance_3d < maximum_distance && new_distance_3d < distance) {
                     distance = new_distance_3d;
                     lines_x[thrd_i*3+1] = other_x;
                     lines_y[thrd_i*3+1] = other_y;
@@ -314,7 +314,7 @@ def line_generator_gpu(circles_x_coords, circles_y_coords, circles_z_coords, rad
     try:
         create_lines(
             drv.In(np.array(circles_x_coords, dtype=np.int32)), drv.In(np.array(circles_y_coords, dtype=np.int32)), drv.In(np.array(circles_z_coords, dtype=np.int32)),
-            drv.In(np.array([len(circles_x_coords)])), drv.In(np.array([MAXIMUM_PLANAR_DISTANCE_TO_SAME_TIP])), drv.In(np.array([IMAGE_DISTANCE_TO_PIXEL_FACTOR])),
+            drv.In(np.array([len(circles_x_coords)])), drv.In(np.array([MAXIMUM_DISTANCE_TO_SAME_TIP*IMAGE_DISTANCE_TO_PIXEL_FACTOR])), drv.In(np.array([IMAGE_DISTANCE_TO_PIXEL_FACTOR])),
             drv.InOut(lines_x), drv.InOut(lines_y), drv.InOut(lines_z),
             block=(MAX_THREADS, 1, 1), grid=(grid_width, 1))
     except:
@@ -359,17 +359,17 @@ def load_images_and_make_circles():
     global MIN_RADIUS
     global MAX_RADIUS
     global IMAGE_DISTANCE_TO_PIXEL_FACTOR
-    global MAXIMUM_PLANAR_DISTANCE_TO_SAME_TIP
+    global MAXIMUM_DISTANCE_TO_SAME_TIP
     global MAX_CORES_FOR_MP
     global PREVIEW_IMAGE_HEIGHT
 
     KBR_slider = Slider(1, 5, 1, KEYING_BLUR_RADIUS, 250, 5, 350, 20, "Keying blur radius")
     KMT_slider = Slider(1, 255, 1, KEYING_MASK_THRESHHOLD, 250, 30, 350, 20, "Keying masks thresh")
     CANNY_slider = Slider(1, 255, 1, CANNY_THRESHHOLD_1, 250, 55, 350, 20, "Canny Thresh")
-    MINR_slider = Slider(50, 150, 1, MIN_RADIUS, 250, 80, 350, 20, "Min radius")
-    MAXR_slider = Slider(1, 100, 1, MAX_RADIUS, 250, 105, 350, 20, "Max radius")
-    IDTPF_slider = Slider(5, 100, 1, IMAGE_DISTANCE_TO_PIXEL_FACTOR, 250, 130, 350, 20, "Image distance")
-    MPDTST_slider = Slider(50, 400, 1, MAXIMUM_PLANAR_DISTANCE_TO_SAME_TIP, 250, 155, 350, 20, "Min tip distance")
+    MINR_slider = Slider(1, 100, 1, MIN_RADIUS, 250, 80, 350, 20, "Min radius")
+    MAXR_slider = Slider(50, 150, 1, MAX_RADIUS, 250, 105, 350, 20, "Max radius")
+    IDTPF_slider = Slider(5, 300, 1, IMAGE_DISTANCE_TO_PIXEL_FACTOR, 250, 130, 350, 20, "Image distance")
+    MDTST_slider = Slider(50, 1000, 1, MAXIMUM_DISTANCE_TO_SAME_TIP, 250, 155, 350, 20, "Max tip distance")
 
 
     imgs = collections.OrderedDict({})
@@ -415,7 +415,7 @@ def load_images_and_make_circles():
             MAX_RADIUS = MAXR_slider.value
             MIN_RADIUS = MINR_slider.value
             IMAGE_DISTANCE_TO_PIXEL_FACTOR = IDTPF_slider.value
-            MAXIMUM_PLANAR_DISTANCE_TO_SAME_TIP = MPDTST_slider.value
+            MAXIMUM_DISTANCE_TO_SAME_TIP = MDTST_slider.value
 
             if key_ord == ord("q"):
                 shown_index -= 1
