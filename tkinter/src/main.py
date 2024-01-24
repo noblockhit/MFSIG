@@ -17,10 +17,11 @@ import copy
 from image_array_converter import convert_color_arr_to_image, convert_gray_arr_to_image
 from math import sqrt
 from threading import Thread
-import multiprocessing as mp
+import multiprocess as mp
 import subprocess
 import sys
 import statistics
+from rawloader import load_raw_image
 
 
 MAX_CORES_FOR_MP = mp.cpu_count()-1
@@ -242,10 +243,14 @@ if __name__ == '__main__':
                 continue
             
             image_paths.append(f.name)
+
+        def _load_raw_image(p):
+            return load_raw_image(p, "auto")
         
-        rgb_values = mp.Pool(min(MAX_CORES_FOR_MP, len(image_paths))).imap(load_image, image_paths)
+        rgb_values = mp.Pool(min(MAX_CORES_FOR_MP, len(image_paths))).imap(_load_raw_image, image_paths)
 
         for idx, (name, rgb) in enumerate(zip(image_paths, rgb_values)):
+            print(rgb[1400][2100])
             progress_bar.set((idx+1)/len(image_paths))
             progress_info_strvar.set(f"{(idx+1)}/{len(image_paths)} Images Loaded")
 
