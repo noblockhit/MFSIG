@@ -221,7 +221,7 @@ def load_and_evaluate_image(args):
             image = cv2.cvtColor(cv2.imread(name), cv2.COLOR_BGR2RGB)
 
         elif any(name.lower().endswith(ending) for ending in FILE_EXTENTIONS["RAW"]):
-            image = load_raw_image(name, 35)
+            image = load_raw_image(name, 40)
 
         if image.shape[0] > image.shape[1]:
             image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
