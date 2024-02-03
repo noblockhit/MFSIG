@@ -432,6 +432,7 @@ if __name__ == '__main__':
         progress_label_strvar.set("")
         progress_info_strvar.set("")
         progress_bar.set(0)
+        
 
         progress_label.pack_forget()
         progress_bar.pack_forget()
