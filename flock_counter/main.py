@@ -9,6 +9,7 @@ import numpy as np
 import collections
 import pycuda.driver as drv
 from pycuda.compiler import SourceModule
+from sbNative.runtimetools import get_path
 
 
 global KEYING_BLUR_RADIUS
@@ -66,6 +67,12 @@ colors = [
     (128, 146, 80),
     (118, 21, 80)
 ]
+
+
+def find_nearest_pow_2(val):
+    for i in range(32):
+        if val < 2**i:
+            return 2**i
 
 
 class Slider:
@@ -175,7 +182,7 @@ def key_out_tips(img_in, keying_blur_radius, keying_mask_threshhold, canny_thres
     return keyed, edges
 
 
-def generate_circles(idx, image_name, input_img, keying_blur_radius, keying_mask_threshhold, canny_threshhold_1, min_radius, max_radius):
+def circle_generator_cv2_canny(idx, image_name, input_img, keying_blur_radius, keying_mask_threshhold, canny_threshhold_1, min_radius, max_radius):
     try:
         temp_col_idx = 0
         circles = []
@@ -210,9 +217,8 @@ def generate_circles(idx, image_name, input_img, keying_blur_radius, keying_mask
         result = cv2.resize(result, (keyed.shape[1], keyed.shape[0]))
         return keyed, result, circles
     except TypeError:
-        return [] 
-
-
+        return []
+    
 def load_and_evaluate_image(args):
     idx, imagename_or_img, keying_blur_radius, keying_mask_threshhold, canny_threshhold_1, min_radius, max_radius = args
     if isinstance(imagename_or_img, str):
@@ -221,7 +227,7 @@ def load_and_evaluate_image(args):
             image = cv2.cvtColor(cv2.imread(name), cv2.COLOR_BGR2RGB)
 
         elif any(name.lower().endswith(ending) for ending in FILE_EXTENTIONS["RAW"]):
-            image = load_raw_image(name, 40)
+            image = load_raw_image(name, 30)
 
         if image.shape[0] > image.shape[1]:
             image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
@@ -231,14 +237,58 @@ def load_and_evaluate_image(args):
     else:
         raise ValueError("Second item in `args` is neither a tuple of a name and an image nor just the path to a file")
 
-    keyed, edges_result, circles = generate_circles(idx, name, image, keying_blur_radius, keying_mask_threshhold, canny_threshhold_1, min_radius, max_radius)
+    keyed, edges_result, circles = circle_generator_cuda(idx, name, image, keying_blur_radius, keying_mask_threshhold, canny_threshhold_1, min_radius, max_radius)
     return idx, name, image, keyed, edges_result, circles
 
 
-def find_nearest_pow_2(val):
-    for i in range(32):
-        if val < 2**i:
-            return 2**i
+def circle_generator_cuda(idx, image_name, input_img, keying_blur_radius, keying_mask_threshhold, canny_threshhold_1, min_radius, max_radius):
+    height, width = input_img.shape[:2]
+
+    new_width = width // 3
+    new_height = height // 3
+    
+    drv.init()
+    dev = drv.Device(0)
+    ctx = dev.make_context()
+
+    with open(str(get_path() / "generateCircles.cu")) as f:
+        mod = SourceModule(f.read())
+
+    generate_circles = mod.get_function("generateCircles")
+    out = np.zeros(shape=input_img.shape[:2], dtype=input_img.dtype)
+
+    processed_input = cv2.blur(input_img, (7, 7))
+    
+    
+    start_time = time.perf_counter_ns()
+    generate_circles(drv.In(processed_input), drv.InOut(out), drv.In(np.array(input_img.shape)),
+                     block=(32, 32, 1), grid=(width//32+1, height//32+1))
+    
+    contours, hierarchy = cv2.findContours(out, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    
+    # for i, contour in enumerate(contours):
+    #     color = colors[i % len(colors)]
+    #     cv2.drawContours(input_img, [contour], -1, color, 2)
+    contour_points = [contour.squeeze() for contour in contours]
+    
+    
+    print(f"{1/((time.perf_counter_ns() - start_time) * 10**-9)} FPS")
+    for contours_as_points in contour_points:
+        if len(contours_as_points) < 50:
+            continue
+        for p in contours_as_points:
+            input_img[p[1]][p[0]] = [0, 255, 255]
+            input_img[p[1]][p[0]+1] = [0, 255, 255]
+            input_img[p[1]+1][p[0]] = [0, 255, 255]
+            input_img[p[1]+1][p[0]+1] = [0, 255, 255]
+        
+    
+    resized_image_out = cv2.resize(out, (new_width, new_height))
+    resized_image_in = cv2.resize(input_img, (new_width, new_height))
+    cv2.imshow("out", resized_image_out)
+    cv2.imshow("in", resized_image_in)
+    cv2.waitKey(0)
+    exit()
 
 
 def line_generator_gpu(circles_x_coords, circles_y_coords, circles_z_coords, radiuses, lines):
@@ -256,50 +306,10 @@ def line_generator_gpu(circles_x_coords, circles_y_coords, circles_z_coords, rad
     dev = drv.Device(0)
     ctx = dev.make_context()
 
-    mod = SourceModule("""
-    __global__ void createLines(int *data_x, int *data_y, int *data_z,
-                                int *length_arr, int* maximum_distance_arr, int*image_distance_to_pixel_factor_arr,
-                                int *lines_x, int *lines_y, int *lines_z) {
-        const int length = length_arr[0];
-        const int maximum_distance = maximum_distance_arr[0];
-        const int image_distance_to_pixel_factor = image_distance_to_pixel_factor_arr[0];
-
-        const int thrd_i = blockIdx.x * blockDim.x + threadIdx.x;
-
-        const int x = data_x[thrd_i];
-        const int y = data_y[thrd_i];
-        const int z = data_z[thrd_i];
-        
-        int distance = 2147483647;
-                       
-
-        for (int i = 0; i < length; i++) {
-            int other_x = data_x[i];
-            int other_y = data_y[i];
-            int other_z = data_z[i];
-
-            int height_distance = z - other_z;
-            
-            if (0 < height_distance && height_distance < 3) {
-                int new_distance_2d = (x-other_x)*(x-other_x) + (y-other_y)*(y-other_y);
-                int new_distance_3d = new_distance_2d + (height_distance*image_distance_to_pixel_factor)*(height_distance*image_distance_to_pixel_factor);
-                if (new_distance_3d < maximum_distance && new_distance_3d < distance) {
-                    distance = new_distance_3d;
-                    lines_x[thrd_i*3+1] = other_x;
-                    lines_y[thrd_i*3+1] = other_y;
-                    lines_z[thrd_i*3+1] = other_z;
-                }
-            }
-        }
-        if (lines_x[thrd_i*3+1] > -1) {
-            lines_x[thrd_i*3] = x;
-            lines_y[thrd_i*3] = y;
-            lines_z[thrd_i*3] = z;
-        }             
-    }""")
+    with open(str(get_path() / "createLines.cu")) as f:
+        mod = SourceModule(f.read())
 
     create_lines = mod.get_function("createLines")
-
     MAX_THREADS = 1024
 
     grid_width = find_nearest_pow_2(len(circles_x_coords)/MAX_THREADS)
@@ -396,7 +406,8 @@ def load_images_and_make_circles():
             args = enumerate(imgs.items())
         args = [(idx, img, KEYING_BLUR_RADIUS, KEYING_MASK_THRESHHOLD, CANNY_THRESHHOLD_1, MIN_RADIUS, MAX_RADIUS) for idx, img in args]
 
-        images_and_circles = mp.Pool(min(MAX_CORES_FOR_MP, len(image_paths))).map(load_and_evaluate_image, args)
+        # images_and_circles = mp.Pool(min(MAX_CORES_FOR_MP, len(image_paths))).map(load_and_evaluate_image, args)
+        images_and_circles = load_and_evaluate_image(args[0])
         
 
         for _, name, image, _, _, circles in images_and_circles:

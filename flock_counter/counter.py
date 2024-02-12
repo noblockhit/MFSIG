@@ -6,8 +6,11 @@ import numpy as np
 class Cluster:
     point_cluster_dict = {}
     clusters = []
+    name_counter = 0
     def __init__(self, a, b):
         self.points = [a, b]
+        self.name = Cluster.name_counter
+        Cluster.name_counter += 1
         Cluster.clusters.append(self)
         Cluster.point_cluster_dict[a] = self
         Cluster.point_cluster_dict[b] = self
@@ -39,12 +42,17 @@ class Cluster:
         elif cluster_from_b is not None and cluster_from_a is None:
             cluster_from_b.add_point(a)
         
+        elif cluster_from_a is cluster_from_b:
+            pass
         else:
             cluster_from_a.merge(cluster_from_b)
     
     
+    # def __repr__(self) -> str:
+    #     return f"Cluster<{self.points}>"
+    
     def __repr__(self) -> str:
-        return f"Cluster<{self.points}>"
+        return f"Cluster <{self.name}>"
         
 
 def count(circles=None, lines=None):
