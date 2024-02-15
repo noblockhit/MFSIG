@@ -11,6 +11,7 @@ import pycuda.driver as drv
 from pycuda.compiler import SourceModule
 from sbNative.runtimetools import get_path
 from slider import Slider
+import plotly.graph_objects as go
 
 
 global KEYING_BLUR_RADIUS
@@ -35,6 +36,14 @@ MAX_CORES_FOR_MP = mp.cpu_count()-1
 PREVIEW_IMAGE_HEIGHT = 1000
 
 
+class Checkpoint:
+    time = time.perf_counter_ns()
+    def __init__(self, *args, **kwds):
+        delta = time.perf_counter_ns() - Checkpoint.time
+        Checkpoint.time = time.perf_counter_ns()
+        print(f"{delta*10**-9:.5f} seconds for {' '.join(args)} {str(kwds)[1:-1]}")
+
+
 colors = [
     (255, 0  , 0  ),
     (0  , 255, 0  ),
@@ -55,27 +64,6 @@ def find_nearest_pow_2(val):
     for i in range(32):
         if val < 2**i:
             return 2**i
-
-    
-def load_image(args):
-    idx, imagename_or_img, keying_blur_radius, keying_mask_threshhold, canny_threshhold_1, min_radius, max_radius = args
-    if isinstance(imagename_or_img, str):
-        name = imagename_or_img
-        if any(name.lower().endswith(ending) for ending in FILE_EXTENTIONS["CV2"]):
-            image = cv2.cvtColor(cv2.imread(name), cv2.COLOR_BGR2RGB)
-
-        elif any(name.lower().endswith(ending) for ending in FILE_EXTENTIONS["RAW"]):
-            image = load_raw_image(name, 30)
-
-        if image.shape[0] > image.shape[1]:
-            image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
-
-    elif isinstance(imagename_or_img, tuple):
-        name, image = imagename_or_img
-    else:
-        raise ValueError("Second item in `args` is neither a tuple of a name and an image nor just the path to a file")
-
-    return name, image
 
 
 class TipFinderCuda:
@@ -115,22 +103,23 @@ class TipFinderCuda:
 
         processed_input = cv2.blur(img, (3, 3))
         
-        
         self.outline_tips(drv.In(processed_input), drv.InOut(out), drv.In(np.array(img.shape)),
                         block=(32, 32, 1), grid=(width//32+1, height//32+1))
-        
-        contours, hierarchy = cv2.findContours(out, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        contours, hierarchy = cv2.findContours(out, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
         # for i, contour in enumerate(contours):
         #     color = colors[i % len(colors)]
         #     cv2.drawContours(img, [contour], -1, color, 2)
         
         color_idx = 0
         tips = []
+        print(len(contours))
         for cntr in contours:
             contour_points = cntr.squeeze()
             
             if 50 < len(contour_points) < 400:
                 M = cv2.moments(cntr)
+                if M["m00"] == 0:
+                    continue
                 cX = int(M["m10"] / M["m00"])
                 cY = int(M["m01"] / M["m00"])
                 ## image_name, center_x, center_y, radius, image_idx
@@ -145,7 +134,6 @@ class TipFinderCuda:
 
                 color_idx += 1
                 color_idx = color_idx % len(colors)
-                
         return img, out, tips
 
 
@@ -282,21 +270,28 @@ def line_generator_gpu(circles_x_coords, circles_y_coords, circles_z_coords, rad
     drv.init()
     dev = drv.Device(0)
     ctx = dev.make_context()
+    Checkpoint("made context")
 
     with open(str(get_path() / "createLines.cu")) as f:
         mod = SourceModule(f.read())
 
     create_lines = mod.get_function("createLines")
     MAX_THREADS = 1024
+    
+    Checkpoint("Loading module")
 
     grid_width = find_nearest_pow_2(len(circles_x_coords)/MAX_THREADS)
     lines_x = np.empty(len(circles_x_coords)*3, dtype=np.int32)
     lines_y = np.empty(len(circles_y_coords)*3, dtype=np.int32)
     lines_z = np.empty(len(circles_z_coords)*3, dtype=np.int32)
 
+    Checkpoint("allocating memory")
+    
     lines_x[:] = -1
     lines_y[:] = -1
     lines_z[:] = -1
+    
+    Checkpoint("assigning init data")
     
     try:
         create_lines(
@@ -309,18 +304,88 @@ def line_generator_gpu(circles_x_coords, circles_y_coords, circles_z_coords, rad
         raise
     else:
         ctx.pop()
+    
+    Checkpoint("creating lines")
 
     lines[0] = [x if x >= 0 else None for x in lines_x]
     lines[1] = [y if y >= 0 else None for y in lines_y]
     lines[2] = [z if z >= 0 else None for z in lines_z]
+    
+    Checkpoint("filtering lines")
+    
+class Cluster:
+    point_cluster_dict = {}
+    clusters = []
+    name_counter = 0
+    def __init__(self, a, b):
+        self.points = [a, b]
+        self.name = Cluster.name_counter
+        Cluster.name_counter += 1
+        Cluster.clusters.append(self)
+        Cluster.point_cluster_dict[a] = self
+        Cluster.point_cluster_dict[b] = self
+
+    def add_point(self, p):
+        self.points.append(p)
+        Cluster.point_cluster_dict[p] = self
+
+    def merge(self, other):
+        for p in other.points:
+            if p not in self.points:
+                self.points.append(p)
+            Cluster.point_cluster_dict[p] = self
+
+        Cluster.clusters.remove(other)
+    
+    @classmethod
+    def add_new_line(cls, l):
+        a, b = l
+        cluster_from_a = Cluster.point_cluster_dict.get(a)
+        cluster_from_b = Cluster.point_cluster_dict.get(b)
+
+        if cluster_from_a is None and cluster_from_b is None:
+            Cluster(a, b)
+        
+        elif cluster_from_a is not None and cluster_from_b is None:
+            cluster_from_a.add_point(b)
+
+        elif cluster_from_b is not None and cluster_from_a is None:
+            cluster_from_b.add_point(a)
+        
+        elif cluster_from_a is cluster_from_b:
+            pass
+        else:
+            cluster_from_a.merge(cluster_from_b)
+    
+    
+    # def __repr__(self) -> str:
+    #     return f"Cluster<{self.points}>"
+    
+    def __repr__(self) -> str:
+        return f"Cluster <{self.name}>"
+        
+
+def count(lines=None):    
+    if lines is None:
+        lines = [[], [], []]
+
+    print(f"There are {len(lines[0])} lines")
+    z_lines = [((lines[0][i], lines[1][i], lines[2][i]), (lines[0][i+1], lines[1][i+1], lines[2][i+1])) for i in range(0, len(lines[0]), 3)]
+    for idx, line in enumerate(z_lines):
+        if line == ((None, None, None), (None, None, None)):
+            continue
+        Cluster.add_new_line(line)
 
 
 def main():
+    Checkpoint(meta = "start")
     img_manager = ImageManager()
     img_manager.ask_and_load()
+    Checkpoint("loaded")
     circles = make_circles(img_manager)
+    Checkpoint("made circles")
     circles_x_coords, circles_y_coords, circles_z_coords, radiuses = zip(*[(center_x, center_y, image_idx, radius) for image_name, center_x, center_y, radius, image_idx in circles])
-
+    Checkpoint("unzipped data")
 
     lines = [
         [],
@@ -328,12 +393,30 @@ def main():
         []
     ]
     line_generator_gpu(circles_x_coords, circles_y_coords, circles_z_coords, radiuses, lines)
+    Checkpoint("generated lines")
+    
+    count(lines)
+    Checkpoint("grouped and counted lines")
+    markers = []
+    num = 0
+    for c in Cluster.clusters:
+        num += 1
+        unzipped_points = list(zip(*c.points))
+        marker_data = go.Scatter3d(
+            x=unzipped_points[0], 
+            y=unzipped_points[1], 
+            z=unzipped_points[2], 
+            marker=go.scatter3d.Marker(size=3), 
+            opacity=0.8, 
+            mode='markers'
+        )
+        markers.append(marker_data)
+    Checkpoint("made graph")
+    fig=go.Figure(data=markers)
+    fig.write_html('grouped_points.html', auto_open=True)
 
-
-    show3d((circles_x_coords, circles_y_coords, circles_z_coords), lines)
-    with open(b"tmp.3dgraph", "wb") as wf:
-        pickle.dump({"circles":(circles_x_coords, circles_y_coords, circles_z_coords), "lines": lines}, wf)
-    input()
+    print(num)
+    
 
 
 if __name__ == "__main__":
