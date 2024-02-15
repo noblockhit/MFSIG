@@ -416,7 +416,6 @@ def main():
     fig.write_html('grouped_points.html', auto_open=True)
 
     print(num)
-    
 
 
 if __name__ == "__main__":
