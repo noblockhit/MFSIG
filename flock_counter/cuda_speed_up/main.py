@@ -200,7 +200,25 @@ class ImageManager:
             raise ValueError("Unknown image")
         idx = list(self.imgs.keys()).index(name)
         return self.finder.find(image, idx, name)
+    
 
+    def draw_clusters(self, name_or_image, clusters):
+        if name_or_image in self.imgs.keys():
+            image = self.imgs[name_or_image]
+            name = name_or_image
+            
+        elif name_or_image in self.imgs.values():
+            image = name_or_image
+            for k, v in self.imgs.items():
+                if v is image:
+                    name = k
+        else:
+            raise ValueError("Unknown image")
+        img = image.copy()
+        for cluster in clusters:
+            cv2.drawContours(img, [np.array(cluster.points)], 0, (0, 0, 255), 2)
+
+        return img
 
 def make_circles(img_manager):
     satisfied = False
@@ -377,6 +395,39 @@ def count(lines=None):
         Cluster.add_new_line(line)
 
 
+def confirm(img_manager: ImageManager):
+    shown_index = 0
+    change = True
+    while True:
+        shown_index = (shown_index + len(img_manager.imgs)) % len(img_manager.imgs)
+        shown_image_name = list(img_manager.imgs.keys())[shown_index]
+        
+        if change:
+            image_with_clusters = img_manager.draw_clusters(shown_image_name, Cluster.clusters)
+        
+            cv2.imshow("IWC", image_with_clusters)
+            cv2.moveWindow("IWC", 50, 50)
+            info = f"{shown_index}"
+            cv2.setWindowTitle("IWC", f"Image with Clusters {info}")
+        
+        
+        change = True
+        key_ord = cv2.waitKey(1)
+        
+
+        if key_ord == ord("q"):
+            shown_index -= 1
+        elif key_ord == ord("e"):
+            shown_index += 1
+            
+            
+        elif key_ord == ord("s"):
+            break
+            cv2.destroyAllWindows()
+            break
+        else:
+            change = False
+
 def main():
     Checkpoint(meta = "start")
     img_manager = ImageManager()
@@ -397,6 +448,7 @@ def main():
     
     count(lines)
     Checkpoint("grouped and counted lines")
+    confirm(img_manager)
     markers = []
     num = 0
     for c in Cluster.clusters:
