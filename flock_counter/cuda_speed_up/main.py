@@ -12,6 +12,7 @@ from pycuda.compiler import SourceModule
 from sbNative.runtimetools import get_path
 from slider import Slider
 import plotly.graph_objects as go
+from typing import Any, ClassVar, get_type_hints, Union
 
 
 global KEYING_BLUR_RADIUS
@@ -65,12 +66,16 @@ def find_nearest_pow_2(val):
         if val < 2**i:
             return 2**i
 
-
 class TipFinderCuda:
+    sliders = {
+        "min_contour_length_slider": Slider(5, 500, 10, 50, 50, 50, 300, 50, "max_contour_length_slider"),
+        "max_contour_length_slider": Slider(100, 3000, 10, 400, 50, 150, 300, 50, "max_contour_length_slider")
+    }
+    
     def __init__(self):
         drv.init()
         dev = drv.Device(0)
-        ctx = dev.make_context()
+        self.ctx = dev.make_context()
 
         with open(str(get_path() / "outlineTips.cu")) as f:
             self.mod = SourceModule(f.read())
@@ -81,7 +86,7 @@ class TipFinderCuda:
         
     @property
     def current_method_name(self):
-        return self.available_methods[self.current_method]
+        return self.available_methods[self._current_method]
     
     @property
     def current_method(self):
@@ -102,9 +107,15 @@ class TipFinderCuda:
         out = np.zeros(shape=img.shape[:2], dtype=img.dtype)
 
         processed_input = cv2.blur(img, (3, 3))
+        if self.current_method_name == "outline_tips_method_1":
+            # uint8_t*input_image,           uint8_t*output_image, int*dims,                    uint8_t own_thresh, uint8_t ngb_thresh
+            attrs = drv.In(processed_input), drv.InOut(out),       drv.In(np.array(img.shape)), np.uint8(50),       np.uint8(100)
+        elif self.current_method_name == "outline_tips_method_3":
+            # uint8_t*input_image,           uint8_t*output_image, int*dims,                    int radius
+            attrs = drv.In(processed_input), drv.InOut(out),       drv.In(np.array(img.shape)), np.uint8(2)
+            
         
-        self.outline_tips(drv.In(processed_input), drv.InOut(out), drv.In(np.array(img.shape)),
-                        block=(32, 32, 1), grid=(width//32+1, height//32+1))
+        self.outline_tips(*attrs, block=(32, 32, 1), grid=(width//32+1, height//32+1))
         contours, hierarchy = cv2.findContours(out, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
         # for i, contour in enumerate(contours):
         #     color = colors[i % len(colors)]
@@ -112,11 +123,11 @@ class TipFinderCuda:
         
         color_idx = 0
         tips = []
-        print(len(contours))
+        
         for cntr in contours:
             contour_points = cntr.squeeze()
             
-            if 50 < len(contour_points) < 400:
+            if TipFinderCuda.sliders["min_contour_length_slider"].value < len(contour_points) < TipFinderCuda.sliders["max_contour_length_slider"].value:
                 M = cv2.moments(cntr)
                 if M["m00"] == 0:
                     continue
@@ -134,8 +145,13 @@ class TipFinderCuda:
 
                 color_idx += 1
                 color_idx = color_idx % len(colors)
+        Slider.change = False
         return img, out, tips
-
+    
+    @staticmethod
+    def draw_sliders(img):
+        for slider in TipFinderCuda.sliders.values():
+            slider.draw(img)
 
 class ImageManager:
     def __init__(self):
@@ -159,7 +175,8 @@ class ImageManager:
     @property
     def supported_extensions(self):
         return self.RAW_EXTENSIONS + self.CV2_EXTENSIONS
-    
+
+
     def _load(self, filepath):
         extension = f".{filepath.split('.')[-1].lower()}"
         if extension not in self.supported_extensions:
@@ -214,34 +231,46 @@ class ImageManager:
                     name = k
         else:
             raise ValueError("Unknown image")
+        
         img = image.copy()
         for cluster in clusters:
-            cv2.drawContours(img, [np.array(cluster.points)], 0, (0, 0, 255), 2)
+            color = (255*(len(cluster.points) / len(self.imgs)), 0, 255-255*(len(cluster.points) / len(self.imgs)))
+            arr = [np.delete(np.array(cluster.points), 2, 1)]
+            cv2.drawContours(img, arr, 0, color, 2)
 
         return img
+
+
+    def draw_sliders(img):
+        TipFinderCuda.draw_sliders(img)
+        return img
+
 
 def make_circles(img_manager):
     satisfied = False
     shown_index = 0
     
-    change = True
+    change = True 
+    
+    
     while not satisfied:
         shown_index = (shown_index + len(img_manager.imgs)) % len(img_manager.imgs)
         shown_image_name = list(img_manager.imgs.keys())[shown_index]
+          
         
         if change:
             preview_image, keyed_image, tips = img_manager.compute(shown_image_name)
         
-            cv2.imshow("KI", keyed_image)
-            cv2.imshow("IP", preview_image)
+            cv2.imshow("KI", ImageManager.draw_sliders(keyed_image))
+            cv2.imshow("IP", ImageManager.draw_sliders(preview_image))
             cv2.moveWindow("KI", 50, 50)
             cv2.moveWindow("IP", 50, 50)
+            cv2.setMouseCallback("KI", Slider.mouse_callback)
+            cv2.setMouseCallback("IP", Slider.mouse_callback)
             info = f"{img_manager.finder.current_method} {shown_index}"
             cv2.setWindowTitle("KI", f"Keyed Image {info}")
             cv2.setWindowTitle("IP", f"Image Preview {info}")
             
-            
-        
         
         change = True
         key_ord = cv2.waitKey(1)
@@ -262,8 +291,9 @@ def make_circles(img_manager):
             cv2.destroyAllWindows()
             break
         else:
-            change = False
-        
+            if not Slider.change:
+                change = False
+            
     all_tips = []
     for img in img_manager.imgs:
         _, _, tips = img_manager.compute(img)
@@ -423,8 +453,6 @@ def confirm(img_manager: ImageManager):
             
         elif key_ord == ord("s"):
             break
-            cv2.destroyAllWindows()
-            break
         else:
             change = False
 
@@ -448,7 +476,6 @@ def main():
     
     count(lines)
     Checkpoint("grouped and counted lines")
-    confirm(img_manager)
     markers = []
     num = 0
     for c in Cluster.clusters:
@@ -468,6 +495,7 @@ def main():
     fig.write_html('grouped_points.html', auto_open=True)
 
     print(num)
+    confirm(img_manager)
 
 
 if __name__ == "__main__":

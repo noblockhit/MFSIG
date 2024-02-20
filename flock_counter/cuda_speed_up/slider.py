@@ -1,7 +1,11 @@
+import cv2
+
+
 class Slider:
     sliders = []
+    change = True
     @staticmethod
-    def __call__(event, x, y, flags, param):
+    def mouse_callback(event, x, y, flags, param):
         for sl in Slider.sliders:
             if sl.x <= x <= sl.x + sl.width and sl.y <= y <= sl.y + sl.height:
                 if event == cv2.EVENT_MOUSEWHEEL:
@@ -15,10 +19,11 @@ class Slider:
                     exact_amout = percentage * sl.max_val
                     
                     sl.value = min(sl.max_val, max(sl.min_val, round(exact_amout / sl.step_size) * sl.step_size))
-                    
-                break
-                    
-        
+                
+                Slider.change = True
+                return
+            
+            
     def __init__(self, min_val, max_val, step_size, value, x, y, width, height, name):
         self.min_val = min_val
         self.max_val = max_val
