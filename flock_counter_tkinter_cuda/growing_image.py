@@ -36,6 +36,17 @@ class GrowingImage(CTk.CTkCanvas):
             self.zoom_x_offset = 0
             self.zoom_y_offset = 0
 
+    @property
+    def img(self):
+        return self.src_img
+    
+    @img.setter
+    def img(self, image):
+        self.src_img = image
+        self.src_aspect_ratio = self.src_img.shape[0] / self.src_img.shape[1]
+        self.pil_img = Image.fromarray(self.src_img)
+
+        self._config_size()
 
 
     def _mouse_motion(self, event):
@@ -66,7 +77,7 @@ class GrowingImage(CTk.CTkCanvas):
 
 
     def _set_mouseover_false(self, event):
-         self.is_mouse_over = False
+        self.is_mouse_over = False
 
 
     def _on_mousewheel(self, event):
@@ -97,16 +108,17 @@ class GrowingImage(CTk.CTkCanvas):
         
 
 
-    def _config_size(self, event):
-        self.box_width = event.width
-        self.box_height = event.height
-        box_aspect_ratio = event.height / event.width
+    def _config_size(self, event=None):
+        if event is not None:
+            self.box_width = event.width
+            self.box_height = event.height
+        box_aspect_ratio = self.box_width / self.box_height
 
         if box_aspect_ratio > self.src_aspect_ratio:
-            new_width = event.width
+            new_width = self.box_width
             new_height = new_width * self.src_aspect_ratio
         else:
-            new_height = event.height
+            new_height = self.box_height
             new_width = new_height / self.src_aspect_ratio
 
         self.new_image_width = int(new_width)

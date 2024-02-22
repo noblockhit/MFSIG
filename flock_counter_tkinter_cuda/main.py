@@ -12,7 +12,9 @@ from sbNative.runtimetools import get_path
 import plotly.graph_objects as go
 import sys
 import customtkinter
-
+from PIL import Image as PILImage, ImageTk
+from image_array_converter import convert_color_arr_to_image, convert_gray_arr_to_image
+from growing_image import GrowingImage
 
 global KEYING_BLUR_RADIUS
 global KEYING_MASK_THRESHHOLD
@@ -116,7 +118,7 @@ class TipFinderCuda:
         for cntr in contours:
             contour_points = cntr.squeeze()
             
-            if 50 < len(contour_points) < 400:
+            if 200 < len(contour_points) < 800:
                 M = cv2.moments(cntr)
                 if M["m00"] == 0:
                     continue
@@ -138,7 +140,7 @@ class TipFinderCuda:
 
 
 class ImageManager:
-    def __init__(self):
+    def __init__(self, image_frame):
         self.RAW_EXTENSIONS = [
                 ".nef",
                 ".arw",
@@ -153,9 +155,15 @@ class ImageManager:
                 ".tif"
             ]
         
+        self.image_frame = image_frame
+        
+        self.image_panel = GrowingImage(self.image_frame, zoom=True, image = np.zeros((1000, 1000, 3), dtype=np.uint8))
+        self.image_panel.pack(padx=20, pady=20, expand=True, fill = "both")
+
         self.imgs = collections.OrderedDict({})
         self.finder = TipFinderCuda()
-        
+
+
     @property
     def supported_extensions(self):
         return self.RAW_EXTENSIONS + self.CV2_EXTENSIONS
@@ -219,60 +227,19 @@ class ImageManager:
             cv2.drawContours(img, [np.array(cluster.points)], 0, (0, 0, 255), 2)
 
         return img
-
-def make_circles(img_manager):
-    satisfied = False
-    shown_index = 0
     
-    change = True
-    while not satisfied:
-        shown_index = (shown_index + len(img_manager.imgs)) % len(img_manager.imgs)
-        shown_image_name = list(img_manager.imgs.keys())[shown_index]
-        
-        if change:
-            preview_image, keyed_image, tips = img_manager.compute(shown_image_name)
-        
-            cv2.imshow("KI", keyed_image)
-            cv2.imshow("IP", preview_image)
-            cv2.moveWindow("KI", 50, 50)
-            cv2.moveWindow("IP", 50, 50)
-            info = f"{img_manager.finder.current_method} {shown_index}"
-            cv2.setWindowTitle("KI", f"Keyed Image {info}")
-            cv2.setWindowTitle("IP", f"Image Preview {info}")
-            
-            
-        
-        
-        change = True
-        key_ord = cv2.waitKey(1)
+    def show_image(self, image):
+        self.image_panel.img = image
         
 
-        if key_ord == ord("q"):
-            shown_index -= 1
-        elif key_ord == ord("e"):
-            shown_index += 1
-        elif key_ord == ord("1"):
-            img_manager.finder.current_method = 0
-        elif key_ord == ord("2"):
-            img_manager.finder.current_method = 1
-            
-            
-        elif key_ord == ord("s"):
-            satisfied = True
-            cv2.destroyAllWindows()
-            break
-        else:
-            change = False
         
-    all_tips = []
-    for img in img_manager.imgs:
-        _, _, tips = img_manager.compute(img)
-        all_tips += tips
-    
-        
-    return all_tips
+def make_circle(img_manager, shown_index):
+    shown_index = (shown_index + len(img_manager.imgs)) % len(img_manager.imgs)
+    shown_image_name = list(img_manager.imgs.keys())[shown_index]
 
+    preview_image, keyed_image, tips = img_manager.compute(shown_image_name)
 
+    img_manager.show_image(preview_image)
 
 def line_generator_gpu(circles_x_coords, circles_y_coords, circles_z_coords, radiuses, lines):
     global KEYING_BLUR_RADIUS
@@ -429,6 +396,7 @@ def confirm(img_manager: ImageManager):
             change = False
 
 def main():
+
     if sys.platform.startswith("win32"):
         mp.freeze_support()
 
@@ -439,16 +407,51 @@ def main():
     root.geometry("800x800")
     root.resizable(height=800, width=800)
 
-    root.columnconfigure(0, weight=1)
-    root.columnconfigure((1,2), weight=0)
     root.rowconfigure(0, weight=0)
     root.rowconfigure(1, weight=1)
-    img_manager = ImageManager()
-    img_manager.ask_and_load()
+    root.columnconfigure(0, weight=1)
     
-    root.mainloop()
 
-   
+    param_frame = customtkinter.CTkFrame(root, height=30)
+    param_frame.grid(row=0, column=0, padx=20, pady=10)
+
+    image_frame = customtkinter.CTkFrame(root)
+    image_frame.grid(row=1, column=0, sticky="nesw")
+
+    img_manager = ImageManager(image_frame)
+    global current_image_idx
+    current_image_idx = 0
+
+    def start_procedure():
+        global current_image_idx
+        img_manager.ask_and_load()
+        make_circle(img_manager, current_image_idx)
+
+    load_new_image_button = customtkinter.CTkButton(master=param_frame,
+                                                    text="Load new image", command=start_procedure)
+    load_new_image_button.pack(pady=(12, 5))
+
+    def decrease_image_idx(event):
+        global current_image_idx
+        img_count = len(list(img_manager.imgs.keys()))
+        current_image_idx = (current_image_idx + img_count -1) % img_count
+        make_circle(img_manager, current_image_idx)
+
+    def increase_image_idx(event):
+        global current_image_idx
+        img_count = len(list(img_manager.imgs.keys()))
+        current_image_idx = (current_image_idx + img_count +1) % img_count
+        make_circle(img_manager, current_image_idx)
+
+
+    root.bind("<Left>", decrease_image_idx)
+    root.bind("<Right>", increase_image_idx)
+
+
+
+
+
+    root.mainloop()   
 
 
 if __name__ == "__main__":
