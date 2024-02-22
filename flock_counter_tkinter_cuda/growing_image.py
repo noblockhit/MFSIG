@@ -16,6 +16,7 @@ class GrowingImage(CTk.CTkCanvas):
         self.pil_img = Image.fromarray(image)
         self.box_width = -1
         self.box_height = -1
+        self.box_aspect_ratio = self.box_height / self.box_width
         self.new_image_width = -1
         self.new_image_height = -1
         self.mouse_src_img_x = -1
@@ -112,9 +113,9 @@ class GrowingImage(CTk.CTkCanvas):
         if event is not None:
             self.box_width = event.width
             self.box_height = event.height
-        box_aspect_ratio = self.box_width / self.box_height
+        self.box_aspect_ratio = self.box_height / self.box_width
 
-        if box_aspect_ratio > self.src_aspect_ratio:
+        if self.box_aspect_ratio > self.src_aspect_ratio:
             new_width = self.box_width
             new_height = new_width * self.src_aspect_ratio
         else:
@@ -127,7 +128,6 @@ class GrowingImage(CTk.CTkCanvas):
         self._redraw_image()
 
     def _redraw_image(self):
-        
         self.img_cropped = self.pil_img.crop((self.zoom_x_offset,
                                               self.zoom_y_offset,
                                               self.src_img.shape[1] * self.zoom_amount + self.zoom_x_offset,

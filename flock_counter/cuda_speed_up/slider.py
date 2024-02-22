@@ -4,8 +4,16 @@ import cv2
 class Slider:
     sliders = []
     change = True
+    mouse_pos_x = 1
+    mouse_pos_y = 1
     @staticmethod
     def mouse_callback(event, x, y, flags, param):
+        if event == cv2.EVENT_MOUSEMOVE:
+            Slider.mouse_pos_x = x
+            Slider.mouse_pos_y = y
+            
+        x = Slider.mouse_pos_x
+        y = Slider.mouse_pos_y
         for sl in Slider.sliders:
             if sl.x <= x <= sl.x + sl.width and sl.y <= y <= sl.y + sl.height:
                 if event == cv2.EVENT_MOUSEWHEEL:

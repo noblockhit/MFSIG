@@ -68,8 +68,8 @@ def find_nearest_pow_2(val):
 
 class TipFinderCuda:
     sliders = {
-        "min_contour_length_slider": Slider(5, 500, 10, 50, 50, 50, 300, 50, "max_contour_length_slider"),
-        "max_contour_length_slider": Slider(100, 3000, 10, 400, 50, 150, 300, 50, "max_contour_length_slider")
+        "min_contour_length_slider": Slider(5,    500, 10,  50, 300,  50, 300, 50, "Min contour length"),
+        "max_contour_length_slider": Slider(100, 3000, 10, 400, 300, 150, 300, 50, "Max contour length")
     }
     
     def __init__(self):
@@ -112,11 +112,13 @@ class TipFinderCuda:
             attrs = drv.In(processed_input), drv.InOut(out),       drv.In(np.array(img.shape)), np.uint8(50),       np.uint8(100)
         elif self.current_method_name == "outline_tips_method_3":
             # uint8_t*input_image,           uint8_t*output_image, int*dims,                    int radius
-            attrs = drv.In(processed_input), drv.InOut(out),       drv.In(np.array(img.shape)), np.uint8(2)
+            attrs = drv.In(processed_input), drv.InOut(out),       drv.In(np.array(img.shape)), np.int16(1)
             
-        
+        print(self.current_method_name)
         self.outline_tips(*attrs, block=(32, 32, 1), grid=(width//32+1, height//32+1))
+        print("cuda done")
         contours, hierarchy = cv2.findContours(out, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+        print("got contours")
         # for i, contour in enumerate(contours):
         #     color = colors[i % len(colors)]
         #     cv2.drawContours(img, [contour], -1, color, 2)
@@ -263,8 +265,8 @@ def make_circles(img_manager):
         
             cv2.imshow("KI", ImageManager.draw_sliders(keyed_image))
             cv2.imshow("IP", ImageManager.draw_sliders(preview_image))
-            cv2.moveWindow("KI", 50, 50)
-            cv2.moveWindow("IP", 50, 50)
+            # cv2.moveWindow("KI", 50, 50)
+            # cv2.moveWindow("IP", 50, 50)
             cv2.setMouseCallback("KI", Slider.mouse_callback)
             cv2.setMouseCallback("IP", Slider.mouse_callback)
             info = f"{img_manager.finder.current_method} {shown_index}"

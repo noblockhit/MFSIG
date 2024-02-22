@@ -10,13 +10,11 @@ __device__ uint8_t get_brightness(uint8_t*img, int x, int y, int width) {
     return (img[get_pos(x, y, width, 0)] + img[get_pos(x, y, width, 1)] + img[get_pos(x, y, width, 2)]) / 3;
 }
 
-__global__ void outline_tips_method_1(uint8_t*input_image, uint8_t*output_image, int*dims) {
+__global__ void outline_tips_method_1(uint8_t*input_image, uint8_t*output_image, int*dims, uint8_t own_thresh, uint8_t ngb_thresh) {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
     int width = dims[1];
     int height = dims[0];
-    uint8_t own_thresh = 55;
-    uint8_t ngb_thresh = 90;
     uint8_t outval = 255;
     if (x < width && y < height) {
         if (get_brightness(input_image, x, y, width) > own_thresh) {
@@ -76,12 +74,11 @@ __global__ void outline_tips_method_2(uint8_t*input_image, uint8_t*output_image,
     }
 }
 
-__global__ void outline_tips_method_3(uint8_t*input_image, uint8_t*output_image, int*dims) {
+__global__ void outline_tips_method_3(uint8_t*input_image, uint8_t*output_image, int*dims, int radius) {
     int center_x = blockIdx.x * blockDim.x + threadIdx.x;
     int center_y = blockIdx.y * blockDim.y + threadIdx.y;
     int width = dims[1];
     int height = dims[0];
-    int radius = 2;
     uint8_t outval = 255;
 
     if (center_x > width || center_y > height) {
