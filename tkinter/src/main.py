@@ -48,7 +48,7 @@ def load_image(name):
 
     elif any(name.lower().endswith(ending) for ending in FILE_EXTENTIONS["RAW"]):
         with rawpy.imread(name) as raw:
-            rgb = raw.postprocess(use_camera_wb=False)
+            rgb = raw.postprocess(use_camera_wb=False, no_auto_bright=False)
 
     if rgb.shape[0] > rgb.shape[1]:
         rgb = cv2.rotate(rgb, cv2.ROTATE_90_CLOCKWISE)
@@ -245,12 +245,11 @@ if __name__ == '__main__':
             image_paths.append(f.name)
 
         def _load_raw_image(p):
-            return load_raw_image(p, "auto")
+            return load_raw_image(p, 0)
         
-        rgb_values = mp.Pool(min(MAX_CORES_FOR_MP, len(image_paths))).imap(_load_raw_image, image_paths)
+        rgb_values = mp.Pool(min(MAX_CORES_FOR_MP, len(image_paths))).imap(load_image, image_paths)
 
         for idx, (name, rgb) in enumerate(zip(image_paths, rgb_values)):
-            print(rgb[1400][2100])
             progress_bar.set((idx+1)/len(image_paths))
             progress_info_strvar.set(f"{(idx+1)}/{len(image_paths)} Images Loaded")
 
