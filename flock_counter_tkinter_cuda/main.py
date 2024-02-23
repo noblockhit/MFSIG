@@ -161,7 +161,7 @@ class ImageManager:
         
         self.image_frame = image_frame
         
-        self.image_panel = GrowingImage(self.image_frame, zoom=True, image = np.zeros((1000, 1000, 3), dtype=np.uint8))
+        self.image_panel = GrowingImage(self.image_frame, zoom_factor=.825, image = np.zeros((1000, 1000, 3), dtype=np.uint8))
         self.image_panel.pack(padx=20, pady=20, expand=True, fill = "both")
 
         self.imgs = collections.OrderedDict({})
@@ -412,7 +412,7 @@ def main():
     customtkinter.set_default_color_theme("dark-blue")
 
     root = customtkinter.CTk(fg_color="gray13")
-    root.geometry("800x800")
+    root.geometry("900x700")
     root.resizable(height=800, width=800)
 
     root.rowconfigure(1, weight=0)

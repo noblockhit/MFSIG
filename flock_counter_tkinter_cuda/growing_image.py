@@ -8,9 +8,10 @@ CTk.set_appearance_mode("System")
 CTk.set_default_color_theme("dark-blue")
 
 class GrowingImage(CTk.CTkCanvas):
-    def __init__(self, parent, *args, zoom=False, image=None, **kw):
+    def __init__(self, parent, *args, zoom_factor=False, image=None, **kw):
         CTk.CTkCanvas.__init__(self, parent, *args, bg="gray13", bd=0, highlightthickness=0, relief='ridge', **kw)
         self.parent = parent
+        self.zoom_factor = zoom_factor
         self.bind('<Configure>', self._config_size)
         self.src_img = image
         self.pil_img = Image.fromarray(image)
@@ -31,7 +32,7 @@ class GrowingImage(CTk.CTkCanvas):
         self.bind("<Motion>", self._mouse_motion)
         self.is_mouse_over = False
 
-        if zoom:
+        if self.zoom_factor is not None:
             self.bind("<MouseWheel>", self._on_mousewheel)
             self.zoom_amount = 1
             self.zoom_x_offset = 0
@@ -82,8 +83,6 @@ class GrowingImage(CTk.CTkCanvas):
 
 
     def _on_mousewheel(self, event):
-        ZOOM_FACTOR = .5
-
         img_mouse_x_portion = self.mouse_x / self.new_image_width
         img_mouse_y_portion = self.mouse_y / self.new_image_height
 
@@ -92,17 +91,22 @@ class GrowingImage(CTk.CTkCanvas):
             if event.delta > 0:
                 if self.zoom_amount * self.src_img.shape[0] < 5 > self.zoom_amount * self.src_img.shape[1]:
                     return
-                self.zoom_x_offset += self.src_img.shape[1] * self.zoom_amount * ZOOM_FACTOR * img_mouse_x_portion
-                self.zoom_y_offset += self.src_img.shape[0] * self.zoom_amount * ZOOM_FACTOR * img_mouse_y_portion
-                self.zoom_amount = self.zoom_amount * ZOOM_FACTOR
+                self.zoom_x_offset += self.src_img.shape[1] * self.zoom_amount * img_mouse_x_portion * (1-self.zoom_factor)
+                self.zoom_y_offset += self.src_img.shape[0] * self.zoom_amount * img_mouse_y_portion * (1-self.zoom_factor)
+                self.zoom_amount = self.zoom_amount * self.zoom_factor
             else:
-                self.zoom_amount = min(1, self.zoom_amount * (1/ZOOM_FACTOR))
-                self.zoom_x_offset -= self.src_img.shape[1] * self.zoom_amount * ZOOM_FACTOR * img_mouse_x_portion
-                self.zoom_y_offset -= self.src_img.shape[0] * self.zoom_amount * ZOOM_FACTOR * img_mouse_y_portion
+                self.zoom_amount = min(1, self.zoom_amount * (1/self.zoom_factor))
+                self.zoom_x_offset -= self.src_img.shape[1] * self.zoom_amount * (1-self.zoom_factor) * img_mouse_x_portion
+                self.zoom_y_offset -= self.src_img.shape[0] * self.zoom_amount * (1-self.zoom_factor) * img_mouse_y_portion
             
-            if self.zoom_amount >= 1:
-                self.zoom_x_offset = 0
-                self.zoom_y_offset = 0
+            self.zoom_x_offset = max(0, self.zoom_x_offset)
+            self.zoom_y_offset = max(0, self.zoom_y_offset)
+            print("---------------------------------------------------------------------")
+            print(f"{int(self.zoom_x_offset):5d} {int(self.zoom_y_offset):5d}")
+            print(f"{int(self.new_image_width):5d} {int(self.new_image_height):5d}")            
+            print(f"{int(self.src_img.shape[1]):5d} {int(self.src_img.shape[0]):5d}")
+            print(f"{int(self.src_img.shape[1] / self.zoom_amount / self.zoom_factor):5d} {int(self.src_img.shape[0] / self.zoom_amount / self.zoom_factor):5d}")
+            print(f"{int(self.src_img.shape[1] * self.zoom_amount):5d} {int(self.src_img.shape[0] * self.zoom_amount):5d}")
             
             if prev_zoom_amount!= self.zoom_amount:
                 self._redraw_image()
