@@ -51,11 +51,11 @@ def load_image(name):
             rgb = raw.postprocess(use_camera_wb=False, no_auto_bright=False)
 
     if rgb.shape[0] > rgb.shape[1]:
-        rgb = cv2.rotate(rgb, cv2.ROTATE_90_CLOCKWISE)
+        rgb = cv2.rotate(rgb, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
 
     ## denoising
-    return cv2.medianBlur(rgb, 5)
+    return cv2.medianBlur(rgb, 1)
 
 
 def save_image(name, cv2_image):
@@ -244,8 +244,6 @@ if __name__ == '__main__':
             
             image_paths.append(f.name)
 
-        def _load_raw_image(p):
-            return load_raw_image(p, 0)
         
         rgb_values = mp.Pool(min(MAX_CORES_FOR_MP, len(image_paths))).imap(load_image, image_paths)
 
