@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="074961e2-3bc0-45d2-bd8f-f3989ef3bb89" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/flock_counter/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/flock_counter/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/flock_counter/rawloader.py" beforeDir="false" afterPath="$PROJECT_DIR$/flock_counter/rawloader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grouped_points.html" beforeDir="false" afterPath="$PROJECT_DIR$/grouped_points.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp.3dgraph" beforeDir="false" afterPath="$PROJECT_DIR$/tmp.3dgraph" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp.html" beforeDir="false" afterPath="$PROJECT_DIR$/tmp.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,7 +24,7 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "last_opened_file_path": "D:/AA_CODING/python/Projects/MFSIG",
+    "last_opened_file_path": "C:/Python310/Lib/site-packages/guitarpro/models.py",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
