@@ -11,6 +11,8 @@ from sbNative.runtimetools import get_path
 import sys
 import customtkinter
 from growing_image import GrowingImage
+from custom_ctk_slider import CCTkSlider
+
 
 global KEYING_MASK_THRESHHOLD
 global CANNY_THRESHHOLD_1
@@ -62,6 +64,25 @@ def find_nearest_pow_2(val):
     for i in range(32):
         if val < 2**i:
             return 2**i
+
+
+def heatmap_color(value):
+    blue = (0, 0, 255)
+    red = (255, 0, 0)
+    orange = (255, 165, 0)  # RGB value for orange
+
+    if value <= 0.5:
+        # Interpolate between blue and orange for the first half
+        r = int((1 - 2 * value) * blue[0] + (2 * value) * orange[0])
+        g = int((1 - 2 * value) * blue[1] + (2 * value) * orange[1])
+        b = int((1 - 2 * value) * blue[2] + (2 * value) * orange[2])
+    else:
+        # Interpolate between orange and red for the second half
+        r = int((1 - 2 * (value - 0.5)) * orange[0] + (2 * (value - 0.5)) * red[0])
+        g = int((1 - 2 * (value - 0.5)) * orange[1] + (2 * (value - 0.5)) * red[1])
+        b = int((1 - 2 * (value - 0.5)) * orange[2] + (2 * (value - 0.5)) * red[2])
+
+    return r, g, b
 
 
 class TipFinderCuda:
@@ -118,7 +139,6 @@ class TipFinderCuda:
         
         color_idx = 0
         tips = []
-        print(TipFinderCuda.length_min)
         for cntr in contours:
             contour_points = cntr.squeeze()
             
@@ -215,22 +235,14 @@ class ImageManager:
         return self.finder.find(image, idx, name)
     
 
-    def draw_clusters(self, name_or_image, clusters):
-        if name_or_image in self.imgs.keys():
-            image = self.imgs[name_or_image]
-            name = name_or_image
-            
-        elif name_or_image in self.imgs.values():
-            image = name_or_image
-            for k, v in self.imgs.items():
-                if v is image:
-                    name = k
-        else:
-            raise ValueError("Unknown image")
+    def draw_clusters(self, image, clusters):
+        if len(clusters) == 0:
+            return image
         img = image.copy()
-        for cluster in clusters:
-            cv2.drawContours(img, [np.array(cluster.points)], 0, (0, 0, 255), 2)
-
+        for cluster in clusters:            
+            color = heatmap_color(len(cluster.points) / len(self.imgs))
+            arr = [np.delete(np.array(cluster.points), 2, 1)]
+            cv2.drawContours(img, arr, 0, color, 2)
         return img
 
 
@@ -239,21 +251,18 @@ class ImageManager:
         
 
         
-def make_circle(img_manager, shown_index, image_type):
+def show_images_with_info(img_manager, shown_index, image_type):
     if len(img_manager.imgs) == 0:
         return
     shown_index = (shown_index + len(img_manager.imgs)) % len(img_manager.imgs)
     shown_image_name = list(img_manager.imgs.keys())[shown_index]
-    Checkpoint()
     preview_image, keyed_image, tips = img_manager.compute(shown_image_name)
-    Checkpoint("computing image")
+    image_with_clusters = img_manager.draw_clusters(preview_image, Cluster.clusters)
     
     if image_type == 1:
-        print("showing type 1")
-        img_manager.show_image(preview_image)
+        img_manager.show_image(image_with_clusters)
     elif image_type == 2:
         img_manager.show_image(keyed_image)
-    Checkpoint("showing image")
 
 
 def line_generator_gpu(circles_x_coords, circles_y_coords, circles_z_coords, radiuses, lines):
@@ -350,19 +359,22 @@ class Cluster:
         else:
             cluster_from_a.merge(cluster_from_b)
     
-    
-    # def __repr__(self) -> str:
-    #     return f"Cluster<{self.points}>"
+    @classmethod
+    def reset(cls):
+        Cluster.point_cluster_dict = {}
+        Cluster.clusters = []
+        Cluster.name_counter = 0
+        
     
     def __repr__(self) -> str:
         return f"Cluster <{self.name}>"
         
 
-def count(lines=None):    
+def count(lines=None):
+    Cluster.reset()  
     if lines is None:
         lines = [[], [], []]
 
-    print(f"There are {len(lines[0])} lines")
     z_lines = [((lines[0][i], lines[1][i], lines[2][i]), (lines[0][i+1], lines[1][i+1], lines[2][i+1])) for i in range(0, len(lines[0]), 3)]
     for idx, line in enumerate(z_lines):
         if line == ((None, None, None), (None, None, None)):
@@ -412,7 +424,7 @@ def main():
     customtkinter.set_default_color_theme("dark-blue")
 
     root = customtkinter.CTk(fg_color="gray13")
-    root.geometry("900x700")
+    root.geometry("1400x1000")
     root.resizable(height=800, width=800)
 
     root.rowconfigure(1, weight=0)
@@ -453,30 +465,49 @@ def main():
 
     def start_procedure():
         img_manager.ask_and_load()
-        make_circle(img_manager, current_image_idx, current_image_type.get())
+        show_images_with_info(img_manager, current_image_idx, current_image_type.get())
         
     def update_current_image_type():
-        make_circle(img_manager, current_image_idx, current_image_type.get())
+        show_images_with_info(img_manager, current_image_idx, current_image_type.get())
         
     def update_blur_size(value):
         TipFinderCuda.blur = current_blur_size.get()
-        make_circle(img_manager, current_image_idx, current_image_type.get())
+        show_images_with_info(img_manager, current_image_idx, current_image_type.get())
     
     def update_brightness_threshold_1(value):
         TipFinderCuda.thresh_1 = brightness_threshold_1.get()
-        make_circle(img_manager, current_image_idx, current_image_type.get())
+        show_images_with_info(img_manager, current_image_idx, current_image_type.get())
     
     def update_brightness_threshold_2(value):
         TipFinderCuda.thresh_2 = brightness_threshold_2.get()
-        make_circle(img_manager, current_image_idx, current_image_type.get())
+        show_images_with_info(img_manager, current_image_idx, current_image_type.get())
         
     def update_contour_length_min(value):
         TipFinderCuda.length_min = contour_length_min.get()
-        make_circle(img_manager, current_image_idx, current_image_type.get())
+        show_images_with_info(img_manager, current_image_idx, current_image_type.get())
         
     def update_contour_length_max(value):
         TipFinderCuda.length_max = contour_length_max.get()
-        make_circle(img_manager, current_image_idx, current_image_type.get())
+        show_images_with_info(img_manager, current_image_idx, current_image_type.get())
+        
+    def combine_tips():
+        all_tips = []
+        for img_name in img_manager.imgs.keys():
+            _, _, tips = img_manager.compute(img_name)
+            all_tips += tips
+            
+        circles_x_coords, circles_y_coords, circles_z_coords, radiuses = zip(*[(center_x, center_y, image_idx, radius) for image_name, center_x, center_y, radius, image_idx in all_tips])
+
+        lines = [
+            [],
+            [],
+            []
+        ]
+        line_generator_gpu(circles_x_coords, circles_y_coords, circles_z_coords, radiuses, lines)
+        count(lines)
+        show_images_with_info(img_manager, current_image_idx, current_image_type.get())
+        
+        
     
         
     load_new_image_button = customtkinter.CTkButton(master=param_frame,
@@ -491,25 +522,28 @@ def main():
                                                     command=update_current_image_type)
     image_bw_or_color_radio2.grid(row=1, column=2, padx=10)
 
-    blur_size_slider = customtkinter.CTkSlider(param_frame, variable=current_blur_size, from_=0, to=100,
+    blur_size_slider = CCTkSlider(param_frame, variable=current_blur_size, from_=0, to=100,
                                                     command=update_blur_size)
     blur_size_slider.grid(row=1, column=3, padx=10)
     
-    brightness_threshold_1_slider = customtkinter.CTkSlider(param_frame, variable=brightness_threshold_1, from_=0, to=255,
+    brightness_threshold_1_slider = CCTkSlider(param_frame, variable=brightness_threshold_1, from_=0, to=255,
                                                     command=update_brightness_threshold_1)
     brightness_threshold_1_slider.grid(row=1, column=4, padx=10)
     
-    brightness_threshold_2_slider = customtkinter.CTkSlider(param_frame, variable=brightness_threshold_2, from_=0, to=255,
+    brightness_threshold_2_slider = CCTkSlider(param_frame, variable=brightness_threshold_2, from_=0, to=255,
                                                     command=update_brightness_threshold_2)
     brightness_threshold_2_slider.grid(row=1, column=5, padx=10)
     
-    contour_length_min_slider = customtkinter.CTkSlider(param_frame, variable=contour_length_min, from_=0, to=2000,
+    contour_length_min_slider = CCTkSlider(param_frame, variable=contour_length_min, from_=0, to=2000,
                                                     command=update_contour_length_min)
     contour_length_min_slider.grid(row=1, column=6, padx=10)
     
-    contour_length_max_slider = customtkinter.CTkSlider(param_frame, variable=contour_length_max, from_=0, to=2000,
+    contour_length_max_slider = CCTkSlider(param_frame, variable=contour_length_max, from_=0, to=2000,
                                                     command=update_contour_length_max)
     contour_length_max_slider.grid(row=1, column=7, padx=10)
+    combine_tips_button = customtkinter.CTkButton(master=param_frame,
+                                                    text="Combine Tips", command=combine_tips)
+    combine_tips_button.grid(row=1, column=8, padx=10)
     
     
     
@@ -520,7 +554,7 @@ def main():
         if img_count == 0:
             return
         current_image_idx = (current_image_idx + img_count -1) % img_count
-        make_circle(img_manager, current_image_idx, current_image_type.get())
+        show_images_with_info(img_manager, current_image_idx, current_image_type.get())
 
     def increase_image_idx(event):
         global current_image_idx
@@ -528,7 +562,7 @@ def main():
         if img_count == 0:
             return
         current_image_idx = (current_image_idx + img_count +1) % img_count
-        make_circle(img_manager, current_image_idx, current_image_type.get())
+        show_images_with_info(img_manager, current_image_idx, current_image_type.get())
 
 
     root.bind("<Left>", decrease_image_idx)
