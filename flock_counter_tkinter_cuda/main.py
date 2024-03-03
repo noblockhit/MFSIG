@@ -5,6 +5,7 @@ import cv2
 from rawloader import load_raw_image
 import numpy as np
 import collections
+import pycuda
 import pycuda.driver as drv
 from pycuda.compiler import SourceModule
 from sbNative.runtimetools import get_path
@@ -94,21 +95,25 @@ class TipFinderCuda:
     ngb_thresh = 100
     
     # method three attrs
-    radius = 3
+    sharpness_radius = 3
+    sharpness_threshold = 0.05
     
     length_min = 50
     length_max = 400
     def __init__(self):
         drv.init()
-        dev = drv.Device(0)
-        ctx = dev.make_context()
+        self.dev = drv.Device(0)
+        self.ctx = self.dev.make_context()
 
         with open(str(get_path() / "outlineTips.cu")) as f:
             self.mod = SourceModule(f.read())
 
         self.available_methods = ["outline_tips_method_1", "outline_tips_method_3"]
-        self._current_method = 1
-        self.current_method = 1
+        self.functions = []
+        for meth in self.available_methods:
+            self.functions.append(self.mod.get_function(meth))
+        self._current_method = 0
+        self.current_method = 0
 
    
     @property
@@ -122,9 +127,9 @@ class TipFinderCuda:
     
     
     @current_method.setter
-    def current_method(self, name):
-        self._current_method = name
-        self.outline_tips = self.mod.get_function(self.available_methods[self._current_method])
+    def current_method(self, value):
+        self._current_method = value
+        self.outline_tips = self.functions[self._current_method]
     
         
     def find(self, input_img, idx, name):
@@ -137,12 +142,13 @@ class TipFinderCuda:
         processed_input = cv2.blur(img, (TipFinderCuda.blur*2+1, TipFinderCuda.blur*2+1))
         
         if self.current_method_name == "outline_tips_method_1":
-            attrs = drv.In(processed_input), drv.InOut(out), drv.In(np.array(img.shape)), np.uint8(TipFinderCuda.own_thresh), np.uint8(TipFinderCuda.ngb_thresh)
+            attrs = drv.InOut(processed_input), drv.InOut(out), drv.In(np.array(img.shape)), np.uint8(TipFinderCuda.own_thresh), np.uint8(TipFinderCuda.ngb_thresh)
         
         elif self.current_method_name == "outline_tips_method_3":
-            attrs = drv.In(processed_input), drv.InOut(out), drv.In(np.array(img.shape)), np.uint8(TipFinderCuda.radius)
+            attrs = drv.InOut(processed_input), drv.InOut(out), drv.In(np.array(img.shape)), np.int16(TipFinderCuda.sharpness_radius), np.double(TipFinderCuda.sharpness_threshold)
         
         self.outline_tips(*attrs, block=(32, 32, 1), grid=(width//32+1, height//32+1))
+        # self.outline_tips(*attrs, block=(4, 4, 1), grid=(1, 1))
         contours, hierarchy = cv2.findContours(out, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
         
         color_idx = 0
@@ -162,9 +168,6 @@ class TipFinderCuda:
                 cv2.circle(img, (cX, cY), 5, (255, 255, 255), -1)
                 for p in contour_points:
                     img[p[1]][p[0]] = colors[color_idx]
-                    # img[p[1]][p[0]+1] = [0, 255, 255]
-                    # img[p[1]+1][p[0]] = [0, 255, 255]
-                    # img[p[1]+1][p[0]+1] = [0, 255, 255]
 
                 color_idx += 1
                 color_idx = color_idx % len(colors)
@@ -390,40 +393,6 @@ def count(lines=None):
         Cluster.add_new_line(line)
 
 
-def confirm(img_manager: ImageManager):
-    shown_index = 0
-    change = True
-    while True:
-        shown_index = (shown_index + len(img_manager.imgs)) % len(img_manager.imgs)
-        shown_image_name = list(img_manager.imgs.keys())[shown_index]
-        
-        if change:
-            image_with_clusters = img_manager.draw_clusters(shown_image_name, Cluster.clusters)
-        
-            cv2.imshow("IWC", image_with_clusters)
-            cv2.moveWindow("IWC", 50, 50)
-            info = f"{shown_index}"
-            cv2.setWindowTitle("IWC", f"Image with Clusters {info}")
-        
-        
-        change = True
-        key_ord = cv2.waitKey(1)
-        
-
-        if key_ord == ord("q"):
-            shown_index -= 1
-        elif key_ord == ord("e"):
-            shown_index += 1
-            
-            
-        elif key_ord == ord("s"):
-            break
-            cv2.destroyAllWindows()
-            break
-        else:
-            change = False
-
-
 def main():
     if sys.platform.startswith("win32"):
         mp.freeze_support()
@@ -445,11 +414,13 @@ def main():
     param_frame.rowconfigure(0, weight=1)
     param_frame.rowconfigure(1, weight=1)
     param_frame.columnconfigure((0,1,2,3,4,5,6,7), weight=1)
-    customtkinter.CTkLabel(param_frame, text="Blurring Radius").grid(row=0, column=3)
-    customtkinter.CTkLabel(param_frame, text="Threshhold Min").grid(row=0, column=4)
-    customtkinter.CTkLabel(param_frame, text="Threshhold Max").grid(row=0, column=5)
-    customtkinter.CTkLabel(param_frame, text="Contour Length Min").grid(row=0, column=6)
-    customtkinter.CTkLabel(param_frame, text="Contour Length Max").grid(row=0, column=7)
+    customtkinter.CTkLabel(param_frame, text="Blurring Radius").grid(row=0, column=4)
+    own_thresh_label = customtkinter.CTkLabel(param_frame, text="Own Threshhold")
+    nbg_thresh_label = customtkinter.CTkLabel(param_frame, text="Neighbour Threshhold")
+    sharp_rad_label = customtkinter.CTkLabel(param_frame, text="Sharpness Radius")
+    sharp_thresh_label = customtkinter.CTkLabel(param_frame, text="Sharpness Threshhold")
+    customtkinter.CTkLabel(param_frame, text="Contour Length Min").grid(row=0, column=7)
+    customtkinter.CTkLabel(param_frame, text="Contour Length Max").grid(row=0, column=8)
 
     image_frame = customtkinter.CTkFrame(root)
     image_frame.grid(row=2, column=0, sticky="nesw")
@@ -458,15 +429,18 @@ def main():
     global current_image_idx
     global current_image_type
     global current_blur_size
-    global brightness_threshold_1
-    global brightness_threshold_2
+    global own_brightness_threshold
+    global neighbour_brightness_threshold
     global contour_length_min
     global contour_length_max
     current_image_idx = 0
     current_image_type = customtkinter.IntVar(None, 1)
+    current_method = customtkinter.IntVar(None, img_manager.finder.current_method)
     current_blur_size = customtkinter.IntVar(None, 0)
-    brightness_threshold_1 = customtkinter.IntVar(None, 50)
-    brightness_threshold_2 = customtkinter.IntVar(None, 100)
+    own_brightness_threshold = customtkinter.IntVar(None, 50)
+    neighbour_brightness_threshold = customtkinter.IntVar(None, 100)
+    sharpness_radius = customtkinter.IntVar(None, TipFinderCuda.sharpness_radius)
+    sharpness_threshold = customtkinter.IntVar(None, TipFinderCuda.sharpness_threshold*1000)
     contour_length_min = customtkinter.IntVar(None, 50)
     contour_length_max = customtkinter.IntVar(None, 400)
     
@@ -477,17 +451,50 @@ def main():
         
     def update_current_image_type():
         show_images_with_info(img_manager, current_image_idx, current_image_type.get())
+    
+    def update_current_method():
+        img_manager.finder.current_method = current_method.get()
+        if img_manager.finder.current_method == 0:
+            own_brightness_threshold_slider.grid(row=1, column=5, padx=10)
+            neighbour_brightness_threshold_slider.grid(row=1, column=6, padx=10)
+            own_thresh_label.grid(row=0, column=5)
+            nbg_thresh_label.grid(row=0, column=6)
+            sharpness_radius_slider.grid_forget()
+            sharpness_threshold_slider.grid_forget()
+            sharp_rad_label.grid_forget()
+            sharp_thresh_label.grid_forget()
+            
+        elif img_manager.finder.current_method == 1:
+            sharpness_radius_slider.grid(row=1, column=5, padx=10)
+            sharpness_threshold_slider.grid(row=1, column=6, padx=10)
+            sharp_rad_label.grid(row=0, column=5)
+            sharp_thresh_label.grid(row=0, column=6)
+            own_brightness_threshold_slider.grid_forget()
+            neighbour_brightness_threshold_slider.grid_forget()
+            own_thresh_label.grid_forget()
+            nbg_thresh_label.grid_forget()
         
+        
+        show_images_with_info(img_manager, current_image_idx, current_image_type.get())
+    
+    def update_sharpness_radius(value):
+        TipFinderCuda.sharpness_radius = sharpness_radius.get()
+        show_images_with_info(img_manager, current_image_idx, current_image_type.get())
+        
+    def update_sharpness_threshold(value):
+        TipFinderCuda.sharpness_threshold = sharpness_threshold.get()/1000
+        show_images_with_info(img_manager, current_image_idx, current_image_type.get())
+    
     def update_blur_size(value):
         TipFinderCuda.blur = current_blur_size.get()
         show_images_with_info(img_manager, current_image_idx, current_image_type.get())
     
-    def update_brightness_threshold_1(value):
-        TipFinderCuda.own_thresh = brightness_threshold_1.get()
+    def update_own_brightness_threshold(value):
+        TipFinderCuda.own_thresh = own_brightness_threshold.get()
         show_images_with_info(img_manager, current_image_idx, current_image_type.get())
     
-    def update_brightness_threshold_2(value):
-        TipFinderCuda.ngb_thresh = brightness_threshold_2.get()
+    def update_neighbour_brightness_threshold(value):
+        TipFinderCuda.ngb_thresh = neighbour_brightness_threshold.get()
         show_images_with_info(img_manager, current_image_idx, current_image_type.get())
         
     def update_contour_length_min(value):
@@ -522,36 +529,51 @@ def main():
                                                     text="Load new image", command=start_procedure)
     load_new_image_button.grid(row=1, column=0, padx=10)
     
+    combine_tips_button = customtkinter.CTkButton(master=param_frame,
+                                                    text="Combine Tips", command=combine_tips)
+    combine_tips_button.grid(row=1, column=1, padx=10)
+    
+    binary_method_radio1 = customtkinter.CTkRadioButton(param_frame, text="Binary method 1", variable=current_method, value=0,
+                                                    command=update_current_method)
+    binary_method_radio1.grid(row=0, column=2, padx=10)
+    # Create another radio button
+    binary_method_radio2 = customtkinter.CTkRadioButton(param_frame, text="Binary method 2", variable=current_method, value=1,
+                                                    command=update_current_method)
+    binary_method_radio2.grid(row=0, column=3, padx=10)
+    
     image_bw_or_color_radio1 = customtkinter.CTkRadioButton(param_frame, text="Colored Image", variable=current_image_type, value=1,
                                                     command=update_current_image_type)
-    image_bw_or_color_radio1.grid(row=1, column=1, padx=10)
+    image_bw_or_color_radio1.grid(row=1, column=2, padx=10)
     # Create another radio button
     image_bw_or_color_radio2 = customtkinter.CTkRadioButton(param_frame, text="Binary Image", variable=current_image_type, value=2,
                                                     command=update_current_image_type)
-    image_bw_or_color_radio2.grid(row=1, column=2, padx=10)
+    image_bw_or_color_radio2.grid(row=1, column=3, padx=10)
 
     blur_size_slider = CCTkSlider(param_frame, variable=current_blur_size, from_=0, to=100,
                                                     command=update_blur_size)
-    blur_size_slider.grid(row=1, column=3, padx=10)
+    blur_size_slider.grid(row=1, column=4, padx=10)
     
-    brightness_threshold_1_slider = CCTkSlider(param_frame, variable=brightness_threshold_1, from_=0, to=255,
-                                                    command=update_brightness_threshold_1)
-    brightness_threshold_1_slider.grid(row=1, column=4, padx=10)
+    own_brightness_threshold_slider = CCTkSlider(param_frame, variable=own_brightness_threshold, from_=0, to=255,
+                                                    command=update_own_brightness_threshold)
+
     
-    brightness_threshold_2_slider = CCTkSlider(param_frame, variable=brightness_threshold_2, from_=0, to=255,
-                                                    command=update_brightness_threshold_2)
-    brightness_threshold_2_slider.grid(row=1, column=5, padx=10)
+    neighbour_brightness_threshold_slider = CCTkSlider(param_frame, variable=neighbour_brightness_threshold, from_=0, to=255,
+                                                    command=update_neighbour_brightness_threshold)
+
+    
+    sharpness_radius_slider = CCTkSlider(param_frame, variable=sharpness_radius, from_=1, to=50,
+                                                    command=update_sharpness_radius)
+    
+    sharpness_threshold_slider = CCTkSlider(param_frame, variable=sharpness_threshold, from_=0, to=1000,
+                                                    command=update_sharpness_threshold)
     
     contour_length_min_slider = CCTkSlider(param_frame, variable=contour_length_min, from_=0, to=2000,
                                                     command=update_contour_length_min)
-    contour_length_min_slider.grid(row=1, column=6, padx=10)
+    contour_length_min_slider.grid(row=1, column=7, padx=10)
     
     contour_length_max_slider = CCTkSlider(param_frame, variable=contour_length_max, from_=0, to=2000,
                                                     command=update_contour_length_max)
-    contour_length_max_slider.grid(row=1, column=7, padx=10)
-    combine_tips_button = customtkinter.CTkButton(master=param_frame,
-                                                    text="Combine Tips", command=combine_tips)
-    combine_tips_button.grid(row=1, column=8, padx=10)
+    contour_length_max_slider.grid(row=1, column=8, padx=10)
     
     
     
@@ -575,7 +597,7 @@ def main():
 
     root.bind("<Left>", decrease_image_idx)
     root.bind("<Right>", increase_image_idx)
-
+    update_current_method()
 
     root.mainloop()   
 

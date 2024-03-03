@@ -118,8 +118,6 @@ class GrowingImage(CTk.CTkCanvas):
             self.zoom_x_offset = min(-self.src_img.shape[1] * self.zoom_amount + self.src_img.shape[1], self.zoom_x_offset)
             self.zoom_y_offset = min(-self.src_img.shape[0] * self.zoom_amount + self.src_img.shape[0], self.zoom_y_offset)
             if prev_attrs != (self.zoom_amount, self.zoom_x_offset, self.zoom_y_offset):
-                print("doing smth")
-                
                 self._redraw_image()
 
 

@@ -74,14 +74,14 @@ __global__ void outline_tips_method_2(uint8_t*input_image, uint8_t*output_image,
     }
 }
 
-__global__ void outline_tips_method_3(uint8_t*input_image, uint8_t*output_image, int*dims, int radius) {
+__global__ void outline_tips_method_3(uint8_t*input_image, uint8_t*output_image, int*dims, int radius, double thresh) {
     int center_x = blockIdx.x * blockDim.x + threadIdx.x;
     int center_y = blockIdx.y * blockDim.y + threadIdx.y;
     int width = dims[1];
     int height = dims[0];
     uint8_t outval = 255;
 
-    if (center_x > width || center_y > height) {
+    if (center_x > width || center_y > height || center_x < 0 || center_y < 0) {
         return;
     }
 
@@ -93,7 +93,6 @@ __global__ void outline_tips_method_3(uint8_t*input_image, uint8_t*output_image,
 
     int calculated_pixels = 0;
 
-    
     for (int x = center_x-radius; x < center_x+radius+1; x++) {
         for (int y = center_y-radius; y < center_y+radius+1; y++) {
             if (x < 0 || y < 0 || x > width || y > height) {
@@ -104,15 +103,16 @@ __global__ void outline_tips_method_3(uint8_t*input_image, uint8_t*output_image,
                 continue;
             }
             
-            float d = (float)(abs(abs(center_b) - abs(input_image[get_pos(x, y, width, 0)])) + abs(abs(center_g) - abs(input_image[get_pos(x, y, width, 1)])) + abs(abs(center_r) - abs(input_image[get_pos(x, y, width, 2)])));
+            int d = abs(center_b - input_image[get_pos(x, y, width, 0)]) + abs(center_g - input_image[get_pos(x, y, width, 1)]) + abs(center_r - input_image[get_pos(x, y, width, 2)]);
             
-            delta += (int)d;
+            delta += d;
             calculated_pixels++;
         }
     }
     double sharpness = (double)(delta) / (double)(calculated_pixels * 3 * 255);
+    // double sharpness = 0.001;
     
-    if (sharpness > 0.05) {
+    if (sharpness > thresh) {
         output_image[get_pos_bw(center_x, center_y, width)] = outval;
     }
 }
