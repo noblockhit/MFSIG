@@ -68,27 +68,34 @@ def find_nearest_pow_2(val):
 
 def heatmap_color(value):
     blue = (0, 0, 255)
+    orange = (250, 165, -50)
     red = (255, 0, 0)
-    orange = (255, 165, 0)  # RGB value for orange
 
-    if value <= 0.5:
-        # Interpolate between blue and orange for the first half
+    if value <= .5:
         r = int((1 - 2 * value) * blue[0] + (2 * value) * orange[0])
         g = int((1 - 2 * value) * blue[1] + (2 * value) * orange[1])
         b = int((1 - 2 * value) * blue[2] + (2 * value) * orange[2])
     else:
-        # Interpolate between orange and red for the second half
         r = int((1 - 2 * (value - 0.5)) * orange[0] + (2 * (value - 0.5)) * red[0])
         g = int((1 - 2 * (value - 0.5)) * orange[1] + (2 * (value - 0.5)) * red[1])
         b = int((1 - 2 * (value - 0.5)) * orange[2] + (2 * (value - 0.5)) * red[2])
 
+    r = min(255, max(0, r))
+    g = min(255, max(0, g))
+    b = min(255, max(0, b))
     return r, g, b
 
 
 class TipFinderCuda:
     blur = 0
-    thresh_1 = 50
-    thresh_2 = 100
+    
+    # method one attrs
+    own_thresh = 50
+    ngb_thresh = 100
+    
+    # method three attrs
+    radius = 3
+    
     length_min = 50
     length_max = 400
     def __init__(self):
@@ -100,8 +107,8 @@ class TipFinderCuda:
             self.mod = SourceModule(f.read())
 
         self.available_methods = ["outline_tips_method_1", "outline_tips_method_3"]
-        self._current_method = 0
-        self.current_method = 0
+        self._current_method = 1
+        self.current_method = 1
 
    
     @property
@@ -115,8 +122,8 @@ class TipFinderCuda:
     
     
     @current_method.setter
-    def current_method(self, value):
-        self._current_method = value
+    def current_method(self, name):
+        self._current_method = name
         self.outline_tips = self.mod.get_function(self.available_methods[self._current_method])
     
         
@@ -129,13 +136,14 @@ class TipFinderCuda:
 
         processed_input = cv2.blur(img, (TipFinderCuda.blur*2+1, TipFinderCuda.blur*2+1))
         
-        attrs = drv.In(processed_input), drv.InOut(out), drv.In(np.array(img.shape)), np.uint8(TipFinderCuda.thresh_1), np.uint8(TipFinderCuda.thresh_2)
+        if self.current_method_name == "outline_tips_method_1":
+            attrs = drv.In(processed_input), drv.InOut(out), drv.In(np.array(img.shape)), np.uint8(TipFinderCuda.own_thresh), np.uint8(TipFinderCuda.ngb_thresh)
+        
+        elif self.current_method_name == "outline_tips_method_3":
+            attrs = drv.In(processed_input), drv.InOut(out), drv.In(np.array(img.shape)), np.uint8(TipFinderCuda.radius)
         
         self.outline_tips(*attrs, block=(32, 32, 1), grid=(width//32+1, height//32+1))
         contours, hierarchy = cv2.findContours(out, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-        # for i, contour in enumerate(contours):
-        #     color = colors[i % len(colors)]
-        #     cv2.drawContours(img, [contour], -1, color, 2)
         
         color_idx = 0
         tips = []
@@ -475,11 +483,11 @@ def main():
         show_images_with_info(img_manager, current_image_idx, current_image_type.get())
     
     def update_brightness_threshold_1(value):
-        TipFinderCuda.thresh_1 = brightness_threshold_1.get()
+        TipFinderCuda.own_thresh = brightness_threshold_1.get()
         show_images_with_info(img_manager, current_image_idx, current_image_type.get())
     
     def update_brightness_threshold_2(value):
-        TipFinderCuda.thresh_2 = brightness_threshold_2.get()
+        TipFinderCuda.ngb_thresh = brightness_threshold_2.get()
         show_images_with_info(img_manager, current_image_idx, current_image_type.get())
         
     def update_contour_length_min(value):

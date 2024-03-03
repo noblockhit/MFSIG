@@ -86,27 +86,41 @@ class GrowingImage(CTk.CTkCanvas):
         img_mouse_x_portion = self.mouse_x / self.new_image_width
         img_mouse_y_portion = self.mouse_y / self.new_image_height
 
-        if self.is_mouse_over and event.state == 4:
-            prev_zoom_amount = self.zoom_amount
-            if event.delta > 0:
-                if self.zoom_amount * self.src_img.shape[0] < 5 > self.zoom_amount * self.src_img.shape[1]:
-                    return
-                self.zoom_x_offset += self.src_img.shape[1] * self.zoom_amount * img_mouse_x_portion * (1-self.zoom_factor)
-                self.zoom_y_offset += self.src_img.shape[0] * self.zoom_amount * img_mouse_y_portion * (1-self.zoom_factor)
-                self.zoom_amount = self.zoom_amount * self.zoom_factor
-            else:
-                self.zoom_amount = min(1, self.zoom_amount * (1/self.zoom_factor))
-                self.zoom_x_offset -= self.src_img.shape[1] * self.zoom_amount * (1-self.zoom_factor) * img_mouse_x_portion
-                self.zoom_y_offset -= self.src_img.shape[0] * self.zoom_amount * (1-self.zoom_factor) * img_mouse_y_portion
-            
+        if self.is_mouse_over:
+            prev_attrs = self.zoom_amount, self.zoom_x_offset, self.zoom_y_offset
+            if event.state == 4:
+                if event.delta > 0:
+                    if self.zoom_amount * self.src_img.shape[0] < 5 > self.zoom_amount * self.src_img.shape[1]:
+                        return
+                    self.zoom_x_offset += self.src_img.shape[1] * self.zoom_amount * img_mouse_x_portion * (1-self.zoom_factor)
+                    self.zoom_y_offset += self.src_img.shape[0] * self.zoom_amount * img_mouse_y_portion * (1-self.zoom_factor)
+                    self.zoom_amount = self.zoom_amount * self.zoom_factor
+                else:
+                    self.zoom_amount = min(1, self.zoom_amount * (1/self.zoom_factor))
+                    self.zoom_x_offset -= self.src_img.shape[1] * self.zoom_amount * (1-self.zoom_factor) * img_mouse_x_portion
+                    self.zoom_y_offset -= self.src_img.shape[0] * self.zoom_amount * (1-self.zoom_factor) * img_mouse_y_portion
+                
+                
+            elif event.state == 0:
+                if event.delta > 0:
+                    self.zoom_y_offset -= 50 * self.zoom_amount**.5
+                else:
+                    self.zoom_y_offset += 50 * self.zoom_amount**.5
+
+            elif event.state == 1:
+                if event.delta > 0:
+                    self.zoom_x_offset -= 50 * self.zoom_amount**.5
+                else:
+                    self.zoom_x_offset += 50 * self.zoom_amount**.5
+                    
             self.zoom_x_offset = max(0, self.zoom_x_offset)
             self.zoom_y_offset = max(0, self.zoom_y_offset)
             self.zoom_x_offset = min(-self.src_img.shape[1] * self.zoom_amount + self.src_img.shape[1], self.zoom_x_offset)
             self.zoom_y_offset = min(-self.src_img.shape[0] * self.zoom_amount + self.src_img.shape[0], self.zoom_y_offset)
-            
-            if prev_zoom_amount!= self.zoom_amount:
+            if prev_attrs != (self.zoom_amount, self.zoom_x_offset, self.zoom_y_offset):
+                print("doing smth")
+                
                 self._redraw_image()
-        
 
 
     def _config_size(self, event=None):
