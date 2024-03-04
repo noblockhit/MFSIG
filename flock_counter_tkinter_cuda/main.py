@@ -156,7 +156,7 @@ class TipFinderCuda:
         for cntr in contours:
             contour_points = cntr.squeeze()
             
-            if TipFinderCuda.length_min < len(contour_points) < TipFinderCuda.length_max:
+            if TipFinderCuda.length_min < len(contour_points) <= TipFinderCuda.length_max:
                 M = cv2.moments(cntr)
                 if M["m00"] == 0:
                     continue
@@ -414,13 +414,16 @@ def main():
     param_frame.rowconfigure(0, weight=1)
     param_frame.rowconfigure(1, weight=1)
     param_frame.columnconfigure((0,1,2,3,4,5,6,7), weight=1)
-    customtkinter.CTkLabel(param_frame, text="Blurring Radius").grid(row=0, column=4)
+    blur_radius_label = customtkinter.CTkLabel(param_frame, text="Blurring Radius")
     own_thresh_label = customtkinter.CTkLabel(param_frame, text="Own Threshhold")
     nbg_thresh_label = customtkinter.CTkLabel(param_frame, text="Neighbour Threshhold")
     sharp_rad_label = customtkinter.CTkLabel(param_frame, text="Sharpness Radius")
     sharp_thresh_label = customtkinter.CTkLabel(param_frame, text="Sharpness Threshhold")
-    customtkinter.CTkLabel(param_frame, text="Contour Length Min").grid(row=0, column=7)
-    customtkinter.CTkLabel(param_frame, text="Contour Length Max").grid(row=0, column=8)
+    contour_length_min_label = customtkinter.CTkLabel(param_frame, text="Contour Length Min")
+    contour_length_max_label = customtkinter.CTkLabel(param_frame, text="Contour Length Max")
+    blur_radius_label.grid(row=0, column=4)
+    contour_length_min_label.grid(row=0, column=7)
+    contour_length_max_label.grid(row=0, column=8)
 
     image_frame = customtkinter.CTkFrame(root)
     image_frame.grid(row=2, column=0, sticky="nesw")
@@ -477,33 +480,48 @@ def main():
         
         show_images_with_info(img_manager, current_image_idx, current_image_type.get())
     
-    def update_sharpness_radius(value):
+    def update_sharpness_radius(*_):
         TipFinderCuda.sharpness_radius = sharpness_radius.get()
+        sharp_rad_label.configure(True, text=f"Sharpness Radius: {TipFinderCuda.sharpness_radius}")
         show_images_with_info(img_manager, current_image_idx, current_image_type.get())
         
-    def update_sharpness_threshold(value):
+    def update_sharpness_threshold(*_):
         TipFinderCuda.sharpness_threshold = sharpness_threshold.get()/1000
+        sharp_thresh_label.configure(True, text=f"Sharpness Threshold: {TipFinderCuda.sharpness_threshold}")
         show_images_with_info(img_manager, current_image_idx, current_image_type.get())
     
-    def update_blur_size(value):
+    def update_blur_size(*_):
         TipFinderCuda.blur = current_blur_size.get()
+        blur_radius_label.configure(True, text=f"Blurring Radius: {TipFinderCuda.blur}")
         show_images_with_info(img_manager, current_image_idx, current_image_type.get())
     
-    def update_own_brightness_threshold(value):
+    def update_own_brightness_threshold(*_):
         TipFinderCuda.own_thresh = own_brightness_threshold.get()
+        own_thresh_label.configure(True, text=f"Own Threshold: {TipFinderCuda.own_thresh}")
         show_images_with_info(img_manager, current_image_idx, current_image_type.get())
     
-    def update_neighbour_brightness_threshold(value):
+    def update_neighbour_brightness_threshold(*_):
         TipFinderCuda.ngb_thresh = neighbour_brightness_threshold.get()
+        nbg_thresh_label.configure(True, text=f"Neighbour Threshold: {TipFinderCuda.ngb_thresh}")
         show_images_with_info(img_manager, current_image_idx, current_image_type.get())
         
-    def update_contour_length_min(value):
+    def update_contour_length_min(*_):
         TipFinderCuda.length_min = contour_length_min.get()
-        show_images_with_info(img_manager, current_image_idx, current_image_type.get())
+        contour_length_min_label.configure(True, text=f"Contour Length Min: {TipFinderCuda.length_min}")
+        if TipFinderCuda.length_min >= TipFinderCuda.length_max:
+            contour_length_max.set(TipFinderCuda.length_min+1)
+            update_contour_length_max()
+        else:
+            show_images_with_info(img_manager, current_image_idx, current_image_type.get())
         
-    def update_contour_length_max(value):
+    def update_contour_length_max(*_):
         TipFinderCuda.length_max = contour_length_max.get()
-        show_images_with_info(img_manager, current_image_idx, current_image_type.get())
+        contour_length_max_label.configure(True, text=f"Contour Length Max: {TipFinderCuda.length_max}")
+        if TipFinderCuda.length_max <= TipFinderCuda.length_min:
+            contour_length_min.set(TipFinderCuda.length_max-1)
+            update_contour_length_min()
+        else:
+            show_images_with_info(img_manager, current_image_idx, current_image_type.get())
         
     def combine_tips():
         all_tips = []
@@ -535,19 +553,19 @@ def main():
     
     binary_method_radio1 = customtkinter.CTkRadioButton(param_frame, text="Binary method 1", variable=current_method, value=0,
                                                     command=update_current_method)
-    binary_method_radio1.grid(row=0, column=2, padx=10)
+    binary_method_radio1.grid(row=0, column=2, padx=10, sticky="w")
     # Create another radio button
     binary_method_radio2 = customtkinter.CTkRadioButton(param_frame, text="Binary method 2", variable=current_method, value=1,
                                                     command=update_current_method)
-    binary_method_radio2.grid(row=0, column=3, padx=10)
+    binary_method_radio2.grid(row=1, column=2, padx=10, sticky="w")
     
     image_bw_or_color_radio1 = customtkinter.CTkRadioButton(param_frame, text="Colored Image", variable=current_image_type, value=1,
                                                     command=update_current_image_type)
-    image_bw_or_color_radio1.grid(row=1, column=2, padx=10)
+    image_bw_or_color_radio1.grid(row=0, column=3, padx=10, sticky="w")
     # Create another radio button
     image_bw_or_color_radio2 = customtkinter.CTkRadioButton(param_frame, text="Binary Image", variable=current_image_type, value=2,
                                                     command=update_current_image_type)
-    image_bw_or_color_radio2.grid(row=1, column=3, padx=10)
+    image_bw_or_color_radio2.grid(row=1, column=3, padx=10, sticky="w")
 
     blur_size_slider = CCTkSlider(param_frame, variable=current_blur_size, from_=0, to=100,
                                                     command=update_blur_size)
@@ -571,7 +589,7 @@ def main():
                                                     command=update_contour_length_min)
     contour_length_min_slider.grid(row=1, column=7, padx=10)
     
-    contour_length_max_slider = CCTkSlider(param_frame, variable=contour_length_max, from_=0, to=2000,
+    contour_length_max_slider = CCTkSlider(param_frame, variable=contour_length_max, from_=1, to=2001,
                                                     command=update_contour_length_max)
     contour_length_max_slider.grid(row=1, column=8, padx=10)
     
@@ -598,6 +616,13 @@ def main():
     root.bind("<Left>", decrease_image_idx)
     root.bind("<Right>", increase_image_idx)
     update_current_method()
+    update_sharpness_radius()
+    update_sharpness_threshold()
+    update_blur_size()
+    update_own_brightness_threshold()
+    update_neighbour_brightness_threshold()
+    update_contour_length_min()
+    update_contour_length_max()
 
     root.mainloop()   
 
