@@ -13,6 +13,7 @@ import sys
 import customtkinter
 from growing_image import GrowingImage
 from custom_ctk_slider import CCTkSlider
+import threading
 
 
 global KEYING_MASK_THRESHHOLD
@@ -85,6 +86,30 @@ def heatmap_color(value):
     g = min(255, max(0, g))
     b = min(255, max(0, b))
     return r, g, b
+
+
+class Animator:
+    active_flashing = {}
+    stop_flashing_queue = []
+    
+    @classmethod
+    def flash(cls, root, tkinter_obj: customtkinter.CTkBaseClass, i=0):
+        if i > 0 and tkinter_obj not in cls.active_flashing:
+            return
+        cls.active_flashing[tkinter_obj] = i
+        if i % 2 == 0:
+            tkinter_obj.configure(True, border_width=3, border_color="deep pink")
+        else:
+            tkinter_obj.configure(True, border_width=0)
+            if tkinter_obj in cls.stop_flashing_queue:
+                cls.stop_flashing_queue.remove(tkinter_obj)
+                return
+        root.after(350, cls.flash, root, tkinter_obj, i+1)
+    
+    @classmethod
+    def stop_flashing(cls, tkinter_obj: customtkinter.CTkBaseClass):
+        cls.stop_flashing_queue.append(tkinter_obj)
+        
 
 
 class TipFinderCuda:
@@ -260,8 +285,7 @@ class ImageManager:
     def show_image(self, image):
         self.image_panel.img = image
         
-
-        
+     
 def show_images_with_info(img_manager, shown_index, image_type):
     if len(img_manager.imgs) == 0:
         return
@@ -448,7 +472,8 @@ def main():
     contour_length_max = customtkinter.IntVar(None, 400)
     
 
-    def start_procedure():
+    def open_new_images():
+        Animator.stop_flashing(load_new_images_button)
         img_manager.ask_and_load()
         show_images_with_info(img_manager, current_image_idx, current_image_type.get())
         
@@ -543,9 +568,9 @@ def main():
         
     
         
-    load_new_image_button = customtkinter.CTkButton(master=param_frame,
-                                                    text="Load new image", command=start_procedure)
-    load_new_image_button.grid(row=1, column=0, padx=10)
+    load_new_images_button = customtkinter.CTkButton(master=param_frame,
+                                                    text="Load new image", command=open_new_images)
+    load_new_images_button.grid(row=1, column=0, padx=10)
     
     combine_tips_button = customtkinter.CTkButton(master=param_frame,
                                                     text="Combine Tips", command=combine_tips)
@@ -623,6 +648,7 @@ def main():
     update_neighbour_brightness_threshold()
     update_contour_length_min()
     update_contour_length_max()
+    Animator.flash(root, load_new_images_button)
 
     root.mainloop()   
 
