@@ -2,7 +2,8 @@ import customtkinter as CTk
 from tkinter.constants import *
 from PIL import ImageTk, Image
 import time
-
+from checkpoint import Checkpoint
+import cv2
 
 CTk.set_appearance_mode("System")
 CTk.set_default_color_theme("dark-blue")
@@ -24,7 +25,9 @@ class GrowingImage(CTk.CTkCanvas):
         self.mouse_src_img_y = -1
         self.mouse_x = -1
         self.mouse_y = -1
-
+        self.img_mouse_x_portion = -1
+        self.img_mouse_y_portion = -1
+        
         self.src_aspect_ratio = self.src_img.shape[0] / self.src_img.shape[1]
         self.bind("<Enter>", self._set_mouseover_true)
         self.bind("<Leave>", self._set_mouseover_false)
@@ -41,7 +44,8 @@ class GrowingImage(CTk.CTkCanvas):
     @property
     def img(self):
         return self.src_img
-    
+
+
     @img.setter
     def img(self, image):
         self.src_img = image
@@ -72,6 +76,8 @@ class GrowingImage(CTk.CTkCanvas):
         
         self.mouse_src_img_x = int((self.mouse_x / self.new_image_width) * self.src_img.shape[0])
         self.mouse_src_img_y = int((self.mouse_y / self.new_image_height) * self.src_img.shape[1])
+        self.img_mouse_x_portion = self.mouse_x / self.new_image_width
+        self.img_mouse_y_portion = self.mouse_y / self.new_image_height
 
 
     def _set_mouseover_true(self, event):
@@ -83,8 +89,6 @@ class GrowingImage(CTk.CTkCanvas):
 
 
     def _on_mousewheel(self, event):
-        img_mouse_x_portion = self.mouse_x / self.new_image_width
-        img_mouse_y_portion = self.mouse_y / self.new_image_height
 
         if self.is_mouse_over:
             prev_attrs = self.zoom_amount, self.zoom_x_offset, self.zoom_y_offset
@@ -92,13 +96,13 @@ class GrowingImage(CTk.CTkCanvas):
                 if event.delta > 0:
                     if self.zoom_amount * self.src_img.shape[0] < 5 > self.zoom_amount * self.src_img.shape[1]:
                         return
-                    self.zoom_x_offset += self.src_img.shape[1] * self.zoom_amount * img_mouse_x_portion * (1-self.zoom_factor)
-                    self.zoom_y_offset += self.src_img.shape[0] * self.zoom_amount * img_mouse_y_portion * (1-self.zoom_factor)
+                    self.zoom_x_offset += self.src_img.shape[1] * self.zoom_amount * self.img_mouse_x_portion * (1-self.zoom_factor)
+                    self.zoom_y_offset += self.src_img.shape[0] * self.zoom_amount * self.img_mouse_y_portion * (1-self.zoom_factor)
                     self.zoom_amount = self.zoom_amount * self.zoom_factor
                 else:
                     self.zoom_amount = min(1, self.zoom_amount * (1/self.zoom_factor))
-                    self.zoom_x_offset -= self.src_img.shape[1] * self.zoom_amount * (1-self.zoom_factor) * img_mouse_x_portion
-                    self.zoom_y_offset -= self.src_img.shape[0] * self.zoom_amount * (1-self.zoom_factor) * img_mouse_y_portion
+                    self.zoom_x_offset -= self.src_img.shape[1] * self.zoom_amount * (1-self.zoom_factor) * self.img_mouse_x_portion
+                    self.zoom_y_offset -= self.src_img.shape[0] * self.zoom_amount * (1-self.zoom_factor) * self.img_mouse_y_portion
                 
                 
             elif event.state == 0:
@@ -139,13 +143,16 @@ class GrowingImage(CTk.CTkCanvas):
 
         self._redraw_image()
 
+
     def _redraw_image(self):
         self.img_cropped = self.pil_img.crop((self.zoom_x_offset,
                                               self.zoom_y_offset,
                                               self.src_img.shape[1] * self.zoom_amount + self.zoom_x_offset,
                                               self.src_img.shape[0] * self.zoom_amount + self.zoom_y_offset))
         
-        self.image = ImageTk.PhotoImage(self.img_cropped.resize((self.new_image_width, self.new_image_height)))
+        resized = self.img_cropped.resize((self.new_image_width, self.new_image_height), Image.NEAREST)
+
+        self.image = ImageTk.PhotoImage(resized)
         
         self.create_image(
             self.box_width // 2,

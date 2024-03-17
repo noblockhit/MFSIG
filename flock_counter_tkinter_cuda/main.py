@@ -14,6 +14,9 @@ import customtkinter
 from growing_image import GrowingImage
 from custom_ctk_slider import CCTkSlider
 import threading
+from checkpoint import Checkpoint
+import scipy
+from scipy.spatial import ConvexHull
 
 
 global KEYING_MASK_THRESHHOLD
@@ -34,16 +37,6 @@ IMAGE_DISTANCE_TO_PIXEL_FACTOR = 20
 MAXIMUM_DISTANCE_TO_SAME_TIP = 140
 MAX_CORES_FOR_MP = mp.cpu_count()-1
 PREVIEW_IMAGE_HEIGHT = 1000
-
-
-class Checkpoint:
-    time = time.perf_counter_ns()
-    def __init__(self, *args, **kwds):
-        delta = time.perf_counter_ns() - Checkpoint.time
-        Checkpoint.time = time.perf_counter_ns()
-        if len(args) == 0 and len(kwds) == 0:
-            return
-        print(f"{delta*10**-9:.5f} seconds for {' '.join(args)} {str(kwds)[1:-1]}")
 
 
 colors = [
@@ -188,7 +181,7 @@ class TipFinderCuda:
                 cX = int(M["m10"] / M["m00"])
                 cY = int(M["m01"] / M["m00"])
                 ## image_name, center_x, center_y, radius, image_idx
-                tips.append((name, cX, cY, 69, idx))
+                tips.append((cX, cY, idx, contour_points))
                 cv2.circle(img, (cX, cY), 9, (0, 0, 0), -1)
                 cv2.circle(img, (cX, cY), 5, (255, 255, 255), -1)
                 for p in contour_points:
@@ -197,6 +190,10 @@ class TipFinderCuda:
                 color_idx += 1
                 color_idx = color_idx % len(colors)
         return img, out, tips
+
+
+def get_outline_polygon(points):
+    return [points[vertex] for vertex in ConvexHull(points).vertices]
 
 
 class ImageManager:
@@ -219,9 +216,35 @@ class ImageManager:
         
         self.image_panel = GrowingImage(self.image_frame, zoom_factor=.825, image = np.zeros((1000, 1000, 3), dtype=np.uint8))
         self.image_panel.pack(padx=20, pady=20, expand=True, fill = "both")
-
         self.imgs = collections.OrderedDict({})
         self.finder = TipFinderCuda()
+        self.curr_image = self.image_panel.img
+        
+        self.image_panel.bind("<B1-Motion>", self.marking_event)
+        self.image_panel.bind("<ButtonRelease-1>", self.marking_stop_event)
+        self.marking_points = []
+        self.poly_color = (255, 255, 255)
+        
+    def marking_stop_event(self, event):
+        self.marking_points = []
+        self.show_image()
+    
+    def marking_event(self, event):
+        self.image_panel._mouse_motion(event)
+        
+        
+        x = self.image_panel.img_mouse_x_portion * self.curr_image.shape[1] *self.image_panel.zoom_amount + self.image_panel.zoom_x_offset
+        y = self.image_panel.img_mouse_y_portion * self.curr_image.shape[0] *self.image_panel.zoom_amount + self.image_panel.zoom_y_offset
+        x = int(x)
+        y = int(y)
+        
+        print(x, y)
+        if len(self.marking_points) < 3:
+            self.marking_points.append((x, y))
+        else:
+            self.marking_points = get_outline_polygon(self.marking_points + [(x, y)])
+        self.show_image()
+        print(self.marking_points)
 
 
     @property
@@ -282,11 +305,17 @@ class ImageManager:
         return img
 
 
-    def show_image(self, image):
+    def show_image(self, image=None):
+        if image is None:
+            image = self.curr_image.copy()
+        else:
+            self.curr_image = image
+        if len(self.marking_points) > 1:
+            cv2.polylines(image, [np.array(self.marking_points)], True, color=self.poly_color, thickness=int(5*self.image_panel.zoom_amount))
         self.image_panel.img = image
         
      
-def show_images_with_info(img_manager, shown_index, image_type):
+def show_images_with_info(img_manager: ImageManager, shown_index, image_type):
     if len(img_manager.imgs) == 0:
         return
     shown_index = (shown_index + len(img_manager.imgs)) % len(img_manager.imgs)
@@ -300,7 +329,7 @@ def show_images_with_info(img_manager, shown_index, image_type):
         img_manager.show_image(keyed_image)
 
 
-def line_generator_gpu(circles_x_coords, circles_y_coords, circles_z_coords, radiuses, lines):
+def line_generator_gpu(circles_x_coords, circles_y_coords, circles_z_coords, lines):
     global KEYING_MASK_THRESHHOLD
     global CANNY_THRESHHOLD_1
     global MIN_RADIUS
@@ -554,14 +583,14 @@ def main():
             _, _, tips = img_manager.compute(img_name)
             all_tips += tips
             
-        circles_x_coords, circles_y_coords, circles_z_coords, radiuses = zip(*[(center_x, center_y, image_idx, radius) for image_name, center_x, center_y, radius, image_idx in all_tips])
+        circles_x_coords, circles_y_coords, circles_z_coords = zip(*[(center_x, center_y, image_idx) for center_x, center_y, image_idx, contour in all_tips])
 
         lines = [
             [],
             [],
             []
         ]
-        line_generator_gpu(circles_x_coords, circles_y_coords, circles_z_coords, radiuses, lines)
+        line_generator_gpu(circles_x_coords, circles_y_coords, circles_z_coords, lines)
         count(lines)
         show_images_with_info(img_manager, current_image_idx, current_image_type.get())
         
