@@ -22,6 +22,7 @@ from scrollable_frame import VerticalScrolledFrame
 from typing import Union
 from shapely.geometry import Polygon as SG_Polygon
 from shapely.geometry import Point as SG_Point
+import tkinter
 
 
 global KEYING_MASK_THRESHHOLD
@@ -32,6 +33,7 @@ global IMAGE_DISTANCE_TO_PIXEL_FACTOR
 global MAXIMUM_DISTANCE_TO_SAME_TIP
 global MAX_CORES_FOR_MP
 global PREVIEW_IMAGE_HEIGHT
+global root
 
 
 KEYING_MASK_THRESHHOLD = 180
@@ -259,10 +261,11 @@ class ImageManager:
             mark_poly = SG_Polygon(self.marking_points)
             for obj in ComputedObject.objects:
                 contains_all = True
-                for tpl_point in obj.points:
+                for tpl_point in obj.contained_object.points:
                     p = SG_Point(*tpl_point)
                     if not mark_poly.contains(p):
                         contains_all = False
+                        break
                         
                 if contains_all:
                     obj.select()
@@ -427,55 +430,27 @@ class ComputedObject:
     objects: list[ComputedObject] = []
     latest_selected_object: Union[ComputedObject, None] = None
     sorting_function = None
+    currently_packed = []
     
     @classmethod
     def remove_all(cls):
         for l in ComputedObject.objects:
             l.name_label.pack_forget()
         ComputedObject.objects = []
+        ComputedObject.currently_packed = []
         ComputedObject.latest_selected = None
 
 
     def __init__(self, frame, name, contained_object):
         self.name_label = customtkinter.CTkButton(frame.interior, text=name, fg_color="gray13", hover=False, border_width=0)
-        self.name_label.pack(padx=0, pady=5)
+        self.name_label.grid(row=len(ComputedObject.currently_packed), column=0)
         self.name_label.bind("<ButtonPress-1>", self.on_click)
         self.contained_object = contained_object
         self.selected = False
-
-        something_was_lower = False
-        for obj in ComputedObject.objects:
-            if ComputedObject.sorting_function(obj.contained_object) < ComputedObject.sorting_function(self.contained_object):
-                print("lower")
-                something_was_lower = True
-                self.name_label.lower(obj.name_label)
-                break
-        if not something_was_lower:
-            print("nothing was lower")
-        
+                        
         ComputedObject.objects.append(self)
+        ComputedObject.currently_packed.append(self)
 
-
-    @classmethod
-    def reorder_all(obj):
-        print("reordering")
-        for l in ComputedObject.objects:
-            l.name_label.pack_forget()
-        
-        already_packed = []
-        for l in ComputedObject.objects:
-            l.name_label.pack(padx=0, pady=5)
-            
-            for obj in already_packed:
-                a = ComputedObject.sorting_function(obj.contained_object)
-                b = ComputedObject.sorting_function(l.contained_object)
-                print(a, b)
-                if a < b:
-                    print("is lower")
-                    l.name_label.lower(obj.name_label)
-                    
-            already_packed.append(l)
-    
 
     def on_click(self, event):
         latest_selected_local = ComputedObject.latest_selected
@@ -519,15 +494,28 @@ class ComputedObject:
             ComputedObject.latest_selected = None
         self.name_label.configure(fg_color="gray13")
 
+ 
+    @classmethod
+    def reorder_all(obj):
+        for l in ComputedObject.objects:
+            l.name_label.pack_forget()
+        ComputedObject.currently_packed = []
+        
+        ordered = sorted(ComputedObject.objects, key=lambda obj: ComputedObject.sorting_function(obj.contained_object))
+        for idx, l in enumerate(ordered):
+            l.name_label.grid(row=idx, column=5)
+            ComputedObject.currently_packed.append(l)
+    
+
 
 class Cluster:
     point_cluster_dict = {}
     clusters = []
-    name_counter = 0
+    idx_counter = 0
     def __init__(self, a, b):
         self.points = [a, b]
-        self.name = f"{Cluster.name_counter:10d}"
-        Cluster.name_counter += 1
+        self.idx = Cluster.idx_counter
+        Cluster.idx_counter += 1
         Cluster.clusters.append(self)
         Cluster.point_cluster_dict[a] = self
         Cluster.point_cluster_dict[b] = self
@@ -568,11 +556,19 @@ class Cluster:
     def reset(cls):
         Cluster.point_cluster_dict = {}
         Cluster.clusters = []
-        Cluster.name_counter = 0
+        Cluster.idx_counter = 0
         
     
     def __repr__(self) -> str:
-        return f"Cluster <{self.name}>"
+        avg_x = 0
+        avg_y = 0
+        for p in self.points:
+            avg_x += p[0]
+            avg_y += p[1]
+        
+        avg_x = avg_x // len(self.points)    
+        avg_y = avg_y // len(self.points)
+        return f"Cluster <{self.idx} x={avg_x} y={avg_y}>"
     
     def __len__(self) -> int:
         return len(self.points)
@@ -585,6 +581,8 @@ class Cluster:
         
         for c in Cluster.clusters:
             ComputedObject(frame, repr(c), c)
+        
+        ComputedObject.reorder_all()
         
 
 def count(lines=None):
@@ -600,6 +598,7 @@ def count(lines=None):
 
 
 def main():
+    global root
     if sys.platform.startswith("win32"):
         mp.freeze_support()
 
@@ -760,21 +759,20 @@ def main():
         if opt == "Name":
             def k(obj):
                 if isinstance(obj, Cluster):
-                    return repr(obj)
+                    return obj.idx
                 else:
-                    raise NotImplementedError("position sorting not implemented")
+                    raise NotImplementedError("name sorting not implemented")
                 
         elif opt == "Length":
             def k(obj):
                 if isinstance(obj, Cluster):
                     return len(obj)
                 else:
-                    raise NotImplementedError("position sorting not implemented")
+                    raise NotImplementedError("length sorting not implemented")
             
         elif opt == "Position":
             def k(obj):
                 if isinstance(obj, Cluster):
-                    w = ImageManager.mngr.image_size[1]
                     avg_x = 0
                     avg_y = 0
                     for p in obj.points:
@@ -783,14 +781,13 @@ def main():
                     
                     avg_x = avg_x // len(obj.points)    
                     avg_y = avg_y // len(obj.points)
-                    
-                    return str(-(avg_x + avg_y*w))
+                     
+                    return avg_x**2 + avg_y **2
                 else:
                     raise NotImplementedError("position sorting not implemented")
         
         ComputedObject.sorting_function = k
-        
-        # ComputedObject.reorder_all()
+        ComputedObject.reorder_all()
 
 
     def combine_tips():
