@@ -1,3 +1,4 @@
+from __future__ import annotations
 import multiprocessing as mp
 from tkinter import filedialog
 import time
@@ -17,6 +18,10 @@ import threading
 from checkpoint import Checkpoint
 import scipy
 from scipy.spatial import ConvexHull
+from scrollable_frame import VerticalScrolledFrame
+from typing import Union
+from shapely.geometry import Polygon as SG_Polygon
+from shapely.geometry import Point as SG_Point
 
 
 global KEYING_MASK_THRESHHOLD
@@ -37,6 +42,18 @@ IMAGE_DISTANCE_TO_PIXEL_FACTOR = 20
 MAXIMUM_DISTANCE_TO_SAME_TIP = 140
 MAX_CORES_FOR_MP = mp.cpu_count()-1
 PREVIEW_IMAGE_HEIGHT = 1000
+
+class MODS:
+    Shift = 0x0001
+    Control = 0x0004
+    Num_Lock = 0x0010
+    Caps_Lock = 0x0002
+    Left_hand_Alt = 0x0008
+    Right_hand_Alt = 0x0080
+    Mouse_button_1 = 0x0100
+    Mouse_button_2 = 0x0200
+    Mouse_button_3 = 0x0400
+
 
 
 colors = [
@@ -102,7 +119,6 @@ class Animator:
     @classmethod
     def stop_flashing(cls, tkinter_obj: customtkinter.CTkBaseClass):
         cls.stop_flashing_queue.append(tkinter_obj)
-        
 
 
 class TipFinderCuda:
@@ -193,11 +209,17 @@ class TipFinderCuda:
 
 
 def get_outline_polygon(points):
-    return [points[vertex] for vertex in ConvexHull(points).vertices]
-
+    try:
+        return [points[vertex] for vertex in ConvexHull(points).vertices]
+    except scipy.spatial._qhull.QhullError as e:
+        return points
+        
 
 class ImageManager:
+    mngr = None
     def __init__(self, image_frame):
+        if ImageManager.mngr is not None:
+            print("WARNING, MULTIPLE MANAGERS INSTANCIATED")
         self.RAW_EXTENSIONS = [
                 ".nef",
                 ".arw",
@@ -217,6 +239,7 @@ class ImageManager:
         self.image_panel = GrowingImage(self.image_frame, zoom_factor=.825, image = np.zeros((1000, 1000, 3), dtype=np.uint8))
         self.image_panel.pack(padx=20, pady=20, expand=True, fill = "both")
         self.imgs = collections.OrderedDict({})
+        self.image_size = None
         self.finder = TipFinderCuda()
         self.curr_image = self.image_panel.img
         
@@ -224,11 +247,30 @@ class ImageManager:
         self.image_panel.bind("<ButtonRelease-1>", self.marking_stop_event)
         self.marking_points = []
         self.poly_color = (255, 255, 255)
-        
+        ImageManager.mngr = self
+
+
     def marking_stop_event(self, event):
+        if not event.state & MODS.Control:
+            for obj in ComputedObject.objects:
+                obj.deselect()
+        
+        if len(self.marking_points) > 2:
+            mark_poly = SG_Polygon(self.marking_points)
+            for obj in ComputedObject.objects:
+                contains_all = True
+                for tpl_point in obj.points:
+                    p = SG_Point(*tpl_point)
+                    if not mark_poly.contains(p):
+                        contains_all = False
+                        
+                if contains_all:
+                    obj.select()
+         
         self.marking_points = []
         self.show_image()
-    
+
+
     def marking_event(self, event):
         self.image_panel._mouse_motion(event)
         
@@ -238,36 +280,38 @@ class ImageManager:
         x = int(x)
         y = int(y)
         
-        print(x, y)
         if len(self.marking_points) < 3:
             self.marking_points.append((x, y))
         else:
             self.marking_points = get_outline_polygon(self.marking_points + [(x, y)])
         self.show_image()
-        print(self.marking_points)
 
 
     @property
     def supported_extensions(self):
         return self.RAW_EXTENSIONS + self.CV2_EXTENSIONS
 
- 
+
     def _load(self, filepath):
         extension = f".{filepath.split('.')[-1].lower()}"
         if extension not in self.supported_extensions:
             raise ValueError(f"Invalid extension! Expected {self.supported_extensions} but found {extension}")
         
         if extension in self.RAW_EXTENSIONS:
-            image = load_raw_image(filepath, 50)
+            image = load_raw_image(filepath, "auto")
         
         if extension in self.CV2_EXTENSIONS:
             image = cv2.cvtColor(cv2.imread(filepath), cv2.COLOR_BGR2RGB)
             
         if image.shape[0] > image.shape[1]:
             return cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+        size = image.shape[0], image.shape[1]
+        if size != self.image_size and self.image_size is not None:
+            print("INCONSISTENT IMAGE SIZES")
+        self.image_size = size
         return image
-    
-    
+
+
     def ask_and_load(self):
         selected_img_files = filedialog.askopenfiles(title="Open Images for the render queue",
                                                      filetypes=[("Image-files", " ".join(self.supported_extensions))])
@@ -377,15 +421,112 @@ def line_generator_gpu(circles_x_coords, circles_y_coords, circles_z_coords, lin
     lines[0] = [x if x >= 0 else None for x in lines_x]
     lines[1] = [y if y >= 0 else None for y in lines_y]
     lines[2] = [z if z >= 0 else None for z in lines_z]
+
+
+class ComputedObject:
+    objects: list[ComputedObject] = []
+    latest_selected_object: Union[ComputedObject, None] = None
+    sorting_function = None
     
+    @classmethod
+    def remove_all(cls):
+        for l in ComputedObject.objects:
+            l.name_label.pack_forget()
+        ComputedObject.objects = []
+        ComputedObject.latest_selected = None
+
+
+    def __init__(self, frame, name, contained_object):
+        self.name_label = customtkinter.CTkButton(frame.interior, text=name, fg_color="gray13", hover=False, border_width=0)
+        self.name_label.pack(padx=0, pady=5)
+        self.name_label.bind("<ButtonPress-1>", self.on_click)
+        self.contained_object = contained_object
+        self.selected = False
+
+        something_was_lower = False
+        for obj in ComputedObject.objects:
+            if ComputedObject.sorting_function(obj.contained_object) < ComputedObject.sorting_function(self.contained_object):
+                print("lower")
+                something_was_lower = True
+                self.name_label.lower(obj.name_label)
+                break
+        if not something_was_lower:
+            print("nothing was lower")
+        
+        ComputedObject.objects.append(self)
+
+
+    @classmethod
+    def reorder_all(obj):
+        print("reordering")
+        for l in ComputedObject.objects:
+            l.name_label.pack_forget()
+        
+        already_packed = []
+        for l in ComputedObject.objects:
+            l.name_label.pack(padx=0, pady=5)
+            
+            for obj in already_packed:
+                a = ComputedObject.sorting_function(obj.contained_object)
+                b = ComputedObject.sorting_function(l.contained_object)
+                print(a, b)
+                if a < b:
+                    print("is lower")
+                    l.name_label.lower(obj.name_label)
+                    
+            already_packed.append(l)
     
+
+    def on_click(self, event):
+        latest_selected_local = ComputedObject.latest_selected
+        if event.state & MODS.Shift and latest_selected_local:
+            inselected_region = False
+            for l in ComputedObject.objects:
+                if (l is self or l is latest_selected_local):
+                    inselected_region = not inselected_region
+
+                if inselected_region:
+                    l.select()
+            if not self.selected:
+                self.select()
+
+        elif event.state & MODS.Control:
+            if self.selected:
+                self.deselect()
+            else:
+                self.select()
+                
+        else:
+            for l in ComputedObject.objects:
+                if self is l:
+                    if self.selected:
+                        self.deselect()
+                    else:
+                        self.select()
+                else:
+                    l.deselect()
+
+
+    def select(self):
+        self.selected = True
+        ComputedObject.latest_selected = self
+        self.name_label.configure(fg_color="red")
+
+
+    def deselect(self):
+        self.selected = False
+        if ComputedObject.latest_selected == self:
+            ComputedObject.latest_selected = None
+        self.name_label.configure(fg_color="gray13")
+
+
 class Cluster:
     point_cluster_dict = {}
     clusters = []
     name_counter = 0
     def __init__(self, a, b):
         self.points = [a, b]
-        self.name = Cluster.name_counter
+        self.name = f"{Cluster.name_counter:10d}"
         Cluster.name_counter += 1
         Cluster.clusters.append(self)
         Cluster.point_cluster_dict[a] = self
@@ -432,6 +573,18 @@ class Cluster:
     
     def __repr__(self) -> str:
         return f"Cluster <{self.name}>"
+    
+    def __len__(self) -> int:
+        return len(self.points)
+    
+    
+    @classmethod
+    def put_clusters_in_scrollframe(cls, frame: VerticalScrolledFrame):
+        ComputedObject.remove_all()
+        
+        
+        for c in Cluster.clusters:
+            ComputedObject(frame, repr(c), c)
         
 
 def count(lines=None):
@@ -455,15 +608,27 @@ def main():
 
     root = customtkinter.CTk(fg_color="gray13")
     root.geometry("1400x1000")
-    root.resizable(height=800, width=800)
+    root.resizable()
 
     root.rowconfigure(1, weight=0)
     root.rowconfigure(2, weight=1)
     root.columnconfigure(0, weight=1)
+    root.columnconfigure(1, weight=0)
+    
+    
+    #################################
+    # buttons params params params  #
+    #        img img img img l   c  #
+    #        img img img img i a n  #
+    #        img img img img n n t  #
+    #        img img img img e d r  #
+    #        img img img img s   s  #
+    #                               #
+    #################################
        
 
     param_frame = customtkinter.CTkFrame(root, height=30)
-    param_frame.grid(row=1, column=0, padx=20, pady=10)
+    param_frame.grid(row=1, column=0, columnspan=2, padx=20, pady=10)
     param_frame.rowconfigure(0, weight=1)
     param_frame.rowconfigure(1, weight=1)
     param_frame.columnconfigure((0,1,2,3,4,5,6,7), weight=1)
@@ -479,7 +644,21 @@ def main():
     contour_length_max_label.grid(row=0, column=8)
 
     image_frame = customtkinter.CTkFrame(root)
-    image_frame.grid(row=2, column=0, sticky="nesw")
+    image_frame.grid(row=2, column=0, sticky="nesw", padx=(10, 0))
+    
+    computed_objects_frame = customtkinter.CTkFrame(root)
+    computed_objects_frame.grid(row=2, column=1, sticky="nes", padx=(0, 10))
+    computed_objects_frame.columnconfigure(0, weight=1)
+    computed_objects_frame.columnconfigure(1, weight=1)
+    computed_objects_frame.rowconfigure(0, weight=0)
+    computed_objects_frame.rowconfigure(1, weight=1)
+    
+    computed_objects_sort_label = customtkinter.CTkLabel(computed_objects_frame, text="Sorted by:")
+    computed_objects_sort_label.grid(row=0, column=0, sticky="nw", padx=(0, 0))
+    
+    computed_objects_scrollframe = VerticalScrolledFrame(computed_objects_frame)
+    computed_objects_scrollframe.grid(row=1, column=0, columnspan=2, sticky="nesw")
+    
 
     img_manager = ImageManager(image_frame)
     global current_image_idx
@@ -492,8 +671,8 @@ def main():
     current_image_idx = 0
     current_image_type = customtkinter.IntVar(None, 1)
     current_method = customtkinter.IntVar(None, img_manager.finder.current_method)
-    current_blur_size = customtkinter.IntVar(None, 0)
-    own_brightness_threshold = customtkinter.IntVar(None, 50)
+    current_blur_size = customtkinter.IntVar(None, 20)
+    own_brightness_threshold = customtkinter.IntVar(None, 25)
     neighbour_brightness_threshold = customtkinter.IntVar(None, 100)
     sharpness_radius = customtkinter.IntVar(None, TipFinderCuda.sharpness_radius)
     sharpness_threshold = customtkinter.IntVar(None, TipFinderCuda.sharpness_threshold*1000)
@@ -576,7 +755,44 @@ def main():
             update_contour_length_min()
         else:
             show_images_with_info(img_manager, current_image_idx, current_image_type.get())
+
+    def update_sorting_option(opt):
+        if opt == "Name":
+            def k(obj):
+                if isinstance(obj, Cluster):
+                    return repr(obj)
+                else:
+                    raise NotImplementedError("position sorting not implemented")
+                
+        elif opt == "Length":
+            def k(obj):
+                if isinstance(obj, Cluster):
+                    return len(obj)
+                else:
+                    raise NotImplementedError("position sorting not implemented")
+            
+        elif opt == "Position":
+            def k(obj):
+                if isinstance(obj, Cluster):
+                    w = ImageManager.mngr.image_size[1]
+                    avg_x = 0
+                    avg_y = 0
+                    for p in obj.points:
+                        avg_x += p[0]
+                        avg_y += p[1]
+                    
+                    avg_x = avg_x // len(obj.points)    
+                    avg_y = avg_y // len(obj.points)
+                    
+                    return str(-(avg_x + avg_y*w))
+                else:
+                    raise NotImplementedError("position sorting not implemented")
         
+        ComputedObject.sorting_function = k
+        
+        # ComputedObject.reorder_all()
+
+
     def combine_tips():
         all_tips = []
         for img_name in img_manager.imgs.keys():
@@ -593,9 +809,9 @@ def main():
         line_generator_gpu(circles_x_coords, circles_y_coords, circles_z_coords, lines)
         count(lines)
         show_images_with_info(img_manager, current_image_idx, current_image_type.get())
+        Cluster.put_clusters_in_scrollframe(computed_objects_scrollframe)
         
-        
-    
+    update_sorting_option("Name")
         
     load_new_images_button = customtkinter.CTkButton(master=param_frame,
                                                     text="Load new image", command=open_new_images)
@@ -627,11 +843,9 @@ def main():
     
     own_brightness_threshold_slider = CCTkSlider(param_frame, variable=own_brightness_threshold, from_=0, to=255,
                                                     command=update_own_brightness_threshold)
-
     
     neighbour_brightness_threshold_slider = CCTkSlider(param_frame, variable=neighbour_brightness_threshold, from_=0, to=255,
                                                     command=update_neighbour_brightness_threshold)
-
     
     sharpness_radius_slider = CCTkSlider(param_frame, variable=sharpness_radius, from_=1, to=50,
                                                     command=update_sharpness_radius)
@@ -647,7 +861,8 @@ def main():
                                                     command=update_contour_length_max)
     contour_length_max_slider.grid(row=1, column=8, padx=10)
     
-    
+    computed_objects_sort_menu = customtkinter.CTkOptionMenu(computed_objects_frame, values=["Name", "Length", "Position"], fg_color="gray13", button_color="gray13", button_hover_color="gray10", command=update_sorting_option)
+    computed_objects_sort_menu.grid(row=0, column=1, sticky="ne")
     
 
     def decrease_image_idx(event):
