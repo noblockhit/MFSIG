@@ -1,6 +1,8 @@
 import customtkinter as CTk
 from tkinter.constants import *
- 
+import time
+
+
 CTk.set_appearance_mode("System")
 CTk.set_default_color_theme("dark-blue")
 
@@ -9,21 +11,22 @@ class VerticalScrolledFrame(CTk.CTkFrame):
         CTk.CTkFrame.__init__(self, parent, *args, **kw)
 
         self.is_mouse_over = False
- 
+        self.y_scroll = 0
+        self.items = []
         # Create a canvas object and a vertical scrollbar for scrolling it.
-        vscrollbar = CTk.CTkScrollbar(self)
-        vscrollbar.pack(fill=Y, side=RIGHT, expand=FALSE)
+        self.yscrollbar = CTk.CTkScrollbar(self)
+        self.yscrollbar.pack(fill=Y, side=RIGHT, expand=FALSE)
         self.canvas = CTk.CTkCanvas(self, bd=0, highlightthickness=0, 
                                 width = 200, height = 300,
-                                yscrollcommand=vscrollbar.set,
+                                yscrollcommand=self.yscrollbar.set,
                                 bg="gray13")
         
-        self.canvas.bind("<Enter>", self._set_mouseover_true)
-        self.canvas.bind("<Leave>", self._set_mouseover_false)
+        # parent.bind("<Enter>", self._set_mouseover_true)
+        # parent.bind("<Leave>", self._set_mouseover_false)
 
-        parent.bind("<MouseWheel>", self._on_mousewheel)
+        self.canvas.bind("<MouseWheel>", self._scroll)
         self.canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
-        vscrollbar.configure(command = self.canvas.yview)
+        self.yscrollbar.configure(command = self._scroll)
  
         # Reset the view
         self.canvas.xview_moveto(0)
@@ -51,14 +54,48 @@ class VerticalScrolledFrame(CTk.CTkFrame):
             self.canvas.itemconfigure(self.interior_id, width=self.canvas.winfo_width())
 
 
-    def _on_mousewheel(self, event):
-        if self.is_mouse_over and event.state != 4:
-            self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+    def _scroll(self, *args):
+        print("_on_mousewheel", time.time())
+        s, e = self.yscrollbar.get()
+        
+        for a in args:
+            print(a)
+        if args[0] == "scroll":
+            if args[1] > 0:
+                if e < 1:
+                    self.y_scroll += 1 / len(self.items)
+            else:
+                if s > 0:
+                    self.y_scroll -= 1 / len(self.items)
+        elif args[0] == "moveto":
+            self.y_scroll = args[1]
+        else:
+            if args[0].delta < 0:
+                if e < 1:
+                    self.y_scroll += 1 / len(self.items)
+            else:
+                if s > 0:
+                    self.y_scroll -= 1 / len(self.items)
+            
+        print(self.y_scroll)
+        self.canvas.yview_moveto(self.y_scroll)
 
 
     def _set_mouseover_true(self, event):
+        print("enter", time.time())
         self.is_mouse_over = True
 
 
     def _set_mouseover_false(self, event):
+        print("exit", time.time())
         self.is_mouse_over = False
+        
+    def register_item(self, item):
+        item.bind("<MouseWheel>", self._scroll)
+        self.items.append(item)
+
+    def unregister_item(self, item):
+        self.items.remove(item)
+        
+    def unregister_all_items(self):
+        self.items = []

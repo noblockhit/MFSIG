@@ -431,6 +431,7 @@ class ComputedObject:
     latest_selected_object: Union[ComputedObject, None] = None
     sorting_function = None
     currently_packed = []
+    frame = None
     
     @classmethod
     def remove_all(cls):
@@ -439,9 +440,10 @@ class ComputedObject:
         ComputedObject.objects = []
         ComputedObject.currently_packed = []
         ComputedObject.latest_selected = None
+        ComputedObject.frame.unregister_all_items()
 
 
-    def __init__(self, frame, name, contained_object):
+    def __init__(self, frame: VerticalScrolledFrame, name, contained_object):
         self.name_label = customtkinter.CTkButton(frame.interior, text=name, fg_color="gray13", hover=False, border_width=0)
         self.name_label.grid(row=len(ComputedObject.currently_packed), column=0)
         self.name_label.bind("<ButtonPress-1>", self.on_click)
@@ -450,6 +452,7 @@ class ComputedObject:
                         
         ComputedObject.objects.append(self)
         ComputedObject.currently_packed.append(self)
+        frame.register_item(self.name_label)
 
 
     def on_click(self, event):
@@ -657,6 +660,7 @@ def main():
     
     computed_objects_scrollframe = VerticalScrolledFrame(computed_objects_frame)
     computed_objects_scrollframe.grid(row=1, column=0, columnspan=2, sticky="nesw")
+    ComputedObject.frame = computed_objects_scrollframe
     
 
     img_manager = ImageManager(image_frame)
@@ -671,12 +675,12 @@ def main():
     current_image_type = customtkinter.IntVar(None, 1)
     current_method = customtkinter.IntVar(None, img_manager.finder.current_method)
     current_blur_size = customtkinter.IntVar(None, 20)
-    own_brightness_threshold = customtkinter.IntVar(None, 25)
-    neighbour_brightness_threshold = customtkinter.IntVar(None, 100)
+    own_brightness_threshold = customtkinter.IntVar(None, 6)
+    neighbour_brightness_threshold = customtkinter.IntVar(None, 9)
     sharpness_radius = customtkinter.IntVar(None, TipFinderCuda.sharpness_radius)
     sharpness_threshold = customtkinter.IntVar(None, TipFinderCuda.sharpness_threshold*1000)
-    contour_length_min = customtkinter.IntVar(None, 50)
-    contour_length_max = customtkinter.IntVar(None, 400)
+    contour_length_min = customtkinter.IntVar(None, 100)
+    contour_length_max = customtkinter.IntVar(None, 1100)
     
 
     def open_new_images():
