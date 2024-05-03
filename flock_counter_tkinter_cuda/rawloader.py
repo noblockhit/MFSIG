@@ -8,8 +8,12 @@ import cv2
 import numpy as np
 from typing import Union
 
+global prev_brightness
+prev_brightness = None
+
 
 def load_raw_image(path, brightness: Union[float, int, str]=1):
+    global prev_brightness
     with rawpy.imread(path) as raw:
         # Access the raw image data
         raw_data = raw.raw_image
@@ -22,11 +26,31 @@ def load_raw_image(path, brightness: Union[float, int, str]=1):
         except ValueError:
             if brightness == "auto":
                 uint_16_demosaiced = cv2.cvtColor(raw_array, 46)
-                brightness = 65535/np.amax(uint_16_demosaiced)
+                if prev_brightness is None:
+                    flattened_data = uint_16_demosaiced.flatten()
+
+                    # Calculate the median of the flattened array
+                    median_all_values = np.median(flattened_data)
+
+                    # Sort the flattened array
+                    sorted_data = np.sort(flattened_data)
+
+                    # Calculate the index of the median of the upper quarter
+                    upper_quarter_index = int(len(sorted_data) * 0.95)
+
+                    # Get the upper quarter of the sorted array
+                    upper_quarter = sorted_data[upper_quarter_index:]
+
+                    # Calculate the median of the upper quarter
+                    median_upper_quarter = np.median(upper_quarter)
+                    brightness = 65535/median_upper_quarter/8
+                    prev_brightness = brightness
+                else:
+                    brightness = prev_brightness
                 print("Brightness:", brightness)
             else:
                 raise ValueError(f"brightness must be \"auto\", float or an int, not {brightness}")
-        return cv2.convertScaleAbs(cv2.cvtColor(raw_array, 46), alpha=(255.0/65535.0) * brightness)
+        return cv2.convertScaleAbs(cv2.cvtColor(raw_array, 46), alpha=float((255.0/65535.0) * brightness))
     
 
 

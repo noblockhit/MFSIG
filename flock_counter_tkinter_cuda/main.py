@@ -14,7 +14,7 @@ import sys
 import customtkinter
 from growing_image import GrowingImage
 from custom_ctk_slider import CCTkSlider
-import threading
+import inspect
 from checkpoint import Checkpoint
 import scipy
 from scipy.spatial import ConvexHull
@@ -22,7 +22,9 @@ from scrollable_frame import VerticalScrolledFrame
 from typing import Union
 from shapely.geometry import Polygon as SG_Polygon
 from shapely.geometry import Point as SG_Point
-import tkinter
+import json
+
+from sbNative.debugtools import log
 
 
 global KEYING_MASK_THRESHHOLD
@@ -36,10 +38,6 @@ global PREVIEW_IMAGE_HEIGHT
 global root
 
 
-KEYING_MASK_THRESHHOLD = 180
-CANNY_THRESHHOLD_1 = 140
-MIN_RADIUS = 25
-MAX_RADIUS = 90
 IMAGE_DISTANCE_TO_PIXEL_FACTOR = 20
 MAXIMUM_DISTANCE_TO_SAME_TIP = 140
 MAX_CORES_FOR_MP = mp.cpu_count()-1
@@ -72,6 +70,22 @@ colors = [
     (255, 0  , 255  ),
     (0  , 255, 255  ),
 ]
+
+def inspect_backtracking(var):
+    frame = inspect.currentframe()
+    frame = inspect.getouterframes(frame)[1]
+    string = inspect.getframeinfo(frame[0]).code_context[0].strip()
+    args = string[string.find('(') + 1:-1].split(',')
+    
+    names = []
+    for i in args:
+        if i.find('=') != -1:
+            names.append(i.split('=')[1].strip())
+        
+        else:
+            names.append(i)
+    
+    print(names)
 
 
 def find_nearest_pow_2(val):
@@ -301,6 +315,7 @@ class ImageManager:
             raise ValueError(f"Invalid extension! Expected {self.supported_extensions} but found {extension}")
         
         if extension in self.RAW_EXTENSIONS:
+            print("opening raw image")
             image = load_raw_image(filepath, "auto")
         
         if extension in self.CV2_EXTENSIONS:
@@ -377,10 +392,6 @@ def show_images_with_info(img_manager: ImageManager, shown_index, image_type):
 
 
 def line_generator_gpu(circles_x_coords, circles_y_coords, circles_z_coords, lines):
-    global KEYING_MASK_THRESHHOLD
-    global CANNY_THRESHHOLD_1
-    global MIN_RADIUS
-    global MAX_RADIUS
     global IMAGE_DISTANCE_TO_PIXEL_FACTOR
     global MAXIMUM_DISTANCE_TO_SAME_TIP
     global MAX_CORES_FOR_MP
@@ -436,7 +447,8 @@ class ComputedObject:
     @classmethod
     def remove_all(cls):
         for l in ComputedObject.objects:
-            l.name_label.pack_forget()
+            print("removing", l)
+            l.name_label.grid_forget()
         ComputedObject.objects = []
         ComputedObject.currently_packed = []
         ComputedObject.latest_selected = None
@@ -508,7 +520,6 @@ class ComputedObject:
         for idx, l in enumerate(ordered):
             l.name_label.grid(row=idx, column=5)
             ComputedObject.currently_packed.append(l)
-    
 
 
 class Cluster:
@@ -580,7 +591,6 @@ class Cluster:
     @classmethod
     def put_clusters_in_scrollframe(cls, frame: VerticalScrolledFrame):
         ComputedObject.remove_all()
-        
         
         for c in Cluster.clusters:
             ComputedObject(frame, repr(c), c)
@@ -671,6 +681,9 @@ def main():
     global neighbour_brightness_threshold
     global contour_length_min
     global contour_length_max
+    global current_method
+    global sharpness_radius
+    global sharpness_threshold
     current_image_idx = 0
     current_image_type = customtkinter.IntVar(None, 1)
     current_method = customtkinter.IntVar(None, img_manager.finder.current_method)
@@ -682,12 +695,13 @@ def main():
     contour_length_min = customtkinter.IntVar(None, 100)
     contour_length_max = customtkinter.IntVar(None, 1100)
     
+    
 
     def open_new_images():
         Animator.stop_flashing(load_new_images_button)
         img_manager.ask_and_load()
         show_images_with_info(img_manager, current_image_idx, current_image_type.get())
-        
+             
     def update_current_image_type():
         show_images_with_info(img_manager, current_image_idx, current_image_type.get())
     
@@ -794,6 +808,37 @@ def main():
         ComputedObject.reorder_all()
 
 
+
+    def save_current_settings():
+        ## ask for file storing location
+        filename = filedialog.asksaveasfile(title="Save current settings", defaultextension=".flcs", filetypes=[("Settings file", "*.flcs")])
+        if filename is None:
+            return
+        data = {}
+        ## get all local variables that are also in the variables list and store them in the dict
+        for cfg in configurators:
+            ## get initialisation name of the variable
+            variable = cfg._variable
+            name = [key for key, value in globals().items() if value == variable][0]
+            data[name] = variable.get()
+        with open(filename.name, "w") as wf:
+            wf.write(json.dumps(data, indent=4))
+            
+    def load_settings():
+        filename = filedialog.askopenfile(title="Load settings", defaultextension=".flcs", filetypes=[("Settings file", "*.flcs")])
+        if filename is None:
+            return
+        data = {}
+        ## get all local variables that are also in the variables list and store them in the dict
+        with open(filename.name, "r") as rf:
+            data = json.loads(rf.read())
+        
+        for key, value in data.items():
+            globals()[key].set(value) 
+        for cfg in configurators:
+            cfg._command()
+
+
     def combine_tips():
         all_tips = []
         for img_name in img_manager.imgs.keys():
@@ -817,6 +862,15 @@ def main():
     load_new_images_button = customtkinter.CTkButton(master=param_frame,
                                                     text="Load new image", command=open_new_images)
     load_new_images_button.grid(row=1, column=0, padx=10)
+    
+    save_current_settings_button = customtkinter.CTkButton(master=param_frame,
+                                                    text="Save current settings", command=save_current_settings)
+    save_current_settings_button.grid(row=0, column=1, padx=10, pady=10)
+    
+    
+    load_settings_button = customtkinter.CTkButton(master=param_frame,
+                                                    text="Load settings", command=load_settings)
+    load_settings_button.grid(row=0, column=0, padx=10, pady=10)
     
     combine_tips_button = customtkinter.CTkButton(master=param_frame,
                                                     text="Combine Tips", command=combine_tips)
@@ -865,6 +919,21 @@ def main():
     computed_objects_sort_menu = customtkinter.CTkOptionMenu(computed_objects_frame, values=["Name", "Length", "Position"], fg_color="gray13", button_color="gray13", button_hover_color="gray10", command=update_sorting_option)
     computed_objects_sort_menu.grid(row=0, column=1, sticky="ne")
     
+    
+    configurators = [
+        binary_method_radio1,
+        binary_method_radio2,
+        image_bw_or_color_radio1,
+        image_bw_or_color_radio2,
+        blur_size_slider,
+        own_brightness_threshold_slider,
+        neighbour_brightness_threshold_slider,
+        sharpness_radius_slider,
+        sharpness_threshold_slider,
+        contour_length_min_slider,
+        contour_length_max_slider
+    ]
+        
 
     def decrease_image_idx(event):
         global current_image_idx
