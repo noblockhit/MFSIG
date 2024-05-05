@@ -3,57 +3,58 @@ import cv2
 import rawpy
 import multiprocessing as mp
 from tkinter import filedialog
-import time
+from time import perf_counter_ns as pcns
 import cv2
 import numpy as np
 from typing import Union
+from matplotlib import pyplot as plt
 
 global prev_brightness
 prev_brightness = None
 
-
-def load_raw_image(path, brightness: Union[float, int, str]=1):
-    global prev_brightness
+def _load_raw_from_file(path):
+    print(path)
     with rawpy.imread(path) as raw:
         # Access the raw image data
         raw_data = raw.raw_image
         height, width = raw_data.shape
         raw_array = raw_data.reshape((height, width, 1))
-
-        # Demosaic the raw array
-        try:
-            brightness = float(brightness) * 16
-        except ValueError:
-            if brightness == "auto":
-                uint_16_demosaiced = cv2.cvtColor(raw_array, 46)
-                if prev_brightness is None:
-                    flattened_data = uint_16_demosaiced.flatten()
-
-                    # Calculate the median of the flattened array
-                    median_all_values = np.median(flattened_data)
-
-                    # Sort the flattened array
-                    sorted_data = np.sort(flattened_data)
-
-                    # Calculate the index of the median of the upper quarter
-                    upper_quarter_index = int(len(sorted_data) * 0.95)
-
-                    # Get the upper quarter of the sorted array
-                    upper_quarter = sorted_data[upper_quarter_index:]
-
-                    # Calculate the median of the upper quarter
-                    median_upper_quarter = np.median(upper_quarter)
-                    brightness = 65535/median_upper_quarter/8
-                    prev_brightness = brightness
-                else:
-                    brightness = prev_brightness
-                print("Brightness:", brightness)
-            else:
-                raise ValueError(f"brightness must be \"auto\", float or an int, not {brightness}")
-        return cv2.convertScaleAbs(cv2.cvtColor(raw_array, 46), alpha=float((255.0/65535.0) * brightness))
+        return cv2.cvtColor(raw_array, 46)
     
 
+def load_raw_images(paths, brightness: Union[float, int, str]=1):
+    demosaiced_images = [_load_raw_from_file(path) for path in paths]
+    if brightness == "auto":
+        brightnesses = []
+        for demos in demosaiced_images:
+            print(demos.shape)
+            flattentime = pcns()
+            flattened_data = cv2.resize(demos, (demos.shape[0]//4, demos.shape[1]//4)).flatten()
+            print(f"flatten time: {(pcns()-flattentime)*10**-9:.5f}")
+            
+            # Sort the flattened array
+            sortedtime = pcns()
+            sorted_data = np.sort(flattened_data)
+            print(f"sort time: {(pcns()-sortedtime)*10**-9:.5f}")
 
+            # Calculate the index of the median of the upper quarter
+            
+            upper_quarter_index = int(len(sorted_data) * 0.95)
+
+            # Get the upper quarter of the sorted array
+            upper_quarter = sorted_data[upper_quarter_index:]
+
+            # Calculate the median of the upper quarter
+            mediantime = pcns()
+            median_upper_quarter = np.median(upper_quarter)
+            print(f"median time: {(pcns()-mediantime)*10**-9:.5f}")
+            brightnesses.append(65535/median_upper_quarter/8)
+        brightness = sum(brightnesses)/len(brightnesses)
+    # else:
+    #     raise ValueError(f"brightness must be \"auto\", float or an int, not {brightness}")
+    imgs = [cv2.convertScaleAbs(demos, alpha=float((255.0/65535.0) * brightness)) for demos in demosaiced_images]
+    return imgs
+    
 if __name__ == "__main__":
     class qs:
         name_and_pos = {}

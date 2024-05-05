@@ -1,9 +1,9 @@
 from __future__ import annotations
 import multiprocessing as mp
 from tkinter import filedialog
-import time
+from time import perf_counter_ns as pcns
 import cv2
-from rawloader import load_raw_image
+from rawloader import load_raw_images
 import numpy as np
 import collections
 import pycuda
@@ -255,7 +255,6 @@ class ImageManager:
         self.image_panel = GrowingImage(self.image_frame, zoom_factor=.825, image = np.zeros((1000, 1000, 3), dtype=np.uint8))
         self.image_panel.pack(padx=20, pady=20, expand=True, fill = "both")
         self.imgs = collections.OrderedDict({})
-        self.image_size = None
         self.finder = TipFinderCuda()
         self.curr_image = self.image_panel.img
         
@@ -309,25 +308,78 @@ class ImageManager:
         return self.RAW_EXTENSIONS + self.CV2_EXTENSIONS
 
 
-    def _load(self, filepath):
-        extension = f".{filepath.split('.')[-1].lower()}"
-        if extension not in self.supported_extensions:
-            raise ValueError(f"Invalid extension! Expected {self.supported_extensions} but found {extension}")
+    def _load(self, filepaths):
+        raw_extension_filepaths = [filepath for filepath in filepaths if f".{filepath.split('.')[-1].lower()}" in self.RAW_EXTENSIONS]
+        cv2_extension_filepaths = [filepath for filepath in filepaths if f".{filepath.split('.')[-1].lower()}" in self.CV2_EXTENSIONS]
+
+        self.imgs = {**self.imgs, **{filepath:img for filepath,img in zip(raw_extension_filepaths, load_raw_images(raw_extension_filepaths, "auto"))}}
         
-        if extension in self.RAW_EXTENSIONS:
-            print("opening raw image")
-            image = load_raw_image(filepath, "auto")
+        for filepath in cv2_extension_filepaths:
+            self.imgs[filepath] = cv2.cvtColor(cv2.imread(filepath), cv2.COLOR_BGR2RGB)
         
-        if extension in self.CV2_EXTENSIONS:
-            image = cv2.cvtColor(cv2.imread(filepath), cv2.COLOR_BGR2RGB)
+        img_names = list(self.imgs.keys())
+        offsets = [(0, 0)]
+        for img_name1, img_name2 in zip(img_names[:-1], img_names[1:]):
+            fixingtranslationtimestart = pcns()
+            img1 = self.imgs[img_name1]
+            img2 = self.imgs[img_name2]
+            img1_x_hist, img1_y_hist = self.get_x_y_mean_histos(img1)
+            img2_x_hist, img2_y_hist = self.get_x_y_mean_histos(img2)
+            print(f"histotime: {(pcns()-fixingtranslationtimestart)*10**-9:.5f}")
             
-        if image.shape[0] > image.shape[1]:
-            return cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
-        size = image.shape[0], image.shape[1]
-        if size != self.image_size and self.image_size is not None:
-            print("INCONSISTENT IMAGE SIZES")
-        self.image_size = size
-        return image
+            print(img_name1, img_name2)
+            lowest_x_max = 10**10
+            lowest_x_max_offset = 0
+            for x_off in [0] + sum([[-n, n] for n in range(1, 100, 1)], []):
+                if x_off > 0:
+                    new_x_max = max(abs(img1_x_hist[:-x_off] - img2_x_hist[x_off:]))
+                elif x_off < 0:
+                    new_x_max = max(abs(img1_x_hist[-x_off:] - img2_x_hist[:x_off]))
+                else:
+                    new_x_max = max(abs(img1_x_hist - img2_x_hist))
+                if new_x_max < lowest_x_max:
+                    lowest_x_max = new_x_max
+                    lowest_x_max_offset = x_off
+                if new_x_max < 1:
+                    break
+            
+            lowest_y_max = 10**10
+            lowest_y_max_offset = 0
+            for y_off in [0] + sum([[-n, n] for n in range(1, 100, 1)], []):
+                if y_off > 0:
+                    new_y_max = max(abs(img1_y_hist[:-y_off] - img2_y_hist[y_off:]))
+                elif y_off < 0:
+                    new_y_max = max(abs(img1_y_hist[-y_off:] - img2_y_hist[:y_off]))
+                else:
+                    new_y_max = max(abs(img1_y_hist - img2_y_hist))
+                if new_y_max < lowest_y_max:
+                    lowest_y_max = new_y_max
+                    lowest_y_max_offset = y_off
+                
+            print(lowest_x_max, lowest_x_max_offset)
+            print(lowest_y_max, lowest_y_max_offset)
+            offsets.append((offsets[-1][0] + lowest_x_max_offset, offsets[-1][1] + lowest_y_max_offset))
+            print(f"----------------------------------: {(pcns()-fixingtranslationtimestart)*10**-9:.5f}")
+        
+        for name, o in zip(img_names, offsets):
+            M = np.float32([
+                [1, 0, -o[0]],
+                [0, 1, -o[1]]
+            ])
+            self.imgs[name] = cv2.warpAffine(self.imgs[name], M, (self.imgs[name].shape[1], self.imgs[name].shape[0]))
+            
+    
+    def get_x_y_mean_histos(self, img):
+        x_hist = np.zeros(img.shape[1])
+        for x in range(img.shape[1]):
+            x_hist[x] = np.max(img[:, x])
+        
+        y_hist = np.zeros(img.shape[0])
+        for y in range(img.shape[0]):
+            y_hist[y] = np.max(img[y, :])
+            
+        return x_hist, y_hist
+        
 
 
     def ask_and_load(self):
@@ -336,8 +388,7 @@ class ImageManager:
         if not selected_img_files:
             return
         
-        for filepath in selected_img_files:
-            self.imgs[filepath.name] = self._load(filepath.name)
+        self._load([filepath.name for filepath in selected_img_files])
     
     
     def compute(self, name_or_image):
@@ -447,7 +498,6 @@ class ComputedObject:
     @classmethod
     def remove_all(cls):
         for l in ComputedObject.objects:
-            print("removing", l)
             l.name_label.grid_forget()
         ComputedObject.objects = []
         ComputedObject.currently_packed = []
