@@ -1,7 +1,7 @@
 import rawpy
 import cv2
 import rawpy
-import multiprocessing as mp
+import multiprocess as mp
 from tkinter import filedialog
 from time import perf_counter_ns as pcns
 import cv2
@@ -9,9 +9,20 @@ import numpy as np
 from typing import Union
 from matplotlib import pyplot as plt
 
-global prev_brightness
-prev_brightness = None
 
+
+def get_x_y_histos(img):
+    x_hist = np.zeros(img.shape[1])
+    for x in range(img.shape[1]):
+        x_hist[x] = np.sum(img[:, x])
+    
+    y_hist = np.zeros(img.shape[0])
+    for y in range(img.shape[0]):
+        y_hist[y] = np.sum(img[y, :])
+        
+    return x_hist, y_hist
+    
+    
 def _load_raw_from_file(path):
     print(path)
     with rawpy.imread(path) as raw:
@@ -21,40 +32,38 @@ def _load_raw_from_file(path):
         raw_array = raw_data.reshape((height, width, 1))
         return cv2.cvtColor(raw_array, 46)
     
+def worker(path):
+    demos = _load_raw_from_file(path)
+    flattened_data = cv2.resize(demos, (demos.shape[0]//4, demos.shape[1]//4)).flatten()
+    sorted_data = np.sort(flattened_data)
+    upper_quarter_index = int(len(sorted_data) * 0.95)
 
-def load_raw_images(paths, brightness: Union[float, int, str]=1):
-    demosaiced_images = [_load_raw_from_file(path) for path in paths]
-    if brightness == "auto":
-        brightnesses = []
-        for demos in demosaiced_images:
-            print(demos.shape)
-            flattentime = pcns()
-            flattened_data = cv2.resize(demos, (demos.shape[0]//4, demos.shape[1]//4)).flatten()
-            print(f"flatten time: {(pcns()-flattentime)*10**-9:.5f}")
-            
-            # Sort the flattened array
-            sortedtime = pcns()
-            sorted_data = np.sort(flattened_data)
-            print(f"sort time: {(pcns()-sortedtime)*10**-9:.5f}")
+    upper_quarter = sorted_data[upper_quarter_index:]
 
-            # Calculate the index of the median of the upper quarter
-            
-            upper_quarter_index = int(len(sorted_data) * 0.95)
-
-            # Get the upper quarter of the sorted array
-            upper_quarter = sorted_data[upper_quarter_index:]
-
-            # Calculate the median of the upper quarter
-            mediantime = pcns()
-            median_upper_quarter = np.median(upper_quarter)
-            print(f"median time: {(pcns()-mediantime)*10**-9:.5f}")
-            brightnesses.append(65535/median_upper_quarter/8)
-        brightness = sum(brightnesses)/len(brightnesses)
-    # else:
-    #     raise ValueError(f"brightness must be \"auto\", float or an int, not {brightness}")
-    imgs = [cv2.convertScaleAbs(demos, alpha=float((255.0/65535.0) * brightness)) for demos in demosaiced_images]
-    return imgs
+    median_upper_quarter = np.median(upper_quarter)
+    return demos, (65535/median_upper_quarter/8)
     
+def mp_load_and_getbrightness(paths):
+    with mp.Pool(mp.cpu_count()//2) as pool:
+        return zip(*pool.map(worker, paths))
+    
+
+    
+def load_raw_images(paths, brightness: Union[float, int, str]=1):
+    if brightness == "auto":
+        demosaiced_images, brightnesses = mp_load_and_getbrightness(paths)
+        brightness = sum(brightnesses)/len(brightnesses)
+    else:
+        demosaiced_images = [_load_raw_from_file(path) for path in paths]
+    print(demosaiced_images)
+    imgs = [cv2.convertScaleAbs(demos, alpha=float(brightness/257)) for demos in demosaiced_images]
+    
+    with mp.Pool(mp.cpu_count()) as pool:
+        x_y_histos = pool.map(get_x_y_histos, imgs)
+    
+    return imgs, x_y_histos
+
+
 if __name__ == "__main__":
     class qs:
         name_and_pos = {}

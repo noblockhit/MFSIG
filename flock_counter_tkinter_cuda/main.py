@@ -1,5 +1,5 @@
 from __future__ import annotations
-import multiprocessing as mp
+import multiprocess as mp
 from tkinter import filedialog
 from time import perf_counter_ns as pcns
 import cv2
@@ -146,7 +146,7 @@ class TipFinderCuda:
     
     # method three attrs
     sharpness_radius = 3
-    sharpness_threshold = 0.05
+    sharpness_threshold = 0.005
     
     length_min = 50
     length_max = 400
@@ -158,7 +158,7 @@ class TipFinderCuda:
         with open(str(get_path() / "outlineTips.cu")) as f:
             self.mod = SourceModule(f.read())
 
-        self.available_methods = ["outline_tips_method_1", "outline_tips_method_3"]
+        self.available_methods = ["outline_tips_method_1", "outline_tips_method_4"]
         self.functions = []
         for meth in self.available_methods:
             self.functions.append(self.mod.get_function(meth))
@@ -194,7 +194,7 @@ class TipFinderCuda:
         if self.current_method_name == "outline_tips_method_1":
             attrs = drv.InOut(processed_input), drv.InOut(out), drv.In(np.array(img.shape)), np.uint8(TipFinderCuda.own_thresh), np.uint8(TipFinderCuda.ngb_thresh)
         
-        elif self.current_method_name == "outline_tips_method_3":
+        elif self.current_method_name == "outline_tips_method_4":
             attrs = drv.InOut(processed_input), drv.InOut(out), drv.In(np.array(img.shape)), np.int16(TipFinderCuda.sharpness_radius), np.double(TipFinderCuda.sharpness_threshold)
         
         self.outline_tips(*attrs, block=(32, 32, 1), grid=(width//32+1, height//32+1))
@@ -255,6 +255,7 @@ class ImageManager:
         self.image_panel = GrowingImage(self.image_frame, zoom_factor=.825, image = np.zeros((1000, 1000, 3), dtype=np.uint8))
         self.image_panel.pack(padx=20, pady=20, expand=True, fill = "both")
         self.imgs = collections.OrderedDict({})
+        self.img_histos = collections.OrderedDict({})
         self.finder = TipFinderCuda()
         self.curr_image = self.image_panel.img
         
@@ -312,20 +313,20 @@ class ImageManager:
         raw_extension_filepaths = [filepath for filepath in filepaths if f".{filepath.split('.')[-1].lower()}" in self.RAW_EXTENSIONS]
         cv2_extension_filepaths = [filepath for filepath in filepaths if f".{filepath.split('.')[-1].lower()}" in self.CV2_EXTENSIONS]
 
-        self.imgs = {**self.imgs, **{filepath:img for filepath,img in zip(raw_extension_filepaths, load_raw_images(raw_extension_filepaths, "auto"))}}
+        images_and_histos = load_raw_images(raw_extension_filepaths, "auto")
         
+        self.imgs = {**self.imgs, **{filepath:img for filepath,img in zip(raw_extension_filepaths, images_and_histos[0])}}
+        self.img_histos = {**self.img_histos, **{filepath:histo for filepath,histo in zip(raw_extension_filepaths, images_and_histos[1])}}
         for filepath in cv2_extension_filepaths:
             self.imgs[filepath] = cv2.cvtColor(cv2.imread(filepath), cv2.COLOR_BGR2RGB)
         
         img_names = list(self.imgs.keys())
         offsets = [(0, 0)]
         for img_name1, img_name2 in zip(img_names[:-1], img_names[1:]):
-            fixingtranslationtimestart = pcns()
             img1 = self.imgs[img_name1]
             img2 = self.imgs[img_name2]
-            img1_x_hist, img1_y_hist = self.get_x_y_mean_histos(img1)
-            img2_x_hist, img2_y_hist = self.get_x_y_mean_histos(img2)
-            print(f"histotime: {(pcns()-fixingtranslationtimestart)*10**-9:.5f}")
+            img1_x_hist, img1_y_hist = self.img_histos[img_name1]
+            img2_x_hist, img2_y_hist = self.img_histos[img_name2]
             
             print(img_name1, img_name2)
             lowest_x_max = 10**10
@@ -359,7 +360,6 @@ class ImageManager:
             print(lowest_x_max, lowest_x_max_offset)
             print(lowest_y_max, lowest_y_max_offset)
             offsets.append((offsets[-1][0] + lowest_x_max_offset, offsets[-1][1] + lowest_y_max_offset))
-            print(f"----------------------------------: {(pcns()-fixingtranslationtimestart)*10**-9:.5f}")
         
         for name, o in zip(img_names, offsets):
             M = np.float32([
@@ -367,19 +367,6 @@ class ImageManager:
                 [0, 1, -o[1]]
             ])
             self.imgs[name] = cv2.warpAffine(self.imgs[name], M, (self.imgs[name].shape[1], self.imgs[name].shape[0]))
-            
-    
-    def get_x_y_mean_histos(self, img):
-        x_hist = np.zeros(img.shape[1])
-        for x in range(img.shape[1]):
-            x_hist[x] = np.max(img[:, x])
-        
-        y_hist = np.zeros(img.shape[0])
-        for y in range(img.shape[0]):
-            y_hist[y] = np.max(img[y, :])
-            
-        return x_hist, y_hist
-        
 
 
     def ask_and_load(self):
@@ -741,7 +728,7 @@ def main():
     own_brightness_threshold = customtkinter.IntVar(None, 6)
     neighbour_brightness_threshold = customtkinter.IntVar(None, 9)
     sharpness_radius = customtkinter.IntVar(None, TipFinderCuda.sharpness_radius)
-    sharpness_threshold = customtkinter.IntVar(None, TipFinderCuda.sharpness_threshold*1000)
+    sharpness_threshold = customtkinter.IntVar(None, TipFinderCuda.sharpness_threshold*10000)
     contour_length_min = customtkinter.IntVar(None, 100)
     contour_length_max = customtkinter.IntVar(None, 1100)
     
@@ -786,7 +773,7 @@ def main():
         show_images_with_info(img_manager, current_image_idx, current_image_type.get())
         
     def update_sharpness_threshold(*_):
-        TipFinderCuda.sharpness_threshold = sharpness_threshold.get()/1000
+        TipFinderCuda.sharpness_threshold = sharpness_threshold.get()/10000
         sharp_thresh_label.configure(True, text=f"Sharpness Threshold: {TipFinderCuda.sharpness_threshold}")
         show_images_with_info(img_manager, current_image_idx, current_image_type.get())
     
