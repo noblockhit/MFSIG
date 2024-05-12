@@ -36,12 +36,12 @@ def worker(path):
     demos = _load_raw_from_file(path)
     flattened_data = cv2.resize(demos, (demos.shape[0]//4, demos.shape[1]//4)).flatten()
     sorted_data = np.sort(flattened_data)
-    upper_quarter_index = int(len(sorted_data) * 0.95)
+    upper_portion_index = int(len(sorted_data) * 0.95)
 
-    upper_quarter = sorted_data[upper_quarter_index:]
+    upper_portion = sorted_data[upper_portion_index:]
 
-    median_upper_quarter = np.median(upper_quarter)
-    return demos, (65535/median_upper_quarter/8)
+    median_upper_portion = np.median(upper_portion)
+    return demos, (65535/median_upper_portion/8)
     
 def mp_load_and_getbrightness(paths):
     with mp.Pool(mp.cpu_count()//2) as pool:
@@ -55,7 +55,7 @@ def load_raw_images(paths, brightness: Union[float, int, str]=1):
         brightness = sum(brightnesses)/len(brightnesses)
     else:
         demosaiced_images = [_load_raw_from_file(path) for path in paths]
-    print(demosaiced_images)
+    
     imgs = [cv2.convertScaleAbs(demos, alpha=float(brightness/257)) for demos in demosaiced_images]
     
     with mp.Pool(mp.cpu_count()) as pool:
