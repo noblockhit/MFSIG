@@ -1,3 +1,4 @@
+// libs
 #include <QApplication>
 #include <QMainWindow>
 #include <QMenuBar>
@@ -8,6 +9,12 @@
 #include <QFileDialog>
 #include <QDebug>
 
+// temporary
+#include <chrono>
+
+// local
+#include "image_class.h"
+#include "image_loader.h"
 
 class MainWindow : public QMainWindow {
     
@@ -49,19 +56,28 @@ private slots:
     void openFile() {
         qInfo() << "Open file action triggered";
         QStringList fileNames = QFileDialog::getOpenFileNames(this, "Open Image File", "", "Images (*.png *.jpeg *.jpg *.arw *.nef *.tif *.tiff *.cr2 *.crw *.dng *.orf *.pef *.rw2 *.srw *.raf *.x3f *.3fr)");
-        // if (fileNames.isEmpty()) {
-        //     qInfo() << "No files selected";
-        //     return;
-        // }
-        // QPixmap pixmap(fileNames[0]);
-        // if (pixmap.isNull()) {
-        //     qInfo() << "QPixmap cannot load the image file";
-        //     return;
-        // }
-        // imageLabel->setPixmap(pixmap);
-        // imageLabel->adjustSize();
-
         
+
+        auto start = std::chrono::high_resolution_clock::now();
+
+        // Call the function whose execution time we want to measure
+        loadImages(images, fileNames);
+
+        // Get the current time after calling the function
+        auto end = std::chrono::high_resolution_clock::now();
+
+        // Calculate the duration of the function call
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+
+        qDebug() << "Execution time: " << duration.count() << " microseconds for " << images.size() << " images";
+        
+        if (images.empty()) {
+            qInfo() << "No images loaded";
+            return;
+        }
+        QPixmap pixmap = images[0]->getPixmap();
+        imageLabel->setPixmap(pixmap);
+        imageLabel->adjustSize();
     }
 
     void saveFile() {
@@ -70,6 +86,7 @@ private slots:
 
 private:
     QLabel *imageLabel;
+    std::vector<IImage*> images;
 };
 
 int main(int argc, char *argv[]) {

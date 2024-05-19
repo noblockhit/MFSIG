@@ -11,13 +11,14 @@ public:
 
     void loadImage();
     void bakeImage();
+    std::string getPath() const;
 
 private:
     std::string path;
     float referenceBrightness = -1;
-    uint8_t *imageData = nullptr;
+    unsigned char *imageData = nullptr;
     int width = -1;
     int height = -1;
 };
 
-#endif IIMAGE_H
+#endif //IIMAGE_H

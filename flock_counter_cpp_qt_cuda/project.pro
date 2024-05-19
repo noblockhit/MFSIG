@@ -16,3 +16,4 @@ SOURCES += main.cpp
 SOURCES += image_class.cpp
 SOURCES += image_class.h
 SOURCES += image_loader.cpp
+SOURCES += image_loader.h
