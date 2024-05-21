@@ -1,5 +1,5 @@
 TEMPLATE = app
-TARGET = FlockCounter0.0.1
+TARGET = FlockCounter
 
 # Include paths
 INCLUDEPATH += .
