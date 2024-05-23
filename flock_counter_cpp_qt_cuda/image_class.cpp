@@ -1,48 +1,47 @@
 // libs
 #include <QDebug>
 #include <QLibrary>
-//#include <libraw.h>
-
-#include <windows.h>
-
+#include <libraw.h>
 
 // local
 #include "image_class.h"
 
-typedef int (__stdcall *LibRawUnpack) (LibRaw);
-typedef int (__stdcall *LibRawDcrawProcess) (LibRaw);
+// QLibrary LibRawLibrary("libraw.dll");
 
+// auto LibRaw = LibRawLibrary.resolve("LibRaw");
+// bool initializeLibRaw() {
+//     if (!LibRawLibrary.load()) {
+//         qInfo() << LibRawLibrary.errorString();
+//         return false; // Return false if the library cannot be loaded
+//     }
+//     return true; // Return true if the library is successfully loaded
+// }
 
-
-HMODULE libRawDll = LoadLibrary(L"libraw.dll");
-LibRawUnpack libRawUnpack = reinterpret_cast<LibRawUnpack>(GetProcAddress(libRawDll, "LibRaw::unpack"));
-LibRawDcrawProcess libRawDcrawProcess = reinterpret_cast<LibRawDcrawProcess>(GetProcAddress(libRawDll, "LibRaw::dcraw_process"));
 
 QImage LibRawToQImage(LibRaw &rawProcessor) {
     // Unpack the RAW image
-    if (libRawUnpack(rawProcessor) != LIBRAW_SUCCESS) {
+    if (rawProcessor.unpack() != LIBRAW_SUCCESS) {
         throw std::runtime_error("Failed to unpack the RAW image");
     }
 
     // Process the RAW image to get RGB data
-    if (libRawDcrawProcess(rawProcessor) != LIBRAW_SUCCESS) {
+    if (rawProcessor.dcraw_process() != LIBRAW_SUCCESS) {
         throw std::runtime_error("Failed to process the RAW image");
     }
 
-    // // Get the processed image
-    // libraw_processed_image_t *image = rawProcessor.dcraw_make_mem_image();
-    // if (!image) {
-    //     throw std::runtime_error("Failed to create memory image");
-    // }
+    // Get the processed image
+    libraw_processed_image_t *image = rawProcessor.dcraw_make_mem_image();
+    if (!image) {
+        throw std::runtime_error("Failed to create memory image");
+    }
 
-    // // Create a QImage from the raw data
-    // QImage qimage(image->data, image->width, image->height, QImage::Format_RGB888);
+    // Create a QImage from the raw data
+    QImage qimage(image->data, image->width, image->height, QImage::Format_RGB888);
 
-    // // Clean up the LibRaw image data
-    // LibRaw::dcraw_clear_mem(image);
+    // Clean up the LibRaw image data
+    LibRaw::dcraw_clear_mem(image);
 
-    // return qimage.copy(); // Make a deep copy of the image data
-    return QImage();
+    return qimage.copy(); // Make a deep copy of the image data
 }
 
 IImage::IImage(std::string path) : path(path) {}
@@ -57,21 +56,21 @@ void IImage::loadImage() {
         qInfo() << "QPixmap cannot load the image file, trying libraw";
 
         // Initialize LibRaw processor
-        // LibRaw rawProcessor;
-        // if (rawProcessor.open_file(path.c_str()) != LIBRAW_SUCCESS) {
-        //     qInfo() << "Failed to open the NEF file";
-        //     return;
-        // }
+        LibRaw rawProcessor;
+        if (rawProcessor.open_file(path.c_str()) != LIBRAW_SUCCESS) {
+            qInfo() << "Failed to open the NEF file";
+            return;
+        }
 
-        // // Convert the LibRaw image to QImage
-        // QImage qimage;
-        // try {
-        //     qimage = LibRawToQImage(rawProcessor);
-        // } catch (const std::exception &e) {
-        //     qCritical() << "Error:" << e.what();
-        //     return;
-        // }
-        // pixmap = QPixmap::fromImage(qimage);
+        // Convert the LibRaw image to QImage
+        QImage qimage;
+        try {
+            qimage = LibRawToQImage(rawProcessor);
+        } catch (const std::exception &e) {
+            qCritical() << "Error:" << e.what();
+            return;
+        }
+        pixmap = QPixmap::fromImage(qimage);
     } else {
         QImage image = pixmap.toImage().convertToFormat(QImage::Format_RGB888);
         const unsigned char *tempImageData = image.bits();
@@ -97,4 +96,3 @@ QPixmap IImage::getPixmap() const {
     QPixmap pixmap = QPixmap::fromImage(image);
     return pixmap;
 }
-
