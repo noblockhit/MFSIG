@@ -1,3 +1,7 @@
+// libraries
+#include <QList>
+#include <QString>
+#include <QThread>
 
 // local
 #include "image_class.h"

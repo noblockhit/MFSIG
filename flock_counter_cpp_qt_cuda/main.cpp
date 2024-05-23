@@ -10,6 +10,7 @@
 #include <QPixmap>
 #include <QFileDialog>
 #include <QDebug>
+#include <QLibrary>
 
 // temporary
 #include <chrono>
@@ -123,6 +124,7 @@ private:
 };
 
 int main(int argc, char *argv[]) {
+    //initializeLibRaw();
     QApplication app(argc, argv);
 
     MainWindow mainWindow;

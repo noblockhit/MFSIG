@@ -2,6 +2,11 @@
 #define IIMAGE_H
 
 #include <QPixmap>
+#include <QLibrary>
+#include <QDebug>
+#include <libraw.h>
+
+bool initializeLibRaw();
 
 class IImage {
 public:
