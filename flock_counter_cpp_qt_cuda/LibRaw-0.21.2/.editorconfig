@@ -1,0 +1,16 @@
+# Top-most EditorConfig file
+root = true
+
+# Set default indentation style to tabs
+[*]
+indent_style = tab
+tab_width = 4
+
+# Specify language-specific settings
+[*.cpp]
+indent_style = space
+indent_size = 4
+
+[*.h]
+indent_style = space
+indent_size = 4
