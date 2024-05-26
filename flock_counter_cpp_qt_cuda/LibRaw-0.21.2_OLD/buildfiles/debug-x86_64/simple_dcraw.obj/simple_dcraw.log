@@ -1,0 +1,3 @@
+﻿riki_dcraw.obj : error LNK2019: unresolved external symbol "__declspec(dllimport) public: __cdecl QApplication::QApplication(int &,char * *,int)" (__imp_??0QApplication@@QEAA@AEAHPEAPEADH@Z) referenced in function main
+riki_dcraw.obj : error LNK2019: unresolved external symbol "__declspec(dllimport) public: virtual __cdecl QApplication::~QApplication(void)" (__imp_??1QApplication@@UEAA@XZ) referenced in function main
+debug-x86_64\\simple_dcraw.exe : fatal error LNK1120: 2 unresolved externals

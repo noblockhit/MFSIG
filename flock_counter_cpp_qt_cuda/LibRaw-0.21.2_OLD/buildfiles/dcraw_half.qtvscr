@@ -1,0 +1,468 @@
+<FlowDocument xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" FontFamily="Segoe UI" FontSize="12">
+  <FlowDocument.Tag><![CDATA[{
+  "timestamp": "2024-05-24 14:13:44",
+  "files": {
+    "D:\\CODING\\python\\MFSIG\\flock_counter_cpp_qt_cuda\\LibRaw-0.21.2\\buildfiles\\dcraw_half.vcxproj": {
+      "before": "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",
+      "after": "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"
+    },
+    "D:\\CODING\\python\\MFSIG\\flock_counter_cpp_qt_cuda\\LibRaw-0.21.2\\buildfiles\\dcraw_half.vcxproj.filters": {
+      "before": "3ZLPToNAEMYbj30Kwh2WQluMLDQExfRmYrw1MXR3kG32D+4ulcT4Rj6klDbapm/gYQ6zmW/nm/nN981kgle94M4etGFKpu7MD1wHJFGUybfU7Wzt3bqrbIqftNoBsc5QLU3qNta2dwgZ0oCojC8Y0cqo2vpECURhD1y1oJEw245xisIgiNxs6jh4bUE8atW1h2zIS8YtaGctCe8opO6z6jQBZ3gGMyrGqhfJ3jtYU5CW1Qx09jkviziKy5lXxPnCm0fx0suD5dIL8yi8jxdhHpblF0ZXwrHr0PehtyAPM5uMtG1CEtL3CYU6UZQnbIim3SXbyiaVEYfoMTqTHL2jo/n/NQlGF4iugBW8UKId8Pwx8/2NqUQ7ENtQoquP16bitU/+8J32dM4WXy4P/X47Xsm5B4xOt5f9AA==",
+      "after": "3ZJRS8MwEMeHj4LfIfS9Tdduq9i0o1QrexPEt4F06dVmJE1M0lkQP5rfzW4dOt03MHAPOe7+/O9+93kxmZBlLzjagTZMtokz9XwHQUtlxdqXxOls7V47y/TqkjxouQVq0VDemsRprFU3GBvagCiNJxjV0sjaelQKXMEOuFSgsTCbjvEKB74fOoMMQmRlQdxr2anDd0gUjFvQaNVS3lWQOI+y0xTQkAYz9qDhkaeWvXawqqC1rGag0/dZkUdhVEzdPMrm7iyMFm7mLxZukIXBbTQPsqAoPgg+a9zbOEje9Rba/eAmpUrFNKZ9H1dQx7LiMRuiUdt4U9q4NGIfPcEnLaMMwaP/fzgNwb9ZnaPLeS6FGkD90PO8tSmFGtitK6rLt+em5LVHT0Ae93WK+e8S8bfweDO/jBB8vMX0Cw=="
+    }
+  }
+}]]></FlowDocument.Tag>
+  <Section Margin="0,24" TextAlignment="Center">
+    <Paragraph FontSize="24" FontWeight="Bold" Margin="12,0">
+      <LineBreak />
+      <Span Foreground="Gray">Qt Visual Studio Tools</Span>
+    </Paragraph>
+    <Paragraph FontSize="42" Margin="12,0" FontWeight="Bold">
+      <Span TextDecorations="Underline">Project Format Conversion</Span>
+    </Paragraph>
+    <Paragraph Margin="12,8" FontSize="18">
+      <Span>Report generated on 2024-05-24 14:13:44</Span>
+    </Paragraph>
+  </Section>
+  <Section>
+    <Paragraph FontSize="32" FontWeight="Bold" Margin="12,0">
+      <Span>Files</Span>
+    </Paragraph>
+    <Paragraph Margin="24,12,0,0">
+      <Span FontFamily="Consolas" FontSize="14" Background="WhiteSmoke"><![CDATA[D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\buildfiles\dcraw_half.vcxproj]]></Span>
+      <LineBreak />
+      <Hyperlink NavigateUri="file://D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\buildfiles\dcraw_half.vcxproj?before">[Before]</Hyperlink>
+      <Hyperlink NavigateUri="file://D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\buildfiles\dcraw_half.vcxproj?after">[After]</Hyperlink>
+      <Hyperlink NavigateUri="file://D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\buildfiles\dcraw_half.vcxproj?diff&amp;before&amp;after">
+                        [Diff before/after]
+                    </Hyperlink>
+      <Hyperlink NavigateUri="file://D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\buildfiles\dcraw_half.vcxproj?diff&amp;before&amp;current">
+                        [Diff before/current]
+                    </Hyperlink>
+      <Hyperlink NavigateUri="file://D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\buildfiles\dcraw_half.vcxproj?diff&amp;after&amp;current">
+                        [Diff after/current]
+                    </Hyperlink>
+      <LineBreak />
+    </Paragraph>
+    <Paragraph Margin="24,12,0,0">
+      <Span FontFamily="Consolas" FontSize="14" Background="WhiteSmoke"><![CDATA[D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\buildfiles\dcraw_half.vcxproj.filters]]></Span>
+      <LineBreak />
+      <Hyperlink NavigateUri="file://D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\buildfiles\dcraw_half.vcxproj.filters?before">[Before]</Hyperlink>
+      <Hyperlink NavigateUri="file://D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\buildfiles\dcraw_half.vcxproj.filters?after">[After]</Hyperlink>
+      <Hyperlink NavigateUri="file://D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\buildfiles\dcraw_half.vcxproj.filters?diff&amp;before&amp;after">
+                        [Diff before/after]
+                    </Hyperlink>
+      <Hyperlink NavigateUri="file://D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\buildfiles\dcraw_half.vcxproj.filters?diff&amp;before&amp;current">
+                        [Diff before/current]
+                    </Hyperlink>
+      <Hyperlink NavigateUri="file://D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\buildfiles\dcraw_half.vcxproj.filters?diff&amp;after&amp;current">
+                        [Diff after/current]
+                    </Hyperlink>
+      <LineBreak />
+    </Paragraph>
+  </Section>
+  <Section>
+    <Paragraph FontSize="32" FontWeight="Bold" Margin="12,0">
+      <Span>Changes</Span>
+    </Paragraph>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Converting custom build steps to Qt/MSBuild items]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\buildfiles\dcraw_half.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      ]]></Span><Span Background="LightCoral"><![CDATA[<AdditionalIncludeDirectories>.;..;]]></Span><Span><![CDATA[%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      ]]></Span><Span Background="LightGreen"><![CDATA[<AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;..;]]></Span><Span><![CDATA[%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      ]]></Span><Span Background="LightCoral"><![CDATA[<AdditionalIncludeDirectories>.;..;]]></Span><Span><![CDATA[%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[      ]]></Span><Span Background="LightGreen"><![CDATA[<AdditionalIncludeDirectories>GeneratedFiles\$(ConfigurationName);GeneratedFiles;.;..;]]></Span><Span><![CDATA[%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Project format version]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\buildfiles\dcraw_half.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[    ]]></Span><Span Background="LightCoral"><![CDATA[<Keyword>Qt4VSv1.0</Keyword>]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[    ]]></Span><Span Background="LightGreen"><![CDATA[<Keyword>QtVS_v304</Keyword>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Fallback for QTMSBUILD environment variable]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\buildfiles\dcraw_half.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Default Qt properties]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\buildfiles\dcraw_half.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <Import Project="$(QtMsBuild)\qt_defaults.props" Condition="Exists('$(QtMsBuild)\qt_defaults.props')" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Qt build settings]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\buildfiles\dcraw_half.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Warn if Qt/MSBuild is not found]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\buildfiles\dcraw_half.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') OR !Exists('$(QtMsBuild)\Qt.props')">]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  </Target>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Qt property sheet]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\buildfiles\dcraw_half.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <Import Project="$(QtMsBuild)\Qt.props" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <Import Project="$(QtMsBuild)\Qt.props" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Qt targets]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\buildfiles\dcraw_half.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <Import Project="$(QtMsBuild)\qt.targets" Condition="Exists('$(QtMsBuild)\qt.targets')" />]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+    <Paragraph FontSize="20" FontWeight="Bold" Margin="12">
+      <Span><![CDATA[🡺 Adding Qt module names to QtModules project property]]></Span>
+    </Paragraph>
+    <Table CellSpacing="0" BorderBrush="Gray" BorderThickness="0.5">
+      <Table.Columns>
+        <TableColumn />
+        <TableColumn />
+      </Table.Columns>
+      <TableRowGroup>
+        <TableRow Background="Orange">
+          <TableCell ColumnSpan="2" BorderThickness="0.5" BorderBrush="Gray">
+            <Paragraph Margin="10,5" FontWeight="Bold">
+              <Span><![CDATA[D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\buildfiles\dcraw_half.vcxproj]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell ColumnSpan="2" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="0.5" />
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)]]></Span><Span Background="LightCoral"><![CDATA['=='Debug|x64'" />]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)]]></Span><Span Background="LightGreen"><![CDATA['=='Debug|x64'">]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[  ]]></Span><Span Background="LightCoral"><![CDATA[<PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />]]></Span>
+            </Paragraph>
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span><![CDATA[    ]]></Span><Span Background="LightGreen"><![CDATA[<QtModules></QtModules>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  </PropertyGroup>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[    <QtModules></QtModules>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0" />
+          </TableCell>
+          <TableCell BorderThickness="0, 0, 0.5, 0" BorderBrush="Gray">
+            <Paragraph FontFamily="Consolas" Margin="4, 0">
+              <Span Background="LightGreen"><![CDATA[  </PropertyGroup>]]></Span>
+            </Paragraph>
+          </TableCell>
+        </TableRow>
+      </TableRowGroup>
+    </Table>
+  </Section>
+  <Section>
+    <Paragraph />
+  </Section>
+</FlowDocument>
+<!--aSnrMcVlmmEHOH1+faw26Ff2YJvYMwRN67DQtLB1hos=-->

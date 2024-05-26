@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 13.0.1, 2024-05-23T22:00:58. -->
+<!-- Written by QtCreator 13.0.1, 2024-05-24T14:40:40. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -103,6 +103,7 @@
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.0">
       <value type="bool" key="ProjectExplorer.BuildStep.Enabled">true</value>
       <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">QtProjectManager.QMakeBuildStep</value>
+      <value type="QString" key="QtProjectManager.QMakeBuildStep.QMakeArguments">-d</value>
       <value type="bool" key="QtProjectManager.QMakeBuildStep.QMakeForced">false</value>
       <valuelist type="QVariantList" key="QtProjectManager.QMakeBuildStep.SelectedAbis"/>
      </valuemap>
@@ -134,6 +135,7 @@
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Debug</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4BuildConfiguration</value>
     <value type="int" key="Qt4ProjectManager.Qt4BuildConfiguration.BuildConfiguration">2</value>
+    <value type="int" key="SeparateDebugInfo">1</value>
    </valuemap>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.BuildConfiguration.1">
     <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\build\Desktop_Qt_6_7_0_MinGW_64_bit-Release</value>
