@@ -20,12 +20,30 @@
     <ClCompile Include="..\samples\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Indicator_action.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="image_label.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="num_setting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\samples\image_class.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\samples\image_loader.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="indicator_action.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="image_label.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="num_setting.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DEFECTS>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\libraw\</FILEPATH>
+      <FILENAME>libraw_alloc.h</FILENAME>
+      <LINE>37</LINE>
+      <COLUMN>10</COLUMN>
+    </SFA>
+    <DEFECTCODE>6387</DEFECTCODE>
+    <DESCRIPTION>'mems' could be '0'.</DESCRIPTION>
+    <FUNCTION>libraw_memmgr::{ctor}</FUNCTION>
+    <DECORATED>??0libraw_memmgr@@QEAA@I@Z</DECORATED>
+    <FUNCLINE>33</FUNCLINE>
+    <PROBABILITY>1</PROBABILITY>
+    <RANK>4</RANK>
+    <CATEGORY>
+      <RULECATEGORY>mspft</RULECATEGORY>
+    </CATEGORY>
+    <PATH>
+      <SFA>
+        <FILEPATH>D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\libraw\</FILEPATH>
+        <FILENAME>libraw_alloc.h</FILENAME>
+        <LINE>33</LINE>
+        <COLUMN>42</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\libraw\</FILEPATH>
+        <FILENAME>libraw_alloc.h</FILENAME>
+        <LINE>35</LINE>
+        <COLUMN>11</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\libraw\</FILEPATH>
+        <FILENAME>libraw_alloc.h</FILENAME>
+        <LINE>36</LINE>
+        <COLUMN>9</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\libraw\</FILEPATH>
+        <FILENAME>libraw_alloc.h</FILENAME>
+        <LINE>37</LINE>
+        <COLUMN>10</COLUMN>
+        <KEYEVENT>
+          <ID>1</ID>
+          <KIND>declaration</KIND>
+          <IMPORTANCE>Full</IMPORTANCE>
+          <MESSAGE>'mems' is an Output from 'memset' (declared at c:\program files\microsoft visual studio\2022\community\vc\tools\msvc\14.37.32822\include\vcruntime_string.h:63)</MESSAGE>
+        </KEYEVENT>
+      </SFA>
+      <SFA>
+        <FILEPATH>D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\libraw\</FILEPATH>
+        <FILENAME>libraw_alloc.h</FILENAME>
+        <LINE>37</LINE>
+        <COLUMN>10</COLUMN>
+        <KEYEVENT>
+          <ID>2</ID>
+          <KIND>usage</KIND>
+          <IMPORTANCE>Essential</IMPORTANCE>
+          <MESSAGE>'mems' should not be NULL, because this is not consistent with the SAL annotation on 'memset'</MESSAGE>
+        </KEYEVENT>
+      </SFA>
+    </PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\src\decoders\</FILEPATH>
+      <FILENAME>smal.cpp</FILENAME>
+      <LINE>35</LINE>
+      <COLUMN>2</COLUMN>
+    </SFA>
+    <DEFECTCODE>26451</DEFECTCODE>
+    <DESCRIPTION>Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2).</DESCRIPTION>
+    <FUNCTION>LibRaw::smal_decode_segment</FUNCTION>
+    <DECORATED>?smal_decode_segment@LibRaw@@IEAAXQEAY01IH@Z</DECORATED>
+    <FUNCLINE>24</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\src\decoders\</FILEPATH>
+      <FILENAME>smal.cpp</FILENAME>
+      <LINE>95</LINE>
+      <COLUMN>35</COLUMN>
+    </SFA>
+    <DEFECTCODE>26451</DEFECTCODE>
+    <DESCRIPTION>Arithmetic overflow: Using operator '+=' on a 1 byte value and then casting the result to a 2 byte value. Cast the value to the wider type before calling operator '+=' to avoid overflow (io.2).</DESCRIPTION>
+    <FUNCTION>LibRaw::smal_decode_segment</FUNCTION>
+    <DECORATED>?smal_decode_segment@LibRaw@@IEAAXQEAY01IH@Z</DECORATED>
+    <FUNCLINE>24</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+</DEFECTS>

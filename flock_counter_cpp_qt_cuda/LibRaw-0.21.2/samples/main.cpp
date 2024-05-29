@@ -13,43 +13,18 @@
 #include <vector>
 #include <iostream>
 #include <thread>
-
+#include <QTextEdit>
+#include <QSlider>
+#include <QLineEdit>
 // temporary
 #include <chrono>
 
 // local
 #include "image_class.h"
 #include "image_loader.h"
-
-class ImageLabel : public QLabel {
-public:
-    ImageLabel(QWidget* parent = nullptr) : QLabel(parent) {
-        setAlignment(Qt::AlignCenter);
-        setScaledContents(false); // disable automatic scaling
-        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding); // Allow the label to expand
-    }
-
-    void putPixmap(QPixmap pixmap) {
-        _pxmp = pixmap;
-        setPixmap(pixmap);
-        redrawPixmap();
-    }
-
-    void redrawPixmap() {
-        if (!_pxmp.isNull()) {
-            setPixmap(_pxmp.scaled(size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-        }
-    }
-
-protected:
-    void resizeEvent(QResizeEvent* event) override {
-        redrawPixmap();
-        QLabel::resizeEvent(event);
-    }
-
-private:
-    QPixmap _pxmp;
-};
+#include "indicator_action.h"
+#include "image_label.h"
+#include "num_setting.h"
 
 
 class MainWindow : public QMainWindow {
@@ -58,40 +33,72 @@ public:
     MainWindow(QWidget* parent = nullptr) : QMainWindow(parent) {
         setMinimumSize(640, 480);
 
-        // Create the menu bar
+        // MENU BAR
         QMenuBar* menuBar = new QMenuBar(this);
 
-        // Add menus to the menu bar
         QMenu* fileMenu = menuBar->addMenu(tr("&File"));
         QMenu* editMenu = menuBar->addMenu(tr("&Edit"));
         QMenu* helpMenu = menuBar->addMenu(tr("&Help"));
 
-        // Add actions to the menus
         QAction* openAction = fileMenu->addAction(tr("&Open"));
 
-        // Connect actions to slots (if needed)
         connect(openAction, &QAction::triggered, this, &MainWindow::openFile);
 
-        // Set the menu bar to the main window
+        altIndicator = new IndicatorAction(QString("alton.png"), QString("altoff.png"), this);
+        auto callback = std::bind(&MainWindow::setMoveAway, this, std::placeholders::_1);
+        altIndicator->setMethod(callback);
+        menuBar->addAction(altIndicator);
+        connect(altIndicator, &QAction::triggered, this, &MainWindow::toggleAltIndicator);
+
         setMenuBar(menuBar);
 
-        // Create a central widget
+        this->installEventFilter(this);
+
         QWidget* centralWidget = new QWidget(this);
         mainLayout = new QVBoxLayout(centralWidget);
+
+        // SETTINGS
         settingsFrame = new QFrame(this);
-        settingsFrame->setFrameShape(QFrame::Box);
-        settingsFrame->setFixedHeight(50);
+        settingsFrame->setFrameShape(QFrame::NoFrame);
+        settingsFrame->setFixedHeight(100);
 
+        QHBoxLayout* settingsLayout = new QHBoxLayout;
+
+        blurSetting = new NumSetting(1, 9, "Blur: ", "px");
+        ownThreshholdSetting = new NumSetting(0, 255, "Own brightness: ", "");
+        neighbourThreshholdSetting = new NumSetting(0, 255, "Neighbour brightness: ", "");
+        minContourLengthSetting = new NumSetting(0, 2000, "Min contour length: ", "px");
+        maxContourLengthSetting = new NumSetting(1, 2001, "Max contour length: ", "px");
+
+        settingsLayout->addWidget(blurSetting);
+        settingsLayout->addWidget(ownThreshholdSetting);
+        settingsLayout->addWidget(neighbourThreshholdSetting);
+        settingsLayout->addWidget(minContourLengthSetting);
+        settingsLayout->addWidget(maxContourLengthSetting);
+
+
+        settingsFrame->setLayout(settingsLayout);
+
+            // MAIN FRAME
         imageLabel = new ImageLabel(this);
-        imageLabel->setFrameShape(QFrame::Box);
+        imageLabel->setFrameShape(QFrame::NoFrame);
 
+
+        // ASSIGN
         mainLayout->addWidget(settingsFrame);
         mainLayout->addWidget(imageLabel);
 
         this->setCentralWidget(centralWidget);
     }
 
+
 private slots:
+    void setMoveAway(bool val) {
+        imageLabel->moveAway = val;
+    }
+    void toggleAltIndicator() {
+        altIndicator->toggleState();
+    }
     void openFile() {
         qInfo() << "Open file action triggered";
         QStringList fileNames = QFileDialog::getOpenFileNames(this, "Open Image File", "", "Images (*.png *.jpeg *.jpg *.arw *.nef *.tif *.tiff *.cr2 *.crw *.dng *.orf *.pef *.rw2 *.srw *.raf *.x3f *.3fr)");
@@ -101,31 +108,96 @@ private slots:
         {
             fileNameList.push_back(qString.toUtf8().constData());
         }
-        //auto fileNameList = new std::list<std::string>{"D:/Images/Abi2023/AA_personen_zeugnisuebergabe/DSC_3045.NEF"};
+
         loadImages(images, fileNameList);
 
         if (images.empty()) {
             qInfo() << "No images loaded";
             return;
         }
-        QPixmap pixmap = images[0]->getPixmap();
-        imageLabel->putPixmap(pixmap);
 
+        updatePixmap();
+    }
+
+    void updatePixmap() {
+        imageLabel->putPixmap(images[shownImageIndex]->getPixmap());
+        imageLabel->setText(images[shownImageIndex]->getPath() + " (" + std::to_string(shownImageIndex + 1) + " / " + std::to_string(images.size()) + ")");
     }
 
 private:
+    int shownImageIndex = 0;
     QVBoxLayout* mainLayout;
+    IndicatorAction* altIndicator;
     QFrame* settingsFrame;
     ImageLabel* imageLabel;
     std::vector<IImage*> images;
+
+    NumSetting* blurSetting;
+    NumSetting* ownThreshholdSetting;
+    NumSetting* neighbourThreshholdSetting;
+    NumSetting* minContourLengthSetting;
+    NumSetting* maxContourLengthSetting;
+
+protected:
+    bool eventFilter(QObject* obj, QEvent* event) override {
+        if (event->type() == QEvent::KeyPress) {
+            QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+            if (keyEvent->key() == Qt::Key_Alt) {
+                std::cout << "altkey";
+                altIndicator->toggleState(); // Toggle color when Alt key is pressed
+                return true;
+            }
+            else if (keyEvent->key() == Qt::Key_Left && images.size() > 0) {
+                shownImageIndex -= 1;
+                if (shownImageIndex < 0) {
+                    shownImageIndex = images.size() - 1;
+                }
+                updatePixmap();
+            }
+            else if (keyEvent->key() == Qt::Key_Right && images.size() > 0) {
+                shownImageIndex = (shownImageIndex + 1) % images.size();
+                updatePixmap();
+            }
+        }
+        return QMainWindow::eventFilter(obj, event);
+    }
 };
 
 int main(int argc, char* argv[]) {
     //initializeLibRaw();
-    QApplication app(argc, argv);
+    /*QApplication app(argc, argv);
 
     MainWindow mainWindow;
     mainWindow.show();
 
-    return app.exec();
+    return app.exec();*/
+    IImage::initializeOpenCL();
+    if (!IImage::initialize()) {
+        qInfo() << "failed to initialize";
+    }
+
+
+    std::vector<float> inputData = {};
+    for (int i = 1; i < 100000; i++) {
+        inputData.push_back(i);
+    }
+    for (int i = 0; i < 5; i++) {
+        std::vector<float> outputData;
+
+
+        auto start = std::chrono::high_resolution_clock::now();
+
+        if (!IImage::executeKernel(inputData, outputData)) {
+            std::cerr << "Failed to execute kernel." << std::endl;
+            return -1;
+        }
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> duration = end - start;
+        std::cout << "Kernel execution time: " << duration.count() << " milliseconds" << std::endl;
+
+
+        inputData = outputData;
+    }
+    
+    return 0;
 }

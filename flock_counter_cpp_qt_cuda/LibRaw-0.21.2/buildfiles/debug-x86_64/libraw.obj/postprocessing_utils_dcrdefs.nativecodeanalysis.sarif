@@ -1,0 +1,2020 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "runs": [
+    {
+      "results": [
+        {
+          "ruleId": "C6387",
+          "message": {
+            "text": "'mems' could be '0'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/libraw/libraw_alloc.h"
+                },
+                "region": {
+                  "startLine": 37,
+                  "startColumn": 5,
+                  "endLine": 37,
+                  "endColumn": 21
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "libraw_memmgr::{ctor}",
+                  "decoratedName": "??0libraw_memmgr@@QEAA@I@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/libraw/libraw_alloc.h"
+                          },
+                          "region": {
+                            "startLine": 33,
+                            "startColumn": 43
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/libraw/libraw_alloc.h"
+                          },
+                          "region": {
+                            "startLine": 35,
+                            "startColumn": 12
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/libraw/libraw_alloc.h"
+                          },
+                          "region": {
+                            "startLine": 36,
+                            "startColumn": 10
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/libraw/libraw_alloc.h"
+                          },
+                          "region": {
+                            "startLine": 37,
+                            "startColumn": 11
+                          }
+                        },
+                        "message": {
+                          "text": "'mems' is an Output from 'memset' (declared at c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.37.32822\\include\\vcruntime_string.h:63)"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/libraw/libraw_alloc.h"
+                          },
+                          "region": {
+                            "startLine": 37,
+                            "startColumn": 11
+                          }
+                        },
+                        "message": {
+                          "text": "'mems' should not be NULL, because this is not consistent with the SAL annotation on 'memset'"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C6385",
+          "message": {
+            "text": "Reading invalid data from 'name'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 61,
+                  "startColumn": 19
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::convert_to_rgb",
+                  "decoratedName": "?convert_to_rgb@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 23,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 24,
+                            "startColumn": 10
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 24,
+                            "startColumn": 15
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 25,
+                            "startColumn": 24
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 30,
+                            "startColumn": 22
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 34,
+                            "startColumn": 25
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 38,
+                            "startColumn": 12
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 48,
+                            "startColumn": 25
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 49,
+                            "startColumn": 12
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 51,
+                            "startColumn": 3
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'callbacks.progress_cb' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 53,
+                            "startColumn": 14
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 54,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 55,
+                            "startColumn": 13
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 56,
+                            "startColumn": 7
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this branch, (assume '<branch condition>')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 58,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 59,
+                            "startColumn": 20
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 60,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 60,
+                            "startColumn": 12
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 60,
+                            "startColumn": 15
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 61,
+                            "startColumn": 19
+                          }
+                        },
+                        "message": {
+                          "text": "'name' is an Output from '_snprintf' (declared at c:\\program files (x86)\\windows kits\\10\\include\\10.0.22621.0\\ucrt\\stdio.h:1939)"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 61,
+                            "startColumn": 19
+                          }
+                        },
+                        "message": {
+                          "text": "Invalid read from 'name[8]', (readable range is 0 to 7)"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C6385",
+          "message": {
+            "text": "Reading invalid data from 'out_rgb'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 85,
+                  "startColumn": 5,
+                  "endLine": 85,
+                  "endColumn": 69
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::convert_to_rgb",
+                  "decoratedName": "?convert_to_rgb@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 23,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 24,
+                            "startColumn": 10
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 24,
+                            "startColumn": 15
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 25,
+                            "startColumn": 24
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 30,
+                            "startColumn": 22
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 34,
+                            "startColumn": 25
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 38,
+                            "startColumn": 12
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 48,
+                            "startColumn": 25
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 49,
+                            "startColumn": 12
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 51,
+                            "startColumn": 3
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'callbacks.progress_cb' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 53,
+                            "startColumn": 14
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 54,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 55,
+                            "startColumn": 13
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 56,
+                            "startColumn": 7
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this branch, (assume '<branch condition>')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 58,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 59,
+                            "startColumn": 20
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 60,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 60,
+                            "startColumn": 12
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 60,
+                            "startColumn": 15
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 61,
+                            "startColumn": 19
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 64,
+                            "startColumn": 21
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 65,
+                            "startColumn": 12
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 68,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 69,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 70,
+                            "startColumn": 22
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 72,
+                            "startColumn": 14
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 73,
+                            "startColumn": 12
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 73,
+                            "startColumn": 19
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 75,
+                            "startColumn": 27
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 76,
+                            "startColumn": 24
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 77,
+                            "startColumn": 16
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 73,
+                            "startColumn": 37
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 73,
+                            "startColumn": 19
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 75,
+                            "startColumn": 27
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 76,
+                            "startColumn": 24
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 77,
+                            "startColumn": 16
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 73,
+                            "startColumn": 37
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 73,
+                            "startColumn": 19
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 79,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 80,
+                            "startColumn": 29
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 81,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 82,
+                            "startColumn": 15
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 83,
+                            "startColumn": 12
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 83,
+                            "startColumn": 19
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 84,
+                            "startColumn": 13
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 83,
+                            "startColumn": 25
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 83,
+                            "startColumn": 19
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 84,
+                            "startColumn": 13
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 83,
+                            "startColumn": 25
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 83,
+                            "startColumn": 19
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 85,
+                            "startColumn": 18
+                          }
+                        },
+                        "message": {
+                          "text": "'out_rgb' is an Output from 'LibRaw::pseudoinverse' (declared at d:\\coding\\python\\mfsig\\flock_counter_cpp_qt_cuda\\libraw-0.21.2\\internal\\libraw_internal_funcs.h:322)"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                          },
+                          "region": {
+                            "startLine": 85,
+                            "startColumn": 18
+                          }
+                        },
+                        "message": {
+                          "text": "Invalid read from 'out_rgb[8]', (readable range is 0 to 7)"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 62,
+                  "startColumn": 113
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::convert_to_rgb",
+                  "decoratedName": "?convert_to_rgb@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 96,
+                  "startColumn": 9,
+                  "endLine": 96,
+                  "endColumn": 20
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::convert_to_rgb",
+                  "decoratedName": "?convert_to_rgb@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 243,
+                  "startColumn": 23,
+                  "endLine": 243,
+                  "endColumn": 28
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::scale_colors",
+                  "decoratedName": "?scale_colors@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 276,
+                  "startColumn": 30,
+                  "endLine": 276,
+                  "endColumn": 39
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::green_matching",
+                  "decoratedName": "?green_matching@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 277,
+                  "startColumn": 22,
+                  "endLine": 277,
+                  "endColumn": 31
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::green_matching",
+                  "decoratedName": "?green_matching@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 291,
+                  "startColumn": 13,
+                  "endLine": 291,
+                  "endColumn": 34
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::green_matching",
+                  "decoratedName": "?green_matching@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 291,
+                  "startColumn": 13,
+                  "endLine": 291,
+                  "endColumn": 27
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::green_matching",
+                  "decoratedName": "?green_matching@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 291,
+                  "startColumn": 13,
+                  "endLine": 291,
+                  "endColumn": 20
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::green_matching",
+                  "decoratedName": "?green_matching@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 292,
+                  "startColumn": 13,
+                  "endLine": 292,
+                  "endColumn": 34
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::green_matching",
+                  "decoratedName": "?green_matching@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 292,
+                  "startColumn": 13,
+                  "endLine": 292,
+                  "endColumn": 27
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::green_matching",
+                  "decoratedName": "?green_matching@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 292,
+                  "startColumn": 13,
+                  "endLine": 292,
+                  "endColumn": 20
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::green_matching",
+                  "decoratedName": "?green_matching@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 295,
+                  "startColumn": 49
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::green_matching",
+                  "decoratedName": "?green_matching@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 295,
+                  "startColumn": 30
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::green_matching",
+                  "decoratedName": "?green_matching@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 294,
+                  "startColumn": 68
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::green_matching",
+                  "decoratedName": "?green_matching@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 294,
+                  "startColumn": 13,
+                  "endLine": 294,
+                  "endColumn": 62
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::green_matching",
+                  "decoratedName": "?green_matching@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 294,
+                  "startColumn": 13,
+                  "endLine": 294,
+                  "endColumn": 43
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::green_matching",
+                  "decoratedName": "?green_matching@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 298,
+                  "startColumn": 49
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::green_matching",
+                  "decoratedName": "?green_matching@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 298,
+                  "startColumn": 30
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::green_matching",
+                  "decoratedName": "?green_matching@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 297,
+                  "startColumn": 68
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::green_matching",
+                  "decoratedName": "?green_matching@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 297,
+                  "startColumn": 13,
+                  "endLine": 297,
+                  "endColumn": 62
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::green_matching",
+                  "decoratedName": "?green_matching@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 297,
+                  "startColumn": 13,
+                  "endLine": 297,
+                  "endColumn": 43
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::green_matching",
+                  "decoratedName": "?green_matching@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 300,
+                  "startColumn": 61,
+                  "endLine": 300,
+                  "endColumn": 71
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::green_matching",
+                  "decoratedName": "?green_matching@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+                },
+                "region": {
+                  "startLine": 301,
+                  "startColumn": 17,
+                  "endLine": 301,
+                  "endColumn": 27
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::green_matching",
+                  "decoratedName": "?green_matching@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "tool": {
+        "driver": {
+          "name": "PREfast",
+          "fullName": "PREfast Code Analysis",
+          "version": "14.37.32824.0",
+          "informationUri": "https://aka.ms/cpp/ca"
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true
+        }
+      ],
+      "artifacts": [
+        {
+          "location": {
+            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/libraw/libraw_alloc.h"
+          },
+          "roles": [
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "37bd73b2a133ac7df778e0a02ed87aa20c86f85299f5ff0474521d2d29bdeb5a"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/postprocessing/postprocessing_utils_dcrdefs.cpp"
+          },
+          "roles": [
+            "analysisTarget",
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "531b7f9176006933a58d638f8e2f96cf9bfa300375ddab5b4034708fe1045ea2"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/internal/dcraw_defs.h"
+          },
+          "hashes": {
+            "sha-256": "4d1cbcc107267b814b2b4aed85056d45eb6020fbf751589c4cf37f6a16214eff"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/libraw/libraw.h"
+          },
+          "hashes": {
+            "sha-256": "3e1c191f1b2feeb58c50de668c2a10fa62631ac49db3fafc3501e5c9aff7ceab"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/libraw/libraw_datastream.h"
+          },
+          "hashes": {
+            "sha-256": "79fb4f9fb4aca08cac0fc36899b3eb89ad3bb807d76c72949951e28dcd5fa1f8"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/libraw/libraw_const.h"
+          },
+          "hashes": {
+            "sha-256": "00ad97e07ce41da9a1fbff19bc901cb9ecbdfe0c40478262dc946813841193d6"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/libraw/libraw_types.h"
+          },
+          "hashes": {
+            "sha-256": "d83c7b9c7a8ea035b12f1d7b70f8ed686bae360da5b56c3fdf48dac397b6402d"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/libraw/libraw_version.h"
+          },
+          "hashes": {
+            "sha-256": "40173b156077058a0e9fdaf3914d83ce0bfef156764a41a6ffb782c007d37f15"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/libraw/libraw_internal.h"
+          },
+          "hashes": {
+            "sha-256": "7c7d8a6abd51642868903f4567475ca97d5bb876259a2e1643ff9f0bcc706b11"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/internal/libraw_internal_funcs.h"
+          },
+          "hashes": {
+            "sha-256": "4adc7dcc998f99f1498704c59a357e3ff4a1dac8cfda68bc5df63c66c42c8a23"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/internal/defines.h"
+          },
+          "hashes": {
+            "sha-256": "7f5d88b42b2005c5319f544cc98c1a52261c63b2b1bc02e6e6fae66e974168d6"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/internal/var_defines.h"
+          },
+          "hashes": {
+            "sha-256": "724ce47af48d728cbc81d51cbb6b7184bb8368816ce8d37c4658d15dbcbac952"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,3201 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "runs": [
+    {
+      "results": [
+        {
+          "ruleId": "C6387",
+          "message": {
+            "text": "'mems' could be '0'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/libraw/libraw_alloc.h"
+                },
+                "region": {
+                  "startLine": 37,
+                  "startColumn": 5,
+                  "endLine": 37,
+                  "endColumn": 21
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "libraw_memmgr::{ctor}",
+                  "decoratedName": "??0libraw_memmgr@@QEAA@I@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/libraw/libraw_alloc.h"
+                          },
+                          "region": {
+                            "startLine": 33,
+                            "startColumn": 43
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/libraw/libraw_alloc.h"
+                          },
+                          "region": {
+                            "startLine": 35,
+                            "startColumn": 12
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/libraw/libraw_alloc.h"
+                          },
+                          "region": {
+                            "startLine": 36,
+                            "startColumn": 10
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/libraw/libraw_alloc.h"
+                          },
+                          "region": {
+                            "startLine": 37,
+                            "startColumn": 11
+                          }
+                        },
+                        "message": {
+                          "text": "'mems' is an Output from 'memset' (declared at c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.37.32822\\include\\vcruntime_string.h:63)"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/libraw/libraw_alloc.h"
+                          },
+                          "region": {
+                            "startLine": 37,
+                            "startColumn": 11
+                          }
+                        },
+                        "message": {
+                          "text": "'mems' should not be NULL, because this is not consistent with the SAL annotation on 'memset'"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 99,
+                  "startColumn": 27,
+                  "endLine": 99,
+                  "endColumn": 37
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::make_decoder_ref",
+                  "decoratedName": "?make_decoder_ref@LibRaw@@IEAAPEAGPEAPEBE@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C6262",
+          "message": {
+            "text": "Function uses '16400' bytes of stack.  Consider moving some data to heap."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 185,
+                  "startColumn": 13
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::canon_has_lowbits",
+                  "decoratedName": "?canon_has_lowbits@LibRaw@@IEAAHXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 213,
+                  "startColumn": 3
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::canon_load_raw",
+                  "decoratedName": "?canon_load_raw@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 221,
+                  "startColumn": 27,
+                  "endLine": 221,
+                  "endColumn": 33
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::canon_load_raw",
+                  "decoratedName": "?canon_load_raw@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 256,
+                  "startColumn": 9
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::canon_load_raw",
+                  "decoratedName": "?canon_load_raw@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 350,
+                  "startColumn": 30,
+                  "endLine": 350,
+                  "endColumn": 43
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::ljpeg_start",
+                  "decoratedName": "?ljpeg_start@LibRaw@@IEAAHPEAUjhead@@H@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26819",
+          "message": {
+            "text": "Unannotated fallthrough between switch labels (es.78)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 310,
+                  "startColumn": 10
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::ljpeg_start",
+                  "decoratedName": "?ljpeg_start@LibRaw@@IEAAHPEAUjhead@@H@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 399,
+                  "startColumn": 28,
+                  "endLine": 399,
+                  "endColumn": 64
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::ljpeg_row",
+                  "decoratedName": "?ljpeg_row@LibRaw@@IEAAPEAGHPEAUjhead@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 399,
+                  "startColumn": 28,
+                  "endLine": 399,
+                  "endColumn": 41
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::ljpeg_row",
+                  "decoratedName": "?ljpeg_row@LibRaw@@IEAAPEAGHPEAUjhead@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 464,
+                  "startColumn": 28,
+                  "endLine": 464,
+                  "endColumn": 64
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::ljpeg_row_unrolled",
+                  "decoratedName": "?ljpeg_row_unrolled@LibRaw@@IEAAPEAGHPEAUjhead@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 464,
+                  "startColumn": 28,
+                  "endLine": 464,
+                  "endColumn": 41
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::ljpeg_row_unrolled",
+                  "decoratedName": "?ljpeg_row_unrolled@LibRaw@@IEAAPEAGHPEAUjhead@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C6031",
+          "message": {
+            "text": "Return value ignored: 'sscanf'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 697,
+                  "startColumn": 5,
+                  "endLine": 697,
+                  "endColumn": 42
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::canon_sraw_load_raw",
+                  "decoratedName": "?canon_sraw_load_raw@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C6011",
+          "message": {
+            "text": "Dereferencing NULL pointer 'rp'. "
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 748,
+                  "startColumn": 11,
+                  "endLine": 748,
+                  "endColumn": 32
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::canon_sraw_load_raw",
+                  "decoratedName": "?canon_sraw_load_raw@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 608,
+                            "startColumn": 16
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 609,
+                            "startColumn": 10
+                          }
+                        },
+                        "message": {
+                          "text": "'rp' is NULL"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ],
+                      "importance": "essential"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 609,
+                            "startColumn": 20
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 610,
+                            "startColumn": 7
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 610,
+                            "startColumn": 14
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 610,
+                            "startColumn": 21
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 610,
+                            "startColumn": 27
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 610,
+                            "startColumn": 33
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 610,
+                            "startColumn": 38
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 610,
+                            "startColumn": 43
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 610,
+                            "startColumn": 53
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 610,
+                            "startColumn": 63
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 610,
+                            "startColumn": 71
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 611,
+                            "startColumn": 7
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 611,
+                            "startColumn": 25
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 611,
+                            "startColumn": 30
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 612,
+                            "startColumn": 7
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 612,
+                            "startColumn": 24
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 613,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 615,
+                            "startColumn": 6
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '!((imgdata.image))' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 618,
+                            "startColumn": 28
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 620,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 622,
+                            "startColumn": 18
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'jwide<32||jwide>65535' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 625,
+                            "startColumn": 18
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 633,
+                            "startColumn": 15
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 633,
+                            "startColumn": 34
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this loop, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 684,
+                            "startColumn": 34
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'imgdata.rawparams.specials' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 695,
+                            "startColumn": 13
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 695,
+                            "startColumn": 27
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this loop, (assume '*cp&&!isdigit(*cp)' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 697,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 698,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 699,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 700,
+                            "startColumn": 36
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 703,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 704,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 705,
+                            "startColumn": 14
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 705,
+                            "startColumn": 23
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this loop, (assume 'row<((imgdata.sizes.height))' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 728,
+                            "startColumn": 9
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this branch, (assume '<branch condition>')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 729,
+                            "startColumn": 17
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this loop, (assume 'rp<ip[0]')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 731,
+                            "startColumn": 20
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 735,
+                            "startColumn": 51
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 746,
+                            "startColumn": 25
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 748,
+                            "startColumn": 18
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 749,
+                            "startColumn": 18
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 750,
+                            "startColumn": 18
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 752,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 752,
+                            "startColumn": 21
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 752,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 752,
+                            "startColumn": 21
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 752,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 729,
+                            "startColumn": 29
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 729,
+                            "startColumn": 17
+                          }
+                        },
+                        "message": {
+                          "text": "Continue this loop, (assume 'rp<ip[0]')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 731,
+                            "startColumn": 20
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 735,
+                            "startColumn": 51
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 746,
+                            "startColumn": 25
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 748,
+                            "startColumn": 18
+                          }
+                        },
+                        "message": {
+                          "text": "'rp' is dereferenced, but may still be NULL"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 642,
+                  "startColumn": 35,
+                  "endLine": 642,
+                  "endColumn": 41
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::canon_sraw_load_raw",
+                  "decoratedName": "?canon_sraw_load_raw@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C6297",
+          "message": {
+            "text": "Arithmetic overflow.  Results might not be an expected value."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 970,
+                  "startColumn": 56,
+                  "endLine": 970,
+                  "endColumn": 66
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::nikon_yuv_load_raw",
+                  "decoratedName": "?nikon_yuv_load_raw@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '<<' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '<<' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 970,
+                  "startColumn": 56,
+                  "endLine": 970,
+                  "endColumn": 66
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::nikon_yuv_load_raw",
+                  "decoratedName": "?nikon_yuv_load_raw@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C6201",
+          "message": {
+            "text": "Index '16' is out of valid index range '0' to '15' for possibly stack allocated buffer 'todo'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 1002,
+                  "startColumn": 7,
+                  "endLine": 1002,
+                  "endColumn": 17
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::rollei_load_raw",
+                  "decoratedName": "?rollei_load_raw@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 1025,
+                  "startColumn": 27,
+                  "endLine": 1025,
+                  "endColumn": 39
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::nokia_load_raw",
+                  "decoratedName": "?nokia_load_raw@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 1025,
+                  "startColumn": 27,
+                  "endLine": 1025,
+                  "endColumn": 35
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::nokia_load_raw",
+                  "decoratedName": "?nokia_load_raw@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 1031,
+                  "startColumn": 34,
+                  "endLine": 1031,
+                  "endColumn": 47
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::nokia_load_raw",
+                  "decoratedName": "?nokia_load_raw@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 1047,
+                  "startColumn": 19
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::nokia_load_raw",
+                  "decoratedName": "?nokia_load_raw@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 1048,
+                  "startColumn": 20
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::nokia_load_raw",
+                  "decoratedName": "?nokia_load_raw@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 1141,
+                  "startColumn": 36,
+                  "endLine": 1141,
+                  "endColumn": 42
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::panasonic_load_raw",
+                  "decoratedName": "?panasonic_load_raw@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 1414,
+                  "startColumn": 3
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::sony_load_raw",
+                  "decoratedName": "?sony_load_raw@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 1428,
+                  "startColumn": 25,
+                  "endLine": 1428,
+                  "endColumn": 31
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::sony_load_raw",
+                  "decoratedName": "?sony_load_raw@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C6001",
+          "message": {
+            "text": "Using uninitialized memory 'pix'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 1567,
+                  "startColumn": 35
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::sony_arw2_load_raw",
+                  "decoratedName": "?sony_arw2_load_raw@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1469,
+                            "startColumn": 10
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1469,
+                            "startColumn": 17
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1470,
+                            "startColumn": 10
+                          }
+                        },
+                        "message": {
+                          "text": "'pix' is not initialized"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ],
+                      "importance": "essential"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1471,
+                            "startColumn": 7
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1471,
+                            "startColumn": 12
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1471,
+                            "startColumn": 17
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1471,
+                            "startColumn": 22
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1471,
+                            "startColumn": 27
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1471,
+                            "startColumn": 32
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1471,
+                            "startColumn": 38
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1471,
+                            "startColumn": 44
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1471,
+                            "startColumn": 48
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1471,
+                            "startColumn": 53
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1473,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1476,
+                            "startColumn": 14
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1476,
+                            "startColumn": 23
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this loop, (assume 'row<((imgdata.sizes.height))')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1478,
+                            "startColumn": 18
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1479,
+                            "startColumn": 7
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1480,
+                            "startColumn": 21
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1480,
+                            "startColumn": 36
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this loop, (assume '<branch condition>')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1482,
+                            "startColumn": 13
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1483,
+                            "startColumn": 13
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1484,
+                            "startColumn": 14
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1485,
+                            "startColumn": 14
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1486,
+                            "startColumn": 17
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1486,
+                            "startColumn": 29
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this loop, (assume 'sh<4&&128<<sh<=max-min' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1490,
+                            "startColumn": 13
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1506,
+                            "startColumn": 45
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'imgdata.rawparams.specials' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1516,
+                            "startColumn": 45
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'imgdata.rawparams.specials' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1532,
+                            "startColumn": 45
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'imgdata.rawparams.specials' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1548,
+                            "startColumn": 40
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'imgdata.rawparams.specials' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1566,
+                            "startColumn": 18
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1566,
+                            "startColumn": 25
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this loop, (assume 'i<16')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1567,
+                            "startColumn": 27
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1567,
+                            "startColumn": 35
+                          }
+                        },
+                        "message": {
+                          "text": "'pix' is used, but may not have been initialized"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 1473,
+                  "startColumn": 26,
+                  "endLine": 1473,
+                  "endColumn": 38
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::sony_arw2_load_raw",
+                  "decoratedName": "?sony_arw2_load_raw@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 1594,
+                  "startColumn": 5
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::samsung_load_raw",
+                  "decoratedName": "?samsung_load_raw@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C6001",
+          "message": {
+            "text": "Using uninitialized memory 'len'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                },
+                "region": {
+                  "startLine": 1721,
+                  "startColumn": 16
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::samsung3_load_raw",
+                  "decoratedName": "?samsung3_load_raw@LibRaw@@IEAAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1667,
+                            "startColumn": 7
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1667,
+                            "startColumn": 12
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1667,
+                            "startColumn": 18
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1667,
+                            "startColumn": 23
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1667,
+                            "startColumn": 30
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1667,
+                            "startColumn": 35
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1667,
+                            "startColumn": 40
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1667,
+                            "startColumn": 45
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1667,
+                            "startColumn": 51
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1667,
+                            "startColumn": 57
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1667,
+                            "startColumn": 60
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1668,
+                            "startColumn": 10
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1668,
+                            "startColumn": 22
+                          }
+                        },
+                        "message": {
+                          "text": "'len' is not initialized"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ],
+                      "importance": "essential"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1668,
+                            "startColumn": 31
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1669,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1670,
+                            "startColumn": 3
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1671,
+                            "startColumn": 7
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1672,
+                            "startColumn": 8
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1673,
+                            "startColumn": 12
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1673,
+                            "startColumn": 21
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this loop, (assume '<branch condition>')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1675,
+                            "startColumn": 16
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1676,
+                            "startColumn": 5
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1677,
+                            "startColumn": 5
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1678,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1679,
+                            "startColumn": 11
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1680,
+                            "startColumn": 5
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1680,
+                            "startColumn": 32
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1680,
+                            "startColumn": 5
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1680,
+                            "startColumn": 32
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1680,
+                            "startColumn": 5
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1681,
+                            "startColumn": 19
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1682,
+                            "startColumn": 20
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1683,
+                            "startColumn": 14
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1683,
+                            "startColumn": 28
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this loop, (assume '<branch condition>')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1685,
+                            "startColumn": 20
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '~opt&4&&!((tab&63))' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1690,
+                            "startColumn": 15
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'opt' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1692,
+                            "startColumn": 16
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '!this->ph1_bithuff(1, 0)' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1694,
+                            "startColumn": 19
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1707,
+                            "startColumn": 7
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1709,
+                            "startColumn": 13
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1710,
+                            "startColumn": 17
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'col<0' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1712,
+                            "startColumn": 19
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'pmode<0' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1714,
+                            "startColumn": 36
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1716,
+                            "startColumn": 14
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1721,
+                            "startColumn": 14
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+                          },
+                          "region": {
+                            "startLine": 1721,
+                            "startColumn": 16
+                          }
+                        },
+                        "message": {
+                          "text": "'len' is used, but may not have been initialized"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "tool": {
+        "driver": {
+          "name": "PREfast",
+          "fullName": "PREfast Code Analysis",
+          "version": "14.37.32824.0",
+          "informationUri": "https://aka.ms/cpp/ca"
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true
+        }
+      ],
+      "artifacts": [
+        {
+          "location": {
+            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/libraw/libraw_alloc.h"
+          },
+          "roles": [
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "37bd73b2a133ac7df778e0a02ed87aa20c86f85299f5ff0474521d2d29bdeb5a"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/decoders/decoders_dcraw.cpp"
+          },
+          "roles": [
+            "analysisTarget",
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "d703b0ce7cc8b58a922e3d1ffcfb6052bf7cef41cae8cc4f83e392c145124dba"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/internal/dcraw_defs.h"
+          },
+          "hashes": {
+            "sha-256": "4d1cbcc107267b814b2b4aed85056d45eb6020fbf751589c4cf37f6a16214eff"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/libraw/libraw.h"
+          },
+          "hashes": {
+            "sha-256": "3e1c191f1b2feeb58c50de668c2a10fa62631ac49db3fafc3501e5c9aff7ceab"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/libraw/libraw_datastream.h"
+          },
+          "hashes": {
+            "sha-256": "79fb4f9fb4aca08cac0fc36899b3eb89ad3bb807d76c72949951e28dcd5fa1f8"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/libraw/libraw_const.h"
+          },
+          "hashes": {
+            "sha-256": "00ad97e07ce41da9a1fbff19bc901cb9ecbdfe0c40478262dc946813841193d6"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/libraw/libraw_types.h"
+          },
+          "hashes": {
+            "sha-256": "d83c7b9c7a8ea035b12f1d7b70f8ed686bae360da5b56c3fdf48dac397b6402d"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/libraw/libraw_version.h"
+          },
+          "hashes": {
+            "sha-256": "40173b156077058a0e9fdaf3914d83ce0bfef156764a41a6ffb782c007d37f15"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/libraw/libraw_internal.h"
+          },
+          "hashes": {
+            "sha-256": "7c7d8a6abd51642868903f4567475ca97d5bb876259a2e1643ff9f0bcc706b11"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/internal/libraw_internal_funcs.h"
+          },
+          "hashes": {
+            "sha-256": "4adc7dcc998f99f1498704c59a357e3ff4a1dac8cfda68bc5df63c66c42c8a23"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/internal/defines.h"
+          },
+          "hashes": {
+            "sha-256": "7f5d88b42b2005c5319f544cc98c1a52261c63b2b1bc02e6e6fae66e974168d6"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/internal/var_defines.h"
+          },
+          "hashes": {
+            "sha-256": "724ce47af48d728cbc81d51cbb6b7184bb8368816ce8d37c4658d15dbcbac952"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/internal/libraw_cameraids.h"
+          },
+          "hashes": {
+            "sha-256": "1b91893388b3fc07d2cb32452a6f36d31f6cb61612473206f242b34227117c1b"
+          }
+        }
+      ]
+    }
+  ]
+}

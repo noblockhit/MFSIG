@@ -1,0 +1,1239 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "runs": [
+    {
+      "results": [
+        {
+          "ruleId": "C6387",
+          "message": {
+            "text": "'mems' could be '0'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/libraw/libraw_alloc.h"
+                },
+                "region": {
+                  "startLine": 37,
+                  "startColumn": 5,
+                  "endLine": 37,
+                  "endColumn": 21
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "libraw_memmgr::{ctor}",
+                  "decoratedName": "??0libraw_memmgr@@QEAA@I@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/libraw/libraw_alloc.h"
+                          },
+                          "region": {
+                            "startLine": 33,
+                            "startColumn": 43
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/libraw/libraw_alloc.h"
+                          },
+                          "region": {
+                            "startLine": 35,
+                            "startColumn": 12
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/libraw/libraw_alloc.h"
+                          },
+                          "region": {
+                            "startLine": 36,
+                            "startColumn": 10
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/libraw/libraw_alloc.h"
+                          },
+                          "region": {
+                            "startLine": 37,
+                            "startColumn": 11
+                          }
+                        },
+                        "message": {
+                          "text": "'mems' is an Output from 'memset' (declared at c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.37.32822\\include\\vcruntime_string.h:63)"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/libraw/libraw_alloc.h"
+                          },
+                          "region": {
+                            "startLine": 37,
+                            "startColumn": 11
+                          }
+                        },
+                        "message": {
+                          "text": "'mems' should not be NULL, because this is not consistent with the SAL annotation on 'memset'"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '-' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '-' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                },
+                "region": {
+                  "startLine": 53,
+                  "startColumn": 9,
+                  "endLine": 53,
+                  "endColumn": 13
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "my_roundf",
+                  "decoratedName": "?my_roundf@@YAMM@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                },
+                "region": {
+                  "startLine": 60,
+                  "startColumn": 9,
+                  "endLine": 60,
+                  "endColumn": 13
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "my_roundf",
+                  "decoratedName": "?my_roundf@@YAMM@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C6059",
+          "message": {
+            "text": "Misuse of length parameter in call to 'strncat'.  Pass the number of remaining characters, not the buffer size of 'imgdata.lens.makernotes.LensFeatures_suf'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                },
+                "region": {
+                  "startLine": 549,
+                  "startColumn": 5
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::parseSonyLensFeatures",
+                  "decoratedName": "?parseSonyLensFeatures@LibRaw@@IEAAXEE@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 484,
+                            "startColumn": 10
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 485,
+                            "startColumn": 12
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 488,
+                            "startColumn": 49
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 491,
+                            "startColumn": 27
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 492,
+                            "startColumn": 27
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 493,
+                            "startColumn": 27
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 495,
+                            "startColumn": 21
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'features' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 497,
+                            "startColumn": 21
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'features' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 500,
+                            "startColumn": 23
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 520,
+                            "startColumn": 16
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'features' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 523,
+                            "startColumn": 16
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'features' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 525,
+                            "startColumn": 21
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'features' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 528,
+                            "startColumn": 27
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume '<branch condition>' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 530,
+                            "startColumn": 21
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'features' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 532,
+                            "startColumn": 21
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'features' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 534,
+                            "startColumn": 21
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'features' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 537,
+                            "startColumn": 16
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'features' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 539,
+                            "startColumn": 21
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'features' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 542,
+                            "startColumn": 16
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'features' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 545,
+                            "startColumn": 16
+                          }
+                        },
+                        "message": {
+                          "text": "Skip this branch, (assume 'features' is false)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 548,
+                            "startColumn": 16
+                          }
+                        },
+                        "message": {
+                          "text": "Enter this branch, (assume 'features')"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 549,
+                            "startColumn": 5
+                          }
+                        },
+                        "message": {
+                          "text": "'imgdata' is an Output from 'LibRaw::strnlen' (declared at d:\\coding\\python\\mfsig\\flock_counter_cpp_qt_cuda\\libraw-0.21.2\\libraw\\libraw.h:348)"
+                        }
+                      },
+                      "kinds": [
+                        "declaration"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                          },
+                          "region": {
+                            "startLine": 549,
+                            "startColumn": 5
+                          }
+                        },
+                        "message": {
+                          "text": "Length argument to 'strncat' should be less than the length of 'imgdata.lens.makernotes.LensFeatures_suf'"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                },
+                "region": {
+                  "startLine": 1386,
+                  "startColumn": 20,
+                  "endLine": 1386,
+                  "endColumn": 29
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::parseSonyMakernotes",
+                  "decoratedName": "?parseSonyMakernotes@LibRaw@@IEAAXHIIIIAEAPEAEAEAG0101010101010101@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                },
+                "region": {
+                  "startLine": 1975,
+                  "startColumn": 70
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "checked_buffer_t::{ctor}",
+                  "decoratedName": "??0checked_buffer_t@@QEAA@FH@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                },
+                "region": {
+                  "startLine": 2119,
+                  "startColumn": 95,
+                  "endLine": 2119,
+                  "endColumn": 113
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::parseSonySR2",
+                  "decoratedName": "?parseSonySR2@LibRaw@@IEAAXPEAEIII@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                },
+                "region": {
+                  "startLine": 2108,
+                  "startColumn": 82,
+                  "endLine": 2108,
+                  "endColumn": 109
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::parseSonySR2",
+                  "decoratedName": "?parseSonySR2@LibRaw@@IEAAXPEAEIII@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                },
+                "region": {
+                  "startLine": 2082,
+                  "startColumn": 87,
+                  "endLine": 2082,
+                  "endColumn": 105
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::parseSonySR2",
+                  "decoratedName": "?parseSonySR2@LibRaw@@IEAAXPEAEIII@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                },
+                "region": {
+                  "startLine": 2074,
+                  "startColumn": 86,
+                  "endLine": 2074,
+                  "endColumn": 104
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::parseSonySR2",
+                  "decoratedName": "?parseSonySR2@LibRaw@@IEAAXPEAEIII@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                },
+                "region": {
+                  "startLine": 2070,
+                  "startColumn": 87,
+                  "endLine": 2070,
+                  "endColumn": 105
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::parseSonySR2",
+                  "decoratedName": "?parseSonySR2@LibRaw@@IEAAXPEAEIII@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                },
+                "region": {
+                  "startLine": 2066,
+                  "startColumn": 73,
+                  "endLine": 2066,
+                  "endColumn": 91
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::parseSonySR2",
+                  "decoratedName": "?parseSonySR2@LibRaw@@IEAAXPEAEIII@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                },
+                "region": {
+                  "startLine": 2138,
+                  "startColumn": 96,
+                  "endLine": 2138,
+                  "endColumn": 114
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::parseSonySR2",
+                  "decoratedName": "?parseSonySR2@LibRaw@@IEAAXPEAEIII@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                },
+                "region": {
+                  "startLine": 2143,
+                  "startColumn": 97,
+                  "endLine": 2143,
+                  "endColumn": 115
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::parseSonySR2",
+                  "decoratedName": "?parseSonySR2@LibRaw@@IEAAXPEAEIII@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                },
+                "region": {
+                  "startLine": 2151,
+                  "startColumn": 96,
+                  "endLine": 2151,
+                  "endColumn": 114
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::parseSonySR2",
+                  "decoratedName": "?parseSonySR2@LibRaw@@IEAAXPEAEIII@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                },
+                "region": {
+                  "startLine": 2160,
+                  "startColumn": 98,
+                  "endLine": 2160,
+                  "endColumn": 116
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::parseSonySR2",
+                  "decoratedName": "?parseSonySR2@LibRaw@@IEAAXPEAEIII@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                },
+                "region": {
+                  "startLine": 2165,
+                  "startColumn": 102,
+                  "endLine": 2165,
+                  "endColumn": 120
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::parseSonySR2",
+                  "decoratedName": "?parseSonySR2@LibRaw@@IEAAXPEAEIII@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                },
+                "region": {
+                  "startLine": 2168,
+                  "startColumn": 102,
+                  "endLine": 2168,
+                  "endColumn": 120
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::parseSonySR2",
+                  "decoratedName": "?parseSonySR2@LibRaw@@IEAAXPEAEIII@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C6297",
+          "message": {
+            "text": "Arithmetic overflow.  Results might not be an expected value."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                },
+                "region": {
+                  "startLine": 2207,
+                  "startColumn": 17,
+                  "endLine": 2207,
+                  "endColumn": 36
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::parseSonySRF",
+                  "decoratedName": "?parseSonySRF@LibRaw@@IEAAXI@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '<<' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '<<' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                },
+                "region": {
+                  "startLine": 2207,
+                  "startColumn": 17,
+                  "endLine": 2207,
+                  "endColumn": 36
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::parseSonySRF",
+                  "decoratedName": "?parseSonySRF@LibRaw@@IEAAXI@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '*' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '*' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+                },
+                "region": {
+                  "startLine": 2221,
+                  "startColumn": 43,
+                  "endLine": 2221,
+                  "endColumn": 48
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "LibRaw::parseSonySRF",
+                  "decoratedName": "?parseSonySRF@LibRaw@@IEAAXI@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "tool": {
+        "driver": {
+          "name": "PREfast",
+          "fullName": "PREfast Code Analysis",
+          "version": "14.37.32824.0",
+          "informationUri": "https://aka.ms/cpp/ca"
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true
+        }
+      ],
+      "artifacts": [
+        {
+          "location": {
+            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/libraw/libraw_alloc.h"
+          },
+          "roles": [
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "37bd73b2a133ac7df778e0a02ed87aa20c86f85299f5ff0474521d2d29bdeb5a"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///D:/CODING/python/MFSIG/flock_counter_cpp_qt_cuda/LibRaw-0.21.2/src/metadata/sony.cpp"
+          },
+          "roles": [
+            "analysisTarget",
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "a61f8270aa497e52d148c1659824a187be82b9aaae591db664bc63fd5cd8bc6e"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/internal/dcraw_defs.h"
+          },
+          "hashes": {
+            "sha-256": "4d1cbcc107267b814b2b4aed85056d45eb6020fbf751589c4cf37f6a16214eff"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/libraw/libraw.h"
+          },
+          "hashes": {
+            "sha-256": "3e1c191f1b2feeb58c50de668c2a10fa62631ac49db3fafc3501e5c9aff7ceab"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/libraw/libraw_datastream.h"
+          },
+          "hashes": {
+            "sha-256": "79fb4f9fb4aca08cac0fc36899b3eb89ad3bb807d76c72949951e28dcd5fa1f8"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/libraw/libraw_const.h"
+          },
+          "hashes": {
+            "sha-256": "00ad97e07ce41da9a1fbff19bc901cb9ecbdfe0c40478262dc946813841193d6"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/libraw/libraw_types.h"
+          },
+          "hashes": {
+            "sha-256": "d83c7b9c7a8ea035b12f1d7b70f8ed686bae360da5b56c3fdf48dac397b6402d"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/libraw/libraw_version.h"
+          },
+          "hashes": {
+            "sha-256": "40173b156077058a0e9fdaf3914d83ce0bfef156764a41a6ffb782c007d37f15"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/libraw/libraw_internal.h"
+          },
+          "hashes": {
+            "sha-256": "7c7d8a6abd51642868903f4567475ca97d5bb876259a2e1643ff9f0bcc706b11"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/internal/libraw_internal_funcs.h"
+          },
+          "hashes": {
+            "sha-256": "4adc7dcc998f99f1498704c59a357e3ff4a1dac8cfda68bc5df63c66c42c8a23"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/internal/defines.h"
+          },
+          "hashes": {
+            "sha-256": "7f5d88b42b2005c5319f544cc98c1a52261c63b2b1bc02e6e6fae66e974168d6"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/internal/var_defines.h"
+          },
+          "hashes": {
+            "sha-256": "724ce47af48d728cbc81d51cbb6b7184bb8368816ce8d37c4658d15dbcbac952"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///d:/coding/python/mfsig/flock_counter_cpp_qt_cuda/libraw-0.21.2/internal/libraw_cameraids.h"
+          },
+          "hashes": {
+            "sha-256": "1b91893388b3fc07d2cb32452a6f36d31f6cb61612473206f242b34227117c1b"
+          }
+        }
+      ]
+    }
+  ]
+}
