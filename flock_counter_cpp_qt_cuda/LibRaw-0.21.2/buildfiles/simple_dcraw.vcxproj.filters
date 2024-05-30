@@ -20,13 +20,16 @@
     <ClCompile Include="..\samples\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Indicator_action.cpp">
+    <ClCompile Include="indicator_action.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="image_label.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="num_setting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cl_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -44,6 +47,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="num_setting.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cl_manager.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

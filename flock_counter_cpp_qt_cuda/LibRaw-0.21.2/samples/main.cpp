@@ -25,6 +25,7 @@
 #include "indicator_action.h"
 #include "image_label.h"
 #include "num_setting.h"
+#include "cl_manager.h"
 
 
 class MainWindow : public QMainWindow {
@@ -45,8 +46,8 @@ public:
         connect(openAction, &QAction::triggered, this, &MainWindow::openFile);
 
         altIndicator = new IndicatorAction(QString("alton.png"), QString("altoff.png"), this);
-        auto callback = std::bind(&MainWindow::setMoveAway, this, std::placeholders::_1);
-        altIndicator->setMethod(callback);
+        auto altOnOffCallback = std::bind(&MainWindow::setMoveAway, this, std::placeholders::_1);
+        altIndicator->setMethod(altOnOffCallback);
         menuBar->addAction(altIndicator);
         connect(altIndicator, &QAction::triggered, this, &MainWindow::toggleAltIndicator);
 
@@ -69,6 +70,14 @@ public:
         neighbourThreshholdSetting = new NumSetting(0, 255, "Neighbour brightness: ", "");
         minContourLengthSetting = new NumSetting(0, 2000, "Min contour length: ", "px");
         maxContourLengthSetting = new NumSetting(1, 2001, "Max contour length: ", "px");
+
+
+        auto minContourLengthChangeCallback = std::bind(&MainWindow::onMinContourChange, this, std::placeholders::_1);
+        minContourLengthSetting->setOnValueChangeCallback(minContourLengthChangeCallback);
+
+
+        auto maxContourLengthChangeCallback = std::bind(&MainWindow::onMaxContourChange, this, std::placeholders::_1);
+        maxContourLengthSetting->setOnValueChangeCallback(maxContourLengthChangeCallback);
 
         settingsLayout->addWidget(blurSetting);
         settingsLayout->addWidget(ownThreshholdSetting);
@@ -93,6 +102,19 @@ public:
 
 
 private slots:
+    void onMinContourChange(double newVal) {
+        if (newVal >= maxContourLengthSetting->getValue()) {
+            maxContourLengthSetting->setValue(newVal + 1);
+        }
+    }
+
+
+    void onMaxContourChange(double newVal) {
+        if (newVal <= minContourLengthSetting->getValue()) {
+            minContourLengthSetting->setValue(newVal - 1);
+        }
+    }
+
     void setMoveAway(bool val) {
         imageLabel->moveAway = val;
     }
@@ -164,18 +186,18 @@ protected:
 };
 
 int main(int argc, char* argv[]) {
-    //initializeLibRaw();
-    /*QApplication app(argc, argv);
+    ClManager::initializeOpenCL();
+    if (!ClManager::initialize()) {
+        qInfo() << "failed to initialize";
+    }
+    QApplication app(argc, argv);
 
     MainWindow mainWindow;
     mainWindow.show();
 
-    return app.exec();*/
-    IImage::initializeOpenCL();
-    if (!IImage::initialize()) {
-        qInfo() << "failed to initialize";
-    }
+    return app.exec();
 
+    /*
 
     std::vector<float> inputData = {};
     for (int i = 1; i < 100000; i++) {
@@ -187,7 +209,7 @@ int main(int argc, char* argv[]) {
 
         auto start = std::chrono::high_resolution_clock::now();
 
-        if (!IImage::executeKernel(inputData, outputData)) {
+        if (!ClManager::executeKernel(inputData, outputData)) {
             std::cerr << "Failed to execute kernel." << std::endl;
             return -1;
         }
@@ -198,6 +220,6 @@ int main(int argc, char* argv[]) {
 
         inputData = outputData;
     }
-    
+    */
     return 0;
 }

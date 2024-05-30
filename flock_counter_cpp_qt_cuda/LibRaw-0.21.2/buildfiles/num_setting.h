@@ -21,6 +21,7 @@
 #include <QLineEdit>
 #include <string>
 #include <optional>
+#include <QObject>
 
 
 class NumSetting: public QWidget {
@@ -30,6 +31,7 @@ public:
     void setValue(double val);
     double getValue();
     int getValueAsInt();
+    void setOnValueChangeCallback(std::function<void(double)> onValueChangeCallback);
 
     QVBoxLayout* layout;
     QSlider* slider;
@@ -39,6 +41,7 @@ private:
     void update();
     void onSlider(int val);
     void onLineEdit(const QString& text);
+    void onLineEditFocusOut();
 
     bool lastUpdateFromOnLineEdit = false;
     double _from;
@@ -47,4 +50,5 @@ private:
     double _val = -1;
     std::string _prefix;
     std::string _suffix;
+    std::function<void(double)> _onValueChangeCallback;
 };
