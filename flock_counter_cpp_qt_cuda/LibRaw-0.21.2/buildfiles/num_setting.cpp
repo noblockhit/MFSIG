@@ -135,3 +135,7 @@ void NumSetting::onLineEditFocusOut() {
 void NumSetting::setOnValueChangeCallback(std::function<void(double)> onValueChangeCallback) {
     _onValueChangeCallback = onValueChangeCallback;
 }
+
+int NumSetting::getValueAsInt() {
+    return (int)_val;
+}

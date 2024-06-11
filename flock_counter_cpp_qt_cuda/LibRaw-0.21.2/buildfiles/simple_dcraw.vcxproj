@@ -27,6 +27,9 @@
     <ClInclude Include="indicator_action.h" />
     <ClInclude Include="num_setting.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="debug-x86_64\source.cl" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{AD1E31D8-A022-3672-982F-C8280A0D6458}</ProjectGuid>
     <RootNamespace>FlockCounter</RootNamespace>
@@ -80,7 +83,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>D:\CODING\drivers\OpenCL-Headers;.;..;%(AdditionalIncludeDirectories);C:/QTMSVC6.7/6.7.1/msvc2019_64/include;C:/QTMSVC6.7/6.7.1/msvc2019_64/include/QtWidgets;C:/QTMSVC6.7/6.7.1/msvc2019_64/include/QtCore;C:/QTMSVC6.7/6.7.1/msvc2019_64/include/QtGui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\CODING\drivers\opencv\build\include;D:\CODING\drivers\OpenCL-Headers;.;..;%(AdditionalIncludeDirectories);C:/QTMSVC6.7/6.7.1/msvc2019_64/include;C:/QTMSVC6.7/6.7.1/msvc2019_64/include/QtWidgets;C:/QTMSVC6.7/6.7.1/msvc2019_64/include/QtCore;C:/QTMSVC6.7/6.7.1/msvc2019_64/include/QtGui</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>debug-x86_64\simple_dcraw.obj\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -99,8 +102,8 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;libraw.lib;Qt6Cored.lib;Qt6Widgetsd.lib;Qt6EntryPointd.lib;Qt6Guid.lib;OpenCL.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>D:\CODING\drivers\OpenCL-Headers;debug-x86_64;%(AdditionalLibraryDirectories);C:\QTMSVC6.7\6.7.1\msvc2019_64\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ws2_32.lib;libraw.lib;Qt6Cored.lib;Qt6Widgetsd.lib;Qt6EntryPointd.lib;Qt6Guid.lib;OpenCL.lib;opencv_world490d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\CODING\drivers\opencv\build\x64\vc16\lib;D:\CODING\drivers\OpenCL-Headers;debug-x86_64;%(AdditionalLibraryDirectories);C:\QTMSVC6.7\6.7.1\msvc2019_64\lib</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>

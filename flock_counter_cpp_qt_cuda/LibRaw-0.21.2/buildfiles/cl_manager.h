@@ -11,7 +11,7 @@ public:
     static void cleanup();
     static bool initializeOpenCL();
     static void cleanupOpenCL();
-    static bool executeKernel(const std::vector<float>& inputData, std::vector<float>& outputData);
+    static bool executeKernel(const uint8_t* inputData, uint8_t* outputData, int width, int height, uint8_t own_thresh, uint8_t nbg_thresh);
 
 private:
     static bool isInitialized;
@@ -20,7 +20,7 @@ private:
     static cl_context context;
     static cl_command_queue commandQueue;
     static cl_program program;
-    static cl_kernel kernel;
+    static std::vector<cl_kernel> kernels;
     static std::mutex initMutex;
 
     static bool loadKernel(const char* source);

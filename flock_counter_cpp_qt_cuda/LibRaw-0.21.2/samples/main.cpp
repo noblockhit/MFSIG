@@ -66,17 +66,20 @@ public:
         QHBoxLayout* settingsLayout = new QHBoxLayout;
 
         blurSetting = new NumSetting(1, 9, "Blur: ", "px");
-        ownThreshholdSetting = new NumSetting(0, 255, "Own brightness: ", "");
-        neighbourThreshholdSetting = new NumSetting(0, 255, "Neighbour brightness: ", "");
+        ownThreshholdSetting = new NumSetting(0, 254, "Own brightness: ", "");
+        neighbourThreshholdSetting = new NumSetting(1, 255, "Neighbour brightness: ", "");
         minContourLengthSetting = new NumSetting(0, 2000, "Min contour length: ", "px");
         maxContourLengthSetting = new NumSetting(1, 2001, "Max contour length: ", "px");
 
-
+        auto redrawCallback = std::bind(&MainWindow::callRedraw, this, std::placeholders::_1);
+        auto ownThreshChangeCallback = std::bind(&MainWindow::onOwnThreshChange, this, std::placeholders::_1);
+        auto ngbThreshChangeCallback = std::bind(&MainWindow::onNgbThreshChange, this, std::placeholders::_1);
         auto minContourLengthChangeCallback = std::bind(&MainWindow::onMinContourChange, this, std::placeholders::_1);
-        minContourLengthSetting->setOnValueChangeCallback(minContourLengthChangeCallback);
-
-
         auto maxContourLengthChangeCallback = std::bind(&MainWindow::onMaxContourChange, this, std::placeholders::_1);
+        blurSetting->setOnValueChangeCallback(redrawCallback);
+        ownThreshholdSetting->setOnValueChangeCallback(ownThreshChangeCallback);
+        neighbourThreshholdSetting->setOnValueChangeCallback(ngbThreshChangeCallback);
+        minContourLengthSetting->setOnValueChangeCallback(minContourLengthChangeCallback);
         maxContourLengthSetting->setOnValueChangeCallback(maxContourLengthChangeCallback);
 
         settingsLayout->addWidget(blurSetting);
@@ -102,10 +105,25 @@ public:
 
 
 private slots:
+    void onOwnThreshChange(double newVal) {
+        if (newVal >= neighbourThreshholdSetting->getValue()) {
+            neighbourThreshholdSetting->setValue(newVal + 1);
+        }
+        updatePixmap();
+    }
+
+    void onNgbThreshChange(double newVal) {
+        if (newVal <= ownThreshholdSetting->getValue()) {
+            ownThreshholdSetting->setValue(newVal - 1);
+        }
+        updatePixmap();
+    }
+
     void onMinContourChange(double newVal) {
         if (newVal >= maxContourLengthSetting->getValue()) {
             maxContourLengthSetting->setValue(newVal + 1);
         }
+        updatePixmap();
     }
 
 
@@ -113,6 +131,7 @@ private slots:
         if (newVal <= minContourLengthSetting->getValue()) {
             minContourLengthSetting->setValue(newVal - 1);
         }
+        updatePixmap();
     }
 
     void setMoveAway(bool val) {
@@ -142,8 +161,14 @@ private slots:
     }
 
     void updatePixmap() {
-        imageLabel->putPixmap(images[shownImageIndex]->getPixmap());
+        // measure the time
+        auto start = std::chrono::high_resolution_clock::now();
+
+        imageLabel->putPixmap(images[shownImageIndex]->getBakedPixmap(ownThreshholdSetting->getValueAsInt(), neighbourThreshholdSetting->getValueAsInt()));
         imageLabel->setText(images[shownImageIndex]->getPath() + " (" + std::to_string(shownImageIndex + 1) + " / " + std::to_string(images.size()) + ")");
+        auto end = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+        std::cout << "Took " << duration.count() << " microseconds to update pixmap..." << std::endl;
     }
 
 private:
@@ -161,6 +186,10 @@ private:
     NumSetting* maxContourLengthSetting;
 
 protected:
+    void callRedraw(double _) {
+        updatePixmap();
+    }
+
     bool eventFilter(QObject* obj, QEvent* event) override {
         if (event->type() == QEvent::KeyPress) {
             QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
@@ -190,36 +219,11 @@ int main(int argc, char* argv[]) {
     if (!ClManager::initialize()) {
         qInfo() << "failed to initialize";
     }
+    
     QApplication app(argc, argv);
 
     MainWindow mainWindow;
     mainWindow.show();
 
     return app.exec();
-
-    /*
-
-    std::vector<float> inputData = {};
-    for (int i = 1; i < 100000; i++) {
-        inputData.push_back(i);
-    }
-    for (int i = 0; i < 5; i++) {
-        std::vector<float> outputData;
-
-
-        auto start = std::chrono::high_resolution_clock::now();
-
-        if (!ClManager::executeKernel(inputData, outputData)) {
-            std::cerr << "Failed to execute kernel." << std::endl;
-            return -1;
-        }
-        auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double, std::milli> duration = end - start;
-        std::cout << "Kernel execution time: " << duration.count() << " milliseconds" << std::endl;
-
-
-        inputData = outputData;
-    }
-    */
-    return 0;
 }

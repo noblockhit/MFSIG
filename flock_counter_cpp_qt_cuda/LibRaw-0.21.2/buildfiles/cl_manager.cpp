@@ -1,5 +1,9 @@
 // libs
 #include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <CL/cl.h>
 
 // local
 #include "cl_manager.h"
@@ -11,17 +15,36 @@ cl_device_id ClManager::deviceId = nullptr;
 cl_context ClManager::context = nullptr;
 cl_command_queue ClManager::commandQueue = nullptr;
 cl_program ClManager::program = nullptr;
-cl_kernel ClManager::kernel = nullptr;
+std::vector<cl_kernel> ClManager::kernels;
 std::mutex ClManager::initMutex;
 
 
 bool ClManager::initialize() {
-    // Example kernel source
-    const char* kernelSource = "__kernel void hello(global float* input, global float* output) { \
-                                    int gid = get_global_id(0); \
-                                    output[gid] = input[gid] * 2.0f; \
-                                }";
-    return ClManager::loadKernel(kernelSource);
+    FILE* fp;
+    char* source_str;
+    size_t source_size, program_size;
+
+    fp = fopen("source.cl", "rb");
+    if (!fp) {
+        printf("Failed to load kernel\n");
+        return 1;
+    }
+
+    fseek(fp, 0, SEEK_END);
+    program_size = ftell(fp);
+    rewind(fp);
+    source_str = (char*)malloc(program_size + 1);
+    source_str[program_size] = '\0';
+    fread(source_str, sizeof(char), program_size, fp);
+    fclose(fp);
+
+
+    if (atexit(cleanup) != 0) {
+        fprintf(stderr, "Unable to register opencl cleanup.\n");
+        return EXIT_FAILURE;
+    }
+
+    return ClManager::loadKernel(source_str);
 }
 
 bool ClManager::initializeOpenCL() {
@@ -35,28 +58,48 @@ bool ClManager::initializeOpenCL() {
     // Get platform
     err = clGetPlatformIDs(1, &platformId, nullptr);
     if (err != CL_SUCCESS) {
-        std::cerr << "Failed to get platform ID." << std::endl;
+        std::cout << "Failed to get platform ID. Error: " << err << std::endl;
         return false;
     }
 
-    // Get device
-    err = clGetDeviceIDs(platformId, CL_DEVICE_TYPE_DEFAULT, 1, &deviceId, nullptr);
-    if (err != CL_SUCCESS) {
-        std::cerr << "Failed to get device ID." << std::endl;
+    // Get devices count for the platform
+    cl_uint numDevices;
+    err = clGetDeviceIDs(platformId, CL_DEVICE_TYPE_ALL, 0, nullptr, &numDevices);
+    if (err != CL_SUCCESS || numDevices == 0) {
+        std::cout << "No devices found or failed to get device count. Error: " << err << std::endl;
         return false;
     }
+
+    // Get device IDs for the platform
+    std::vector<cl_device_id> devices(numDevices);
+    err = clGetDeviceIDs(platformId, CL_DEVICE_TYPE_ALL, numDevices, devices.data(), nullptr);
+    if (err != CL_SUCCESS) {
+        std::cout << "Failed to get device IDs. Error: " << err << std::endl;
+        return false;
+    }
+
+    // Select the desired device (for this example, let's assume the first device)
+    deviceId = devices[0];
+
+    // Print device name
+    size_t deviceNameSize;
+    clGetDeviceInfo(deviceId, CL_DEVICE_NAME, 0, nullptr, &deviceNameSize);
+    std::vector<char> deviceName(deviceNameSize);
+    clGetDeviceInfo(deviceId, CL_DEVICE_NAME, deviceNameSize, deviceName.data(), nullptr);
+    std::cout << "Device: " << deviceName.data() << std::endl;
 
     // Create context
     context = clCreateContext(nullptr, 1, &deviceId, nullptr, nullptr, &err);
     if (err != CL_SUCCESS) {
-        std::cerr << "Failed to create context." << std::endl;
+        std::cout << "Failed to create context. Error: " << err << std::endl;
         return false;
     }
 
     // Create command queue
     commandQueue = clCreateCommandQueue(context, deviceId, 0, &err);
     if (err != CL_SUCCESS) {
-        std::cerr << "Failed to create command queue." << std::endl;
+        std::cout << "Failed to create command queue. Error: " << err << std::endl;
+        clReleaseContext(context); // Clean up context if command queue creation fails
         return false;
     }
 
@@ -90,7 +133,7 @@ bool ClManager::loadKernel(const char* source) {
     }
 
     // Create kernel
-    kernel = clCreateKernel(program, "hello", &err);
+    kernels.push_back(clCreateKernel(program, "threshold_approach", &err));
     if (err != CL_SUCCESS) {
         std::cerr << "Failed to create kernel." << std::endl;
         return false;
@@ -99,70 +142,73 @@ bool ClManager::loadKernel(const char* source) {
     return true;
 }
 
-bool ClManager::executeKernel(const std::vector<float>& inputData, std::vector<float>& outputData) {
+bool ClManager::executeKernel(const uint8_t* inputData, uint8_t* outputData, int width, int height, uint8_t own_thresh, uint8_t ngb_thresh) {
     cl_int err;
-
-    // Create memory objects
-    cl_mem inputBuffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * inputData.size(), (void*)inputData.data(), &err);
-    if (err != CL_SUCCESS) {
-        std::cerr << "Failed to create input buffer." << std::endl;
-        return false;
-    }
-
-    cl_mem outputBuffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(float) * inputData.size(), nullptr, &err);
-    if (err != CL_SUCCESS) {
-        std::cerr << "Failed to create output buffer." << std::endl;
-        clReleaseMemObject(inputBuffer);
-        return false;
-    }
+    auto inputBuffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(uint8_t) * width * height * 3, (void*)inputData, &err);
+    auto outputBuffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(uint8_t) * width * height * 3, nullptr, &err);
 
     // Set kernel arguments
-    err = clSetKernelArg(kernel, 0, sizeof(cl_mem), &inputBuffer);
-    if (err != CL_SUCCESS) {
-        std::cerr << "Failed to set kernel argument 0." << std::endl;
-        clReleaseMemObject(inputBuffer);
-        clReleaseMemObject(outputBuffer);
-        return false;
+    clSetKernelArg(kernels[0], 0, sizeof(cl_mem), &inputBuffer);
+    clSetKernelArg(kernels[0], 1, sizeof(cl_mem), &outputBuffer);
+    clSetKernelArg(kernels[0], 2, sizeof(int), &width);
+    clSetKernelArg(kernels[0], 3, sizeof(int), &height);
+    clSetKernelArg(kernels[0], 4, sizeof(uint8_t), &own_thresh);
+    clSetKernelArg(kernels[0], 5, sizeof(uint8_t), &ngb_thresh);
+
+    
+    size_t localWorkSize[2] = { 16, 16 }; // Adjust as per your hardware capabilities
+    int gwsWidth = 0;
+    while (gwsWidth < width) {
+        gwsWidth += localWorkSize[0];
     }
 
-    err = clSetKernelArg(kernel, 1, sizeof(cl_mem), &outputBuffer);
-    if (err != CL_SUCCESS) {
-        std::cerr << "Failed to set kernel argument 1." << std::endl;
-        clReleaseMemObject(inputBuffer);
-        clReleaseMemObject(outputBuffer);
-        return false;
+    int gwsHeight = 0;
+    while (gwsHeight < height) {
+        gwsHeight += localWorkSize[1];
     }
 
-    // Enqueue kernel for execution
-    size_t globalSize = inputData.size();
-    err = clEnqueueNDRangeKernel(commandQueue, kernel, 1, nullptr, &globalSize, nullptr, 0, nullptr, nullptr);
+    size_t globalWorkSize[2] = { gwsWidth, gwsHeight };
+
+    err = clEnqueueNDRangeKernel(commandQueue, kernels[0], 2, nullptr, globalWorkSize, localWorkSize, 0, nullptr, nullptr);
     if (err != CL_SUCCESS) {
-        std::cerr << "Failed to enqueue kernel." << std::endl;
-        clReleaseMemObject(inputBuffer);
-        clReleaseMemObject(outputBuffer);
-        return false;
+    // Handle error
+        std::cerr << "Error enqueuing the kernel: " << err << std::endl;
+    }
+    // Wait for the kernel to flush
+
+    err = clFlush(commandQueue);
+    if (err != CL_SUCCESS) {
+        // Handle error
+        std::cerr << "Error flushing the command queue: " << err << std::endl;
     }
 
-    // Read the results back
-    outputData.resize(inputData.size());
-    err = clEnqueueReadBuffer(commandQueue, outputBuffer, CL_TRUE, 0, sizeof(float) * inputData.size(), outputData.data(), 0, nullptr, nullptr);
+    // Wait for the kernel to finish execution
+    err = clFinish(commandQueue);
     if (err != CL_SUCCESS) {
-        std::cerr << "Failed to read output buffer." << std::endl;
-        clReleaseMemObject(inputBuffer);
-        clReleaseMemObject(outputBuffer);
-        return false;
+        // Handle error
+        std::cerr << "Error finishing the command queue: " << err << std::endl;
     }
 
-    // Cleanup
+    // Read the results back from the output buffer
+    err = clEnqueueReadBuffer(commandQueue, outputBuffer, CL_TRUE, 0, sizeof(uint8_t) * width * height * 3, outputData, 0, nullptr, nullptr);
+    if (err != CL_SUCCESS) {
+        // Handle error
+        std::cerr << "Error reading the output buffer: " << err << std::endl;
+    }
+
+    // Release OpenCL resources
     clReleaseMemObject(inputBuffer);
     clReleaseMemObject(outputBuffer);
+    // Release other resources as necessary
 
     return true;
 }
 
 
 void ClManager::cleanup() {
-    if (kernel) clReleaseKernel(kernel);
+    for (auto kernel : kernels) {
+        clReleaseKernel(kernel);
+    }
     if (program) clReleaseProgram(program);
     if (commandQueue) clReleaseCommandQueue(commandQueue);
     if (context) clReleaseContext(context);
