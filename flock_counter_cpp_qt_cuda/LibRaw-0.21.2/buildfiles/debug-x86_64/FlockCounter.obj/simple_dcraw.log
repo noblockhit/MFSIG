@@ -1,3 +1,8 @@
-﻿  cl_manager.cpp
+﻿  image_class.cpp
+  image_loader.cpp
+  main.cpp
+  num_setting.cpp
+  cl_version.h: CL_TARGET_OPENCL_VERSION is not defined. Defaulting to 300 (OpenCL 3.0)
+  cl_version.h: CL_TARGET_OPENCL_VERSION is not defined. Defaulting to 300 (OpenCL 3.0)
   cl_version.h: CL_TARGET_OPENCL_VERSION is not defined. Defaulting to 300 (OpenCL 3.0)
   simple_dcraw.vcxproj -> D:\CODING\python\MFSIG\flock_counter_cpp_qt_cuda\LibRaw-0.21.2\buildfiles\debug-x86_64\FlockCounter.exe
