@@ -81,6 +81,7 @@ def reset_camera_properties():
     State.start_motor_and_prepare_recording_running = False
     State.image_count = 1
     State.recording_progress = None
+    State.current_recording_task = None
     State.current_image_index = 0
     State.busy_capturing = False
     State.with_bms_cam = False
@@ -97,6 +98,8 @@ def reset_camera_properties():
     State.lowercase_motor_steps = 1
     State.uppercase_motor_steps = 25
     State.sleep_time_after_step = 2.5
+    State.whatsapp_api_key = ""
+    State.whatsapp_number = ""
 
 
     State.load_configuration()
@@ -110,8 +113,11 @@ def reset_camera_properties():
 
 reset_camera_properties()
 
+
 @app.route("/settings/<_key>", methods=["GET"])
 def get_setting(_key):
+    if "whatsapp" in _key.lower():
+        return "Not so fast, i thought of this...", 200
     return str(getattr(State, _key.replace("-","_"), "")), 200
 
 @app.route("/settings/<_key>/<value>", methods=["POST"])
@@ -256,9 +262,11 @@ def set_camera(camera_idx):
         return "Currently recording, change the value when done or abort the program!", 400
     if State.curr_device is not None:
         reset_camera_properties()
-
-    State.curr_device = State.bms_enum[int(camera_idx)]
-
+    try:
+        State.curr_device = State.bms_enum[int(camera_idx)]
+    except AttributeError:
+        return "Failed to select this device, try loading this page again and reselecting the camera!", 400
+    
     ret = ""
     for idx, reso in cameraParser.get_current_devices_resolution_options(State.curr_device):
         ret += f'<option value="{idx}">{reso[0]} x {reso[1]}</option>\n'
@@ -306,7 +314,7 @@ def start_recording():
         return "Already started recording", 400
     
     if State.image_count <= 1:
-        return "You may not take less than 2 images!"
+        return "You may not take less than 2 images!", 400
 
     if State.image_count > abs(State.microscope_end - State.microscope_start):
         return "You may not take more images than Steps taken by the motor, this is redundant due to having multiple images in the same position.", 400

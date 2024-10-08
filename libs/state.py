@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from typing import Any, ClassVar, get_type_hints, Union, _UnionGenericAlias
-import types
+from typing import Any, ClassVar, get_type_hints, Union
+import subprocess
 import werkzeug.serving as serving
 from platformdirs import user_config_dir
 from pathlib import Path
@@ -33,8 +33,8 @@ SETTING_KEYS = {
     "lowercase_motor_steps": int,
     "uppercase_motor_steps": int,
     "sleep_time_after_step": float,
-    "whatsapp_number": int,
-    "whatsapp_api_key": int,
+    "whatsapp_number": str,
+    "whatsapp_api_key": str,
     "execution_mode": lambda s: {"False": False, "True": True}[s],
 }
 
@@ -92,9 +92,12 @@ abs_motor_type = type("Motor", (ABSType,), dict({
     "calibrate": lambda *_:_,
 }))
 
+def fake_snap_func(*_):
+    State.progress()
+
 abs_camera_type = type("Camera", (ABSType,), dict({
     "Close": lambda *_:_,
-    "Snap": lambda *_:(print("snapped"), State.progress())
+    "Snap": fake_snap_func
 }))
 
 @dataclass
@@ -122,6 +125,7 @@ class State(metaclass=Meta):
     recording_progress: ClassVar[Union[int, None]]
     current_image_index: ClassVar[Union[int, None]]
     busy_capturing: ClassVar[bool]
+    current_recording_task: ClassVar[Union[str, None]]
     
     ## user configurables
     steps_per_motor_rotation: ClassVar[int]
@@ -142,7 +146,8 @@ class State(metaclass=Meta):
 
     @classmethod
     def progress(cls):
-        State.recording_progress = int((State.current_image_index+1) / (State.image_count) * 100)
+        State.recording_progress = int((State.current_image_index) / (State.image_count) * 100)
+        print(State.recording_progress)
         State.busy_capturing = False
 
 
@@ -211,7 +216,7 @@ class State(metaclass=Meta):
         
         try:
             if "whatsapp_number" in j.keys():
-                State.whatsapp_number = j["whatsapp_number"]
+                State.whatsapp_number = str(j["whatsapp_number"])
         except ValueError:pass
 
         try:
@@ -221,6 +226,16 @@ class State(metaclass=Meta):
         
         try:
             if "execution_mode" in j.keys():
-                
                 State.execution_mode = j["execution_mode"]
         except ValueError:pass
+
+def outgoing_webrequest(func):
+    def wrapper(*args, **kwargs):
+        if State.isGPIO:
+            subprocess.run("sudo systemctl stop dnsmasq".split(" "))
+        ret = func(*args, **kwargs)
+        if State.isGPIO:
+            subprocess.run("sudo systemctl start dnsmasq".split(" "))
+        return ret
+    return wrapper
+        

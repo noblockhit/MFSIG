@@ -19,25 +19,28 @@ function popup(title, message, container_elem, color) {
     $(container_elem).append(el)
     
     el.on("pointerup", function(event) {
-        // $(event.target).closest(".popup-container").remove()
         removeFadeOut($(event.target).closest(".popup-container")[0])
     })
-    
 }
 
-$(document).ajaxError(function myErrorHandler(
+$(document).ajaxError(function ErrorHandler(
     event,
     xhr,
     ajaxOptions,
-    thrownError
+    thrownError,
+    errorCode
 ) {
-    const err = xhr.responseText;
     const container = $(".container")[0]
-    popup("An error has occured", err, container, "rgb(255, 0, 0)")
+    if (xhr.status == 0) {
+        err = "The connection to the server (raspberry) was interrupted."
+    } else {
+        err = xhr.responseText;
+    }
+    popup("An error occured!", err, container, "rgb(255, 0, 0)")
 });
 
 
-$(document).on("ajaxSuccess", function myMiscHandler(
+$(document).on("ajaxSuccess", function WarningHandler(
     event,
     xhr,
     ajaxOptions,

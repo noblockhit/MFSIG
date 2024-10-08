@@ -1,6 +1,8 @@
 import requests
-from .state import State
+from .state import State, outgoing_webrequest
 
+
+@outgoing_webrequest
 def send_text_to_whatsapp(message):
     if State.whatsapp_number == "" or State.whatsapp_api_key == "":
         return

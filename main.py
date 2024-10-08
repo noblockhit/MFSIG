@@ -1,25 +1,25 @@
 import time
 import datetime
-import sys
 import os
 import threading
 from libs import flask_app
 from libs.state import State
-import socket
 import websockets
 from websockets.server import serve
 import asyncio
 import time
 from libs.notifier import send_text_to_whatsapp
 from sbNative.runtimetools import get_path
-import subprocess
+import json
+
 
 def start_motor_and_prepare_recording():
-    while True:
-        if State.start_motor_and_prepare_recording_running:
-            return
-        State.start_motor_and_prepare_recording_running = True
+    if State.start_motor_and_prepare_recording_running:
+        return
+    State.start_motor_and_prepare_recording_running = True
 
+    while True:
+        State.current_recording_task = "No current task, waiting for recording start!"
         while True:
             if State.recording:
                 break
@@ -38,6 +38,7 @@ def start_motor_and_prepare_recording():
                 time.sleep(.001)
 
         if State.with_bms_cam:
+            State.current_recording_task = "Creating destination directory..."
             now = datetime.datetime.now()
             formated_datetime = now.strftime("%Y_%m_%d_at_%H_%M_%S")
 
@@ -45,6 +46,7 @@ def start_motor_and_prepare_recording():
             os.mkdir(str(State.final_image_dir))
 
         # making start smaller than end
+        State.current_recording_task = "Moving the motor to the start position..."
         if State.microscope_start > State.microscope_end:
             State.microscope_end, State.microscope_start = State.microscope_start, State.microscope_end
 
@@ -53,30 +55,33 @@ def start_motor_and_prepare_recording():
         if distance_to_start > 0:
             for _ in range(distance_to_start):
                 State.motor.step_forward()
-                time.sleep(0.001) ## not entirely sure why this is necessary, the motor stalls when not, but a delay should technically already be implemented into the step function, might need to change it to a clocking system in the future to streamline the delay regardless of code expense (time spent calculating) inbetween two steps
+                State.real_motor_position += 1
 
         elif distance_to_start < 0:
             for _ in range(-distance_to_start):
                 State.motor.step_backward()
-                time.sleep(0.001) ## not entirely sure why this is necessary, the motor stalls when not, but a delay should technically already be implemented into the step function, might need to change it to a clocking system in the future to streamline the delay regardless of code expense (time spent calculating) inbetween two steps
+                State.real_motor_position -= 1
 
         State.microscope_position = State.real_motor_position = State.microscope_start
 
+        State.current_recording_task = "Shortly resting to ensure stability..."
         time.sleep(3)
-        State.current_image_index = 0
 
-        State.camera.Snap(0)
         
         # start recording
+        State.current_image_index = 0
+        State.current_recording_task = "Taking pictures..."
         target_total_steps = State.microscope_end - State.microscope_start
-        avg_steps_per_image = target_total_steps / (State.image_count - 1)
+        
+        target_steps = []
 
+        for _i in range(0, State.image_count):
+            target_steps.append(int(State.microscope_start + target_total_steps * (_i / (State.image_count-1))))
 
-        for step in range(target_total_steps):
-            State.motor.step_forward()
-            State.real_motor_position += 1
-            if State.current_image_index * avg_steps_per_image > step:
-                continue
+        for ts_curr in target_steps:
+            for _ in range(ts_curr - State.real_motor_position):
+                State.motor.step_forward()
+                State.real_motor_position += 1
 
             time.sleep(State.shake_rest_delay)
             State.current_image_index += 1
@@ -84,7 +89,12 @@ def start_motor_and_prepare_recording():
             State.camera.Snap(0)
             while State.busy_capturing:
                 time.sleep(.1)
+
+        time.sleep(2)
+        State.recording_progress = 0
+        State.current_recording_task = "Resetting attributes and notifying you..."
         send_text_to_whatsapp("Your recording is done!")
+
         State.start_motor_and_prepare_recording_running = False
         State.recording = False
         try:
@@ -93,24 +103,25 @@ def start_motor_and_prepare_recording():
             pass
 
 
+def create_progress_response():
+    return json.dumps((State.recording_progress, f"{State.recording_progress}% ({State.current_recording_task})"))
+
+
 async def respond(websocket):
     try:
         async for msg in websocket:
-            if not str(msg).isdigit():
-                response_num = -1
-            else:
-                response_num = int(msg)
-
-            while State.recording_progress is None or response_num == State.recording_progress:
+            for _ in range(20):
+                if create_progress_response() != msg:
+                    break
                 time.sleep(.1)
-            await websocket.send(str(State.recording_progress))
-    except (websockets.exceptions.ConnectionClosedError, websockets.exceptions.ConnectionClosedOK):
-        pass
+                
+            await websocket.send(create_progress_response())
+    except (websockets.exceptions.ConnectionClosedError, websockets.exceptions.ConnectionClosedOK) as e:
+        print(e)
 
 async def websocket_coro():
     async with serve(respond, "0.0.0.0", 65432):
         await asyncio.Future()
-
 
 def start_ws():
     asyncio.run(websocket_coro())

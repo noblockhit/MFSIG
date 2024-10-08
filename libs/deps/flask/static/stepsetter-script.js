@@ -30,9 +30,18 @@ const getUrIParameter = function getUrlParameter(sParam) {
 
 $(window).on("load", () => {
     // load saved values
-
+    var total_steps;
     let dpr_value;
     let mspr_value;
+
+    $.get("/settings/microscope-start", (async = false), (start_pos) => {
+        $.get("/settings/microscope-end", (async = false), (end_pos) => {
+            total_steps = Math.abs(parseInt(start_pos) - parseInt(end_pos));
+            $("#total-steps").text(total_steps)
+            update_all();
+        });
+    });
+
     $.get("/settings/motor-rotation-units", (async = false), (value) => {
         const distances = {1:"m", 3:"mm", 6:"µm", 9: "nm", 12: "pm"}
         $(".unit").html(distances[value]);
@@ -48,12 +57,6 @@ $(window).on("load", () => {
         update_all();
     });
 
-    let temp_total_steps = getUrIParameter("total-steps")
-    if (temp_total_steps === false) {
-        temp_total_steps = 800;
-    }
-    $("#total-steps").text(temp_total_steps)
-
     let progressBar = document.getElementById("recording-progress-beam");
     let progressNum = document.getElementById("progress-value-num")
     progressBar.style.width = "0%";
@@ -68,8 +71,9 @@ $(window).on("load", () => {
 
     // receive a message from the server
     socket.addEventListener("message", ({ data }) => {
-        progressBar.style.width = `${data}%`;
-        progressNum.innerHTML = `${data}%`
+        const processed_data = $.parseJSON(data);
+        progressBar.style.width = `${processed_data[0]}%`;
+        progressNum.innerHTML = `${processed_data[1]}`
         socket.send(data);
     });
 
@@ -81,8 +85,6 @@ $(window).on("load", () => {
 
     let idd_value = idd_input.value;
     let tia_value = tia_input.value;
-
-    const total_steps = parseFloat($("#total-steps").text())
 
     let latest_typed = tia_input;
 

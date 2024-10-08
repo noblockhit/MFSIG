@@ -1,6 +1,5 @@
 import time
 import atexit
-# 400 schritte sind pi mal daumen eine Umdrehung
 from .state import State, abs_camera_type, abs_motor_type
 
 
@@ -24,47 +23,49 @@ class Motor(abs_motor_type):
         for pin in pins:
             GPIO.setup(pin, GPIO.OUT)
             p_off(pin)
-
-        self.step = 0
         self.pins = pins
-        self.pins_dict = {pin: False for pin in pins}
-        self.pin_on(self.pins[0])
-        
-        atexit.register(self.cleanup)
-    
-    def pin_on(self, pin):
-        self.pins_dict[pin] = True
-        p_on(pin)
+        self.bake_instructions()
 
-    def pin_off(self, pin):
-        self.pins_dict[pin] = False
-        p_off(pin)
+        p_on(self.pins[0])
+        self.step = self.instructuion_length * 2
+    
+
+    def bake_instructions(self):
+        self.instructions = {}
+        for idx in range(len(self.pins)):
+            self.instructions[idx*2] = self.pins[(idx+1) % len(self.pins)]
+            self.instructions[idx*2 + 1] = self.pins[idx]
+
+        self.instructuion_length = len(self.instructions)
+
+
 
     def step_forward(self):
-        self.step += 1
-        if self.step == len(self.pins) * 2:
-            self.step = 0
-
+        start = time.perf_counter_ns()
         if self.step % 2 == 0:
-            self.pin_on(self.pins[self.step//2])
-            self.pin_off(self.pins[(self.step//2-1) % len(self.pins)])
-        else:
-            self.pin_on(self.pins[(self.step//2+1) % len(self.pins)])
-            
-        time.sleep(State.sleep_time_after_step / 1000)
+            p_on(self.instructions[self.step % self.instructuion_length])
+
+        if self.step % 2 == 1:
+            p_off(self.instructions[self.step % self.instructuion_length])
+        
+        self.step += 1
+        if self.step > self.instructuion_length*4:
+            self.step = (self.step % self.instructuion_length) + self.instructuion_length
+        time.sleep(max(0, (State.sleep_time_after_step / 1000) - (time.perf_counter_ns() - start)*10**-9))
 
     def step_backward(self):
-        self.step -= 1
-        if self.step < 0:
-            self.step = len(self.pins)*2-1
-
+        start = time.perf_counter_ns()
         if self.step % 2 == 0:
-            self.pin_on(self.pins[self.step//2])
-            self.pin_off(self.pins[(self.step//2+1) % len(self.pins)])
-        else:
-            self.pin_on(self.pins[(self.step//2) % len(self.pins)])
-            
-        time.sleep(State.sleep_time_after_step / 1000)
+            p_on(self.instructions[(self.step-1) % self.instructuion_length])
+
+        if self.step % 2 == 1:
+            p_off(self.instructions[(self.step-1) % self.instructuion_length])
+        
+        self.step -= 1
+
+        if self.step < self.instructuion_length:
+            self.step = self.step + self.instructuion_length
+        time.sleep(max(0, (State.sleep_time_after_step / 1000) - (time.perf_counter_ns() - start)*10**-9))
 
 
     def cleanup(self):
