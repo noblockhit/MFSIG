@@ -116,7 +116,7 @@ def get_setting(_key):
 
 @app.route("/settings/<_key>/<value>", methods=["POST"])
 def set_setting(_key, value):
-    _perm_and_reload_requiering = ["GPIO_camera_pin", "GPIO_motor_pins"]
+    _perm_and_reload_requiering = ["GPIO_camera_pin", "GPIO_motor_pins", "execution-mode"]
 
     key = _key.replace("-","_")
 

@@ -25,7 +25,9 @@ def start_motor_and_prepare_recording():
                 break
             
             if State.real_motor_position < State.microscope_position:
+                start = time.perf_counter_ns()
                 State.real_motor_position += 1
+                print(f"Setting motor position took {(time.perf_counter_ns() - start) / 10000:.2f} ms")
                 State.motor.step_forward()
 
             elif State.real_motor_position > State.microscope_position:
