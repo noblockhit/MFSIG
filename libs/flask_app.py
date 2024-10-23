@@ -105,6 +105,12 @@ def reset_camera_properties():
 
 
     State.load_configuration()
+    if State.execution_mode:
+        print("logging level is now only errors")
+        log.setLevel(logging.ERROR)
+    else:
+        print("logging everything")
+        log.setLevel(logging.INFO)
 
     if State.isGPIO:
         State.motor = gpio_handler.Motor(State.GPIO_motor_pins)
