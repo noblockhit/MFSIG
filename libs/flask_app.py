@@ -12,6 +12,8 @@ import json
 from libs import cameraParser
 from .state import State, SETTING_KEYS, abs_motor_type, abs_camera_type
 import socket
+import logging
+log = logging.getLogger('werkzeug')
 
 
 org_mk_server = serving.make_server
@@ -123,9 +125,9 @@ def get_setting(_key):
 @app.route("/settings/<_key>/<value>", methods=["POST"])
 def set_setting(_key, value):
     _perm_and_reload_requiering = ["GPIO_camera_pin", "GPIO_motor_pins", "execution-mode"]
-
+    
     key = _key.replace("-","_")
-
+    print(key)
     if key not in SETTING_KEYS:
         return f"There is no such setting like {_key}!", 400
     
@@ -163,6 +165,15 @@ def set_setting(_key, value):
 
         else:
             return "There is no GPIO connection so this couldn't be tested, the value was set regardless!", 299
+    
+    if key == "execution_mode":
+        print("execution mode changed")
+        if State.execution_mode:
+            print("logging level is now only errors")
+            log.setLevel(logging.ERROR)
+        else:
+            print("logging everything")
+            log.setLevel(logging.INFO)
     
     if key in _perm_and_reload_requiering:
         return "Warning, the changes made to the motor to prepare a recording have been reset by a reload", 299
