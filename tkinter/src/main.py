@@ -11,8 +11,6 @@ import gc
 import os
 import cv2
 import numpy as np
-import pycuda.driver as drv
-from pycuda.compiler import SourceModule
 import copy
 from image_array_converter import convert_color_arr_to_image, convert_gray_arr_to_image
 from math import sqrt
@@ -22,6 +20,8 @@ import subprocess
 import sys
 import statistics
 from rawloader import load_raw_image
+import pyopencl as cl
+
 
 
 MAX_CORES_FOR_MP = mp.cpu_count()-1
@@ -68,27 +68,52 @@ def save_image(name, cv2_image):
 def find_nearest_pow_2(val):
     for i in range(32):
         if val < 2**i:
-            return 2**i
-        
+            return 2**i    
+
+def find_fastest_opencl_device():
+    platforms = cl.get_platforms()  # Get all platforms
+    best_device = None
+    best_score = 0  # We will calculate a "score" to evaluate devices
+    
+    # Iterate over all platforms and their devices
+    for platform in platforms:
+        for device in platform.get_devices():
+            # Get device properties
+            compute_units = device.max_compute_units
+            clock_frequency = device.max_clock_frequency
+            global_mem_size = device.global_mem_size
+            local_mem_size = device.local_mem_size
+            
+            # Compute a score (this is a heuristic, you can adjust this based on your needs)
+            # We prioritize more compute units, higher clock frequency, and larger memory
+            score = (compute_units * clock_frequency) + (global_mem_size // (1024 * 1024)) + (local_mem_size // 1024)
+            
+            # Keep track of the best device based on this score
+            if score > best_score:
+                best_score = score
+                best_device = device
+    
+    return best_device
+
+
 
 def render(radius, image_arr_dict, message_queue):
-    drv.init()
-    dev = drv.Device(0)
-    ctx = dev.make_context()
+    
+    ## rewrite this to use pyopencl
+    best_device = find_fastest_opencl_device()
+    ctx = cl.Context([best_device])
+    max_work_group_size = best_device.max_work_group_size
+    queue = cl.CommandQueue(ctx)
+    
 
-    mod = SourceModule("""
-    __device__ int get_pos(int x, int y, int width, int color) {
+    source = """
+    int get_pos(int x, int y, int width, int color) {
         return (y * width + x) * 3 + color;
     }
 
-    __global__ void compareAndPushSharpnesses(char *destination, double *sharpnesses, char *source, int *w_arr, int *h_arr,
-                    int *r_arr) {
-        int width = w_arr[0];
-        int height = h_arr[0];
-        int radius = r_arr[0];
-        
-        
-        const int thrd_i = blockIdx.x * blockDim.x + threadIdx.x;
+    kernel void compareAndPushSharpnesses(__global char *destination, __global double *sharpnesses, __global char *source,
+                                          int width, int height, int radius) {
+        const int thrd_i = get_global_id(0);
         
         if (thrd_i > width*height) {
             return;
@@ -130,36 +155,47 @@ def render(radius, image_arr_dict, message_queue):
             destination[get_pos(center_x, center_y, width, 1)] = center_g;
             destination[get_pos(center_x, center_y, width, 2)] = center_r;
         }
-    }""")
+    }"""
 
-    compareAndPushSharpnesses = mod.get_function("compareAndPushSharpnesses")
+    program = cl.Program(ctx, source).build()
 
     img1 = list(image_arr_dict.values())[0]
-    MAX_THREADS = 1024
     
     width = int(img1.shape[1])
     height = int(img1.shape[0])
+    total_pixels = width*height
 
-    composite_image_gpu = np.zeros((width * height * 3), dtype=np.uint8)
-    sharpnesses_gpu = np.zeros((width * height), dtype=float)
-    previous_sharpnesses = [np.zeros((width * height), dtype=float)]
-    changes_arr = np.zeros((width * height), dtype=np.uint8)
+    composite_image_gpu = np.zeros((total_pixels * 3), dtype=np.uint8)
+    sharpnesses_gpu = np.zeros((total_pixels), dtype=np.float64)
+    previous_sharpnesses = [np.zeros((total_pixels), dtype=np.float64)]
+    changes_arr = np.zeros((total_pixels), dtype=np.uint8)
 
+    mf = cl.mem_flags
+    destination_buf = cl.Buffer(ctx, mf.READ_WRITE | mf.COPY_HOST_PTR, hostbuf=composite_image_gpu)
+    sharpnesses_buf = cl.Buffer(ctx, mf.READ_WRITE | mf.COPY_HOST_PTR, hostbuf=sharpnesses_gpu)
+    
     for i, (name, rgb) in enumerate(image_arr_dict.items()):
-        bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
-
-        total_pixels = width*height
-
-        grid_width = find_nearest_pow_2(total_pixels/MAX_THREADS)
+        bgr_flattened = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR).flatten(order="K")
         
-        previous_sharpnesses.append(np.zeros((width * height), dtype=np.uint32))
+        previous_sharpnesses.append(np.zeros((total_pixels), dtype=np.uint32))
+        source_buf = cl.Buffer(ctx, mf.READ_WRITE | mf.COPY_HOST_PTR, hostbuf=bgr_flattened)
         try:
-            compareAndPushSharpnesses(
-                drv.InOut(composite_image_gpu), drv.InOut(sharpnesses_gpu), drv.In(bgr.flatten(order="K")),
-                drv.In(np.array([width])), drv.In(np.array([height])), drv.In(np.array([radius])),
-                block=(MAX_THREADS, 1, 1), grid=(grid_width, 1))
+
+            grid_width = find_nearest_pow_2(total_pixels)
+            # Execute the kernel
+            program.compareAndPushSharpnesses.set_scalar_arg_dtypes([None, None, None, np.int32, np.int32, np.int32])
+            program.compareAndPushSharpnesses(
+                queue, (grid_width,), (max_work_group_size,),
+                destination_buf, sharpnesses_buf, source_buf, np.int32(width), np.int32(height), np.int32(radius)
+            )
+
+            # Wait for the operation to complete
+            queue.finish()
+
+            # Retrieve results from the GPU
+            cl.enqueue_copy(queue, composite_image_gpu, destination_buf)
+            cl.enqueue_copy(queue, sharpnesses_gpu, sharpnesses_buf)
         except:
-            ctx.pop()
             raise
         previous_sharpnesses[i+1] = copy.deepcopy(sharpnesses_gpu)
         changed_indecies = np.argwhere(previous_sharpnesses[i+1] - previous_sharpnesses[i] > 0)
@@ -167,7 +203,6 @@ def render(radius, image_arr_dict, message_queue):
         np.put(changes_arr, changed_indecies, [i+1])
         message_queue.put((name, i, len(image_arr_dict)))
 
-    ctx.pop()
     return width, height, changes_arr, composite_image_gpu, sharpnesses_gpu
 
 
