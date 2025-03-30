@@ -102,6 +102,7 @@ def start_motor_and_prepare_recording():
             # while State.busy_capturing:
             #     time.sleep(.1)
             # State.leds.off(1)
+            
             State.current_image_index += 1
 
         time.sleep(.5)
