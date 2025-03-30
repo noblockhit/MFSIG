@@ -87,22 +87,22 @@ def start_motor_and_prepare_recording():
 
             time.sleep(State.shake_rest_delay)
             
-            State.leds.on(0)
+            # State.leds.on(0)
             State.busy_capturing = True
             State.current_lighting_index = 0
             State.camera.Snap(0) ## res index 0 and lighting index 0
             while State.busy_capturing:
                 time.sleep(.1)
 
-            State.leds.off(0)
-            State.leds.on(1)
-            State.busy_capturing = True
-            State.current_lighting_index = 1
-            State.camera.Snap(0) ## res index 0 and lighting index 1 
-            while State.busy_capturing:
-                time.sleep(.1)
-            State.leds.off(1)
-            State.current_image_index += 1
+            # State.leds.off(0)
+            # State.leds.on(1)
+            # State.busy_capturing = True
+            # State.current_lighting_index = 1
+            # State.camera.Snap(0) ## res index 0 and lighting index 1 
+            # while State.busy_capturing:
+            #     time.sleep(.1)
+            # State.leds.off(1)
+            # State.current_image_index += 1
 
         time.sleep(.5)
         State.recording_progress = 0
